@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{9a9ecec6-e717-46bf-920f-4a90c784a010}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{2be9c0c1-3181-46c9-b7af-d0cbc7e20f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{4ee584c3-d0a7-49d4-ae8f-9dd81aa9bfc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{7f1afdc0-3ccc-4715-8483-8198a71f3704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Singleton">
+      <UniqueIdentifier>{3da3601f-9f03-47dd-a170-5e27247a047b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{5ccd2fb6-888a-4067-af82-7c74d9ade808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\GameScene">
+      <UniqueIdentifier>{dc8f8f05-8e0c-4b37-905a-a0678b9ff656}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="App\D3DApp.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Math.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\ShortCut.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Trace.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="System\GameTimer.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\Keyboard.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="App\MainApp.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="System\Camera.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Vertex.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\RenderStates.cpp">
+      <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\Effects.cpp">
+      <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Square.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton\TextureManager.cpp">
+      <Filter>Singleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton\SceneManager.cpp">
+      <Filter>Singleton</Filter>
+    </ClCompile>
+    <ClCompile Include="System\GameScene\TestScene.cpp">
+      <Filter>System\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="System\GameScene.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\GameScene\BackGroundScene.cpp">
+      <Filter>System\GameScene</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="App\D3DApp.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Math.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\ShortCut.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Trace.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="System\GameTimer.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton\SingletonBase.h">
+      <Filter>Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="System\Keyboard.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="App\MainApp.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="System\Camera.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Vertex.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\RenderStates.h">
+      <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\Effects.h">
+      <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Square.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton\TextureManager.h">
+      <Filter>Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton\SceneManager.h">
+      <Filter>Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="System\GameScene\TestScene.h">
+      <Filter>System\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="System\GameScene.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\GameScene\BackGroundScene.h">
+      <Filter>System\GameScene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Object\Square.fx">
+      <Filter>Object</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
