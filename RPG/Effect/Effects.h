@@ -17,21 +17,23 @@ protected:
 };
 #pragma endregion
 
-#pragma region SquareEffect
-class SquareEffect : public Effect
+#pragma region SpriteEffect
+class SpriteEffect : public Effect
 {
 public:
-	SquareEffect(ID3D11Device* device, const std::tstring& filename);
-	~SquareEffect();
+	SpriteEffect(ID3D11Device* device, const std::tstring& filename);
+	~SpriteEffect();
 
 	void SetWorld(CXMMATRIX M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetWorldViewProj(CXMMATRIX M) const { mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexture(ID3D11ShaderResourceView* tex) const { mfxTexture->SetResource(tex); }
 
-	ID3DX11EffectTechnique* mTech;
+	ID3DX11EffectTechnique* mTechTexture;
+	ID3DX11EffectTechnique* mTechColor;
 	ID3DX11EffectMatrixVariable* mfxWorld;
 	ID3DX11EffectMatrixVariable* mfxWorldViewProj;
 	ID3DX11EffectShaderResourceVariable* mfxTexture;
+	ID3DX11EffectVectorVariable* mfxTextureDiffuse;
 
 };
 #pragma endregion
@@ -43,6 +45,6 @@ public:
 	static void Init(ID3D11Device* device);
 	static void Release();
 
-	static unique_ptr<SquareEffect> SquareFX;
+	static unique_ptr<SpriteEffect> SpriteFX;
 };
 #pragma endregion

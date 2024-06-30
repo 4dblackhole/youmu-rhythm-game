@@ -11,6 +11,11 @@ public:
 	HWND MainWnd() const;
 	float AspectRatio() const;
 
+	auto GetWidth() const { return mClientWidth; }
+	auto GetHeight() const { return mClientHeight; }
+	auto GetDevice() const { return md3dDevice; }
+	auto GetDeviceContext() const { return  md3dImmediateContext; }
+
 	int Run(); //main thread
 
 	//Framework methods
@@ -24,6 +29,9 @@ public:
 	virtual void OnMouseDown(WPARAM btnState, int x, int y) {}
 	virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
 	virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
+
+	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) {}
+	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) {}
 
 protected:
 	bool InitMainWindow();

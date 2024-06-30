@@ -24,18 +24,20 @@ Effect::~Effect()
 
 #pragma endregion
 
-#pragma region SquareEffect
-SquareEffect::SquareEffect(ID3D11Device* device, const std::tstring& filename)
+#pragma region SpriteEffect
+SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
 	: Effect(device, filename)
 {
-	mTech = mFX->GetTechniqueByName("SquareTech");
+	mTechTexture = mFX->GetTechniqueByName("TechTexture");
+	mTechColor = mFX->GetTechniqueByName("TechColor");
 
 	mfxWorld = mFX->GetVariableByName("gWorld")->AsMatrix();
 	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	mfxTexture = mFX->GetVariableByName("gTexture")->AsShaderResource();
+	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();
 }
 
-SquareEffect::~SquareEffect()
+SpriteEffect::~SpriteEffect()
 {
 }
 
@@ -43,11 +45,11 @@ SquareEffect::~SquareEffect()
 
 #pragma region Effects
 
-unique_ptr<SquareEffect> Effects::SquareFX;
+unique_ptr<SpriteEffect> Effects::SpriteFX;
 
 void Effects::Init(ID3D11Device* device)
 {
-	SquareFX.reset(new SquareEffect(device, L"Object/Square.fxo"));
+	SpriteFX.reset(new SpriteEffect(device, L"Object/Sprite.fxo"));
 }
 
 void Effects::Release()

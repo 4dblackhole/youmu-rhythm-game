@@ -157,15 +157,17 @@
     <ClCompile Include="App\MainApp.cpp" />
     <ClCompile Include="Effect\Effects.cpp" />
     <ClCompile Include="Effect\RenderStates.cpp" />
+    <ClCompile Include="GameScene\LogoScene.cpp" />
+    <ClCompile Include="GameScene\TestScene.cpp" />
+    <ClCompile Include="GameScene\TitleScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object\Square.cpp" />
+    <ClCompile Include="Object\BackGround.cpp" />
+    <ClCompile Include="Object\Sprite.cpp" />
     <ClCompile Include="Object\Vertex.cpp" />
     <ClCompile Include="Singleton\SceneManager.cpp" />
     <ClCompile Include="Singleton\TextureManager.cpp" />
     <ClCompile Include="System\Camera.cpp" />
     <ClCompile Include="System\GameScene.cpp" />
-    <ClCompile Include="System\GameScene\BackGroundScene.cpp" />
-    <ClCompile Include="System\GameScene\TestScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
     <ClCompile Include="Utility\Math.cpp" />
@@ -178,15 +180,17 @@
     <ClInclude Include="Effect\Effects.h" />
     <ClInclude Include="Effect\RenderStates.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="Object\Square.h" />
+    <ClInclude Include="GameScene\LogoScene.h" />
+    <ClInclude Include="GameScene\TestScene.h" />
+    <ClInclude Include="GameScene\TitleScene.h" />
+    <ClInclude Include="Object\BackGround.h" />
+    <ClInclude Include="Object\Sprite.h" />
     <ClInclude Include="Object\Vertex.h" />
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
     <ClInclude Include="Singleton\TextureManager.h" />
     <ClInclude Include="System\Camera.h" />
     <ClInclude Include="System\GameScene.h" />
-    <ClInclude Include="System\GameScene\BackGroundScene.h" />
-    <ClInclude Include="System\GameScene\TestScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />
     <ClInclude Include="Utility\Math.h" />
@@ -194,7 +198,7 @@
     <ClInclude Include="Utility\Trace.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Object\Square.fx">
+    <CustomBuild Include="Object\Sprite.fx">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>

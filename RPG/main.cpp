@@ -1,6 +1,8 @@
 ﻿#include "framework.h"
 #include "App/MainApp.h"
 
+const D3DApp* App;
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,
@@ -12,6 +14,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 #endif
 
 	MainApp theApp(hInstance);
+	App = &theApp;
 
 	if (!theApp.Init()) return 0;
 	return theApp.Run();

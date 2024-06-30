@@ -20,6 +20,8 @@ public:
 	static std::string WstringToUTF8(const std::wstring& buf);
 
 	static void TraceTimingPoint();
+
+	static float GetOrthoWidth(float w, float h);
 };
 
 template <typename T>

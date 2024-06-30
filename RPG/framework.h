@@ -15,6 +15,7 @@ using namespace Microsoft::WRL;
 #include <dxgi.h>
 #include <DirectXMath.h>
 #include <d3dx11effect.h>
+
 using namespace DirectX;
 
 
@@ -50,7 +51,7 @@ using namespace std;
 #include "Singleton/SceneManager.h"
 
 #include "App/D3DApp.h"
-extern D3DApp* App;
+extern const D3DApp* App;
 
 constexpr UINT StandardWidth = 1280;
 constexpr UINT StandardHeight = 720;

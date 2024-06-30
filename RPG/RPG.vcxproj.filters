@@ -31,7 +31,7 @@
     <Filter Include="Effect">
       <UniqueIdentifier>{5ccd2fb6-888a-4067-af82-7c74d9ade808}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\GameScene">
+    <Filter Include="GameScene">
       <UniqueIdentifier>{dc8f8f05-8e0c-4b37-905a-a0678b9ff656}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -72,7 +72,7 @@
     <ClCompile Include="Effect\Effects.cpp">
       <Filter>Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Object\Square.cpp">
+    <ClCompile Include="Object\Sprite.cpp">
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Singleton\TextureManager.cpp">
@@ -81,14 +81,20 @@
     <ClCompile Include="Singleton\SceneManager.cpp">
       <Filter>Singleton</Filter>
     </ClCompile>
-    <ClCompile Include="System\GameScene\TestScene.cpp">
-      <Filter>System\GameScene</Filter>
-    </ClCompile>
     <ClCompile Include="System\GameScene.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="System\GameScene\BackGroundScene.cpp">
-      <Filter>System\GameScene</Filter>
+    <ClCompile Include="Object\BackGround.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene\LogoScene.cpp">
+      <Filter>GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene\TestScene.cpp">
+      <Filter>GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene\TitleScene.cpp">
+      <Filter>GameScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,7 +137,7 @@
     <ClInclude Include="Effect\Effects.h">
       <Filter>Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Object\Square.h">
+    <ClInclude Include="Object\Sprite.h">
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="Singleton\TextureManager.h">
@@ -140,18 +146,24 @@
     <ClInclude Include="Singleton\SceneManager.h">
       <Filter>Singleton</Filter>
     </ClInclude>
-    <ClInclude Include="System\GameScene\TestScene.h">
-      <Filter>System\GameScene</Filter>
-    </ClInclude>
     <ClInclude Include="System\GameScene.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="System\GameScene\BackGroundScene.h">
-      <Filter>System\GameScene</Filter>
+    <ClInclude Include="Object\BackGround.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene\LogoScene.h">
+      <Filter>GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene\TestScene.h">
+      <Filter>GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene\TitleScene.h">
+      <Filter>GameScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Object\Square.fx">
+    <CustomBuild Include="Object\Sprite.fx">
       <Filter>Object</Filter>
     </CustomBuild>
   </ItemGroup>

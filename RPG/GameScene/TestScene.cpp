@@ -3,25 +3,28 @@
 
 TestScene::TestScene() : sq(0.0f, 0.0f, 640.0f, 480.0f), sq2(300, 100, 259, 224)
 {
+	sq.SetTexture(GETTEXTURE("test"));
+	sq2.SetTexture(GETTEXTURE("myon"));
 }
 
 TestScene::~TestScene()
 {
 }
 
-void TestScene::Init()
+void TestScene::BeginScene()
 {
-	sq.SetTexture(GETTEXTURE("test"));
-	sq2.SetTexture(GETTEXTURE("myon"));
 }
 
-void TestScene::OnResize()
+void TestScene::OnResize(float newW, float newH)
 {
 }
 
 void TestScene::Update(float dt)
 {
-	if (KEYBOARD.Down(VK_F1)) SCENEMANAGER.ChangeScene("bg");
+	if (KEYBOARD.Down(VK_ESCAPE))
+	{
+		SCENEMANAGER.ChangeScene(SceneManager::Name::Intro);
+	}
 }
 
 void TestScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
@@ -30,6 +33,6 @@ void TestScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	sq2.Render(deviceContext, cam);
 }
 
-void TestScene::Release()
+void TestScene::EndScene()
 {
 }

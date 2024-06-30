@@ -290,6 +290,14 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
+	case WM_KEYDOWN:
+		OnKeyDown(wParam, lParam);
+		return 0;
+
+	case WM_KEYUP:
+		OnKeyUp(wParam, lParam);
+		return 0;
+
 	default: break;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -341,7 +349,7 @@ bool D3DApp::InitDirect3D()
 {
 	//Create the device and device context
 
-	UINT createDeviceFlags = 0;
+	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #if defined(DEBUG) || defined(_DEBUG)  
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -421,6 +429,10 @@ bool D3DApp::InitDirect3D()
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);
 	ReleaseCOM(dxgiFactory);
+
+	TextureManager::GetInstance().InitTextures(md3dDevice);
+	SceneManager::GetInstance();
+
 
 	OnResize();
 

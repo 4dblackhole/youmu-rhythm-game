@@ -1,30 +1,34 @@
 #pragma once
+#include "framework.h"
 
-class Camera;
-
-class Square
+class Sprite
 {
 public:
-	Square();
-	Square(float w, float h);
-	Square(float x, float y, float w, float h);
-	~Square();
+	Sprite();
+	Sprite(float w, float h);
+	Sprite(float x, float y, float w, float h);
+	Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse);
+	virtual ~Sprite();
 
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
+	void UpdateWorld();
 	void Render(ID3D11DeviceContext*, const Camera&) const;
 
 	static void BulidBuffer(ID3D11Device*);
 	static void BuildLayout(ID3D11Device*);
 
-
-private:
-	void Init(float x, float y, float w, float h);
-
-	float x, y, w, h;
-
 	XMFLOAT2 Scale;
 	XMFLOAT3 Rotation;
 	XMFLOAT3 Position;
+
+	XMFLOAT4 Diffuse;
+
+	bool colorMode = false;
+
+private:
+	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse);
+
+	float x, y, w, h;
 
 	XMFLOAT4X4 mWorld;
 	

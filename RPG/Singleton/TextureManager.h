@@ -11,6 +11,13 @@ public:
 	void InitTextures(ID3D11Device* device);
 	const ComPtr<ID3D11ShaderResourceView>& GetTexture(const string& str);
 
+	class Name
+	{
+	public:
+		static constexpr LPCSTR fmodLogo = "fmod Logo";
+		static constexpr LPCSTR Title = "Title";
+	};
+
 private:
 	using TextureList = map<const string, ComPtr<ID3D11ShaderResourceView>>;
 	TextureList textureList;

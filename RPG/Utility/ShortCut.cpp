@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "ShortCut.h"
 
 using namespace std;
@@ -27,4 +28,9 @@ void ShortCut::TraceTimingPoint()
     INT64 t;
     QueryPerformanceCounter((LARGE_INTEGER*)&t);
     TRACE(_T("%lfms\n"), (float)((float)(t % 10000000) / 100) * 0.01f);
+}
+
+float ShortCut::GetOrthoWidth(float w, float h)
+{
+    return (float)w * ((float)StandardHeight / (float)h);
 }

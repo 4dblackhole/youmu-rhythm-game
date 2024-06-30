@@ -4,8 +4,7 @@
 #include "Singleton/TextureManager.h"
 #include "Singleton/SceneManager.h"
 
-#include "System/GameScene/TestScene.h"
-#include "System/GameScene/BackGroundScene.h"
+#include "GameScene/TitleScene.h"
 
 MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight)
@@ -19,18 +18,22 @@ MainApp::~MainApp()
 	Effects::Release();
 }
 
+void MainApp::InitGameScenes()
+{
+	GameScene* scene = new TitleScene;
+	SCENEMANAGER.AddScene(SceneManager::Name::Title, move(scene));
+
+}
+
 bool MainApp::Init()
 {
 	if (!__super::Init())return false;
 
 	RenderStates::Init(md3dDevice);
 	Effects::Init(md3dDevice);
-	TextureManager::GetInstance().InitTextures(md3dDevice);
 
-	TestScene* scene = new TestScene;
-	BackGroundScene* scene2 = new BackGroundScene;
-	SCENEMANAGER.InitScene("test", move(scene));
-	SCENEMANAGER.AddScene("bg", move(scene2));
+	InitGameScenes();
+
 
 	BuildBuffer();
 	BuildLayout();
@@ -48,7 +51,8 @@ bool MainApp::Init()
 void MainApp::OnResize()
 {
 	__super::OnResize();
-	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight/ (float)mClientHeight), (float)StandardHeight);
+	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight / (float)mClientHeight), (float)StandardHeight);
+	SCENEMANAGER.GetCurrentScene()->OnResize((float)mClientWidth, (float)mClientHeight);
 }
 
 void MainApp::UpdateScene(float dt)
@@ -64,9 +68,6 @@ void MainApp::DrawScene()
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	SCENEMANAGER.GetCurrentScene()->Render(md3dImmediateContext, mCamera);
-
-	//sq.Render(md3dImmediateContext, mCamera);
-	//sq2.Render(md3dImmediateContext, mCamera);
 
 	HR(mSwapChain->Present(0, 0));
 }
@@ -88,12 +89,22 @@ void MainApp::OnMouseMove(WPARAM btnState, int x, int y)
 	SCENEMANAGER.GetCurrentScene()->OnMouseMove(btnState, x, y);
 }
 
+void MainApp::OnKeyDown(WPARAM wParam, LPARAM lParam)
+{
+	SCENEMANAGER.GetCurrentScene()->OnKeyDown(wParam, lParam);
+}
+
+void MainApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
+{
+	SCENEMANAGER.GetCurrentScene()->OnKeyUp(wParam, lParam);
+}
+
 void MainApp::BuildBuffer()
 {
-	Square::BulidBuffer(md3dDevice);
+	Sprite::BulidBuffer(md3dDevice);
 }
 
 void MainApp::BuildLayout()
 {
-	Square::BuildLayout(md3dDevice);
+	Sprite::BuildLayout(md3dDevice);
 }
