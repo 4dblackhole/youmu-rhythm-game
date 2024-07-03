@@ -1,3 +1,8 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "Utility/ShortCut.h"
+
 #include "Effects.h"
 
 #pragma region Effect
@@ -45,7 +50,7 @@ SpriteEffect::~SpriteEffect()
 
 #pragma region Effects
 
-unique_ptr<SpriteEffect> Effects::SpriteFX;
+std::unique_ptr<SpriteEffect> Effects::SpriteFX;
 
 void Effects::Init(ID3D11Device* device)
 {

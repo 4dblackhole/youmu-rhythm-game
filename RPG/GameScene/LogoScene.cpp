@@ -2,7 +2,9 @@
 
 #include "LogoScene.h"
 
-LogoScene::LogoScene() : fmodLogo(0.0f, 0.0f, 728.0f, 192.0f), background((float)StandardWidth, (float)StandardHeight)
+LogoScene::LogoScene() : 
+	fmodLogo(0.0f, 0.0f, 728.0f, 192.0f), 
+	background(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,1 }, true)
 {
 	Init();
 }
@@ -52,7 +54,7 @@ void LogoScene::Release()
 {
 }
 
-void LogoScene::BeginScene()
+void LogoScene::BeginScene(float newW, float newH)
 {
 	//Key input state reset
 	ZeroMemory(keyState, sizeof(keyState));
@@ -61,9 +63,10 @@ void LogoScene::BeginScene()
 	bgTimer.Reset();
 	state = LogoScene::Normal;
 	
-	//Logo image setting reset
-	OnResize((float)App->GetWidth(), (float)App->GetHeight());
 	fmodLogo.Diffuse.w = 1.0f;
+
+	//Logo image setting reset
+	OnResize(newW, newH);
 }
 
 void LogoScene::OnResize(float newW, float newH)

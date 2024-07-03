@@ -123,12 +123,18 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilView);
 	ReleaseCOM(mDepthStencilBuffer);
 
+	//Release D2 BackBuffer and RenderTarget
+	DIRECTWRITE.ResetBackBuffer_Release();
+
 	//Resize the swap chain and recreate the RTV
 	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-	ID3D11Texture2D* backBuffer;
-	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
-	HR(md3dDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
-	ReleaseCOM(backBuffer);
+
+	ComPtr<ID3D11Texture2D> backBuffer;
+	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
+	HR(md3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, &mRenderTargetView));
+
+	//Direct Write
+	DIRECTWRITE.ResetBackBuffer(mSwapChain);
 
 	//Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -172,6 +178,7 @@ void D3DApp::OnResize()
 	mScreenViewport.MaxDepth = 1.0f;
 
 	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
+
 }
 
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -425,17 +432,17 @@ bool D3DApp::InitDirect3D()
 	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
 	//Alt-Enter Disable
 	//HR(dxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_ALT_ENTER));
-
+			
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);
 	ReleaseCOM(dxgiFactory);
 
+	//Init singletons
 	TextureManager::GetInstance().InitTextures(md3dDevice);
 	SceneManager::GetInstance();
-
+	DirectWrite::GetInstance();
 
 	OnResize();
-
 	return true;
 }
 

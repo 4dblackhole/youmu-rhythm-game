@@ -94,11 +94,13 @@
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>framework.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;d3d11.lib;d3dx11d.lib;d3dcompiler.lib;Effects11d.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3dx11d.lib;d3dcompiler.lib;Effects11d.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,13 +112,15 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>framework.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;d3d11.lib;d3dx11.lib;d3dcompiler.lib;Effects11.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3dx11.lib;d3dcompiler.lib;Effects11.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -127,11 +131,13 @@
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>framework.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;d3d11.lib;d3dx11d.lib;d3dcompiler.lib;Effects11d.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3dx11d.lib;d3dcompiler.lib;Effects11d.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,13 +149,15 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/Ylsymbol %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>framework.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;d3d11.lib;d3dx11.lib;d3dcompiler.lib;Effects11.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;d2d1.lib;dwrite.lib;d3d11.lib;d3dx11.lib;d3dcompiler.lib;Effects11.lib;dxerr.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,16 +165,23 @@
     <ClCompile Include="App\MainApp.cpp" />
     <ClCompile Include="Effect\Effects.cpp" />
     <ClCompile Include="Effect\RenderStates.cpp" />
+    <ClCompile Include="framework.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="GameScene\LogoScene.cpp" />
     <ClCompile Include="GameScene\TestScene.cpp" />
     <ClCompile Include="GameScene\TitleScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object\BackGround.cpp" />
+    <ClCompile Include="Object\LayoutList.cpp" />
     <ClCompile Include="Object\Sprite.cpp" />
     <ClCompile Include="Object\Vertex.cpp" />
     <ClCompile Include="Singleton\SceneManager.cpp" />
     <ClCompile Include="Singleton\TextureManager.cpp" />
     <ClCompile Include="System\Camera.cpp" />
+    <ClCompile Include="System\DirectWrite.cpp" />
     <ClCompile Include="System\GameScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
@@ -183,13 +198,14 @@
     <ClInclude Include="GameScene\LogoScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />
-    <ClInclude Include="Object\BackGround.h" />
+    <ClInclude Include="Object\LayoutList.h" />
     <ClInclude Include="Object\Sprite.h" />
     <ClInclude Include="Object\Vertex.h" />
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
     <ClInclude Include="Singleton\TextureManager.h" />
     <ClInclude Include="System\Camera.h" />
+    <ClInclude Include="System\DirectWrite.h" />
     <ClInclude Include="System\GameScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />

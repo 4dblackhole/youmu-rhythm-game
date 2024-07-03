@@ -59,30 +59,32 @@ VertexColorTexture::VertexColorTexture(XMFLOAT3&& p, XMFLOAT4&& c, XMFLOAT2&& u)
 
 Sprite::Sprite()
 {
-	Init(0, 0, 1, 1, XMFLOAT4(1, 1, 1, 1));
+	Init(0, 0, 1, 1, XMFLOAT4(1, 1, 1, 1), false);
 }
 
 Sprite::Sprite(float w, float h)
 {
-	Init(0, 0, w, h, XMFLOAT4(1, 1, 1, 1));
+	Init(0, 0, w, h, XMFLOAT4(1, 1, 1, 1), false);
 }
 
 Sprite::Sprite(float x, float y, float w, float h)
 {
-	Init(x, y, w, h, XMFLOAT4(1, 1, 1, 1));
+	Init(x, y, w, h, XMFLOAT4(1, 1, 1, 1), false);
 }
 
-Sprite::Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse)
+Sprite::Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode = false)
 {
-	Init(x, y, w, h, diffuse);
+	Init(x, y, w, h, diffuse, colormode);
 }
 
 Sprite::~Sprite()
 {
 }
 
-void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse)
+void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse, const bool colormode = false)
 {
+	this->ColorMode = colormode;
+
 	XMMATRIX I = ::XMMatrixIdentity();
 	x = _x;
 	y = _y;
@@ -118,7 +120,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam) const
 	XMMATRIX proj = cam.Proj();
 
 	D3DX11_TECHNIQUE_DESC techDesc;
-	ID3DX11EffectTechnique*& currentTech = colorMode ? Effects::SpriteFX->mTechColor : Effects::SpriteFX->mTechTexture;
+	ID3DX11EffectTechnique*& currentTech = ColorMode ? Effects::SpriteFX->mTechColor : Effects::SpriteFX->mTechTexture;
 	currentTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -141,6 +143,12 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam) const
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
 		deviceContext->DrawIndexed(6, 0, 0);
 	}
+}
+
+void Sprite::Resize(float w, float h)
+{
+	Scale.x = ShortCut::GetOrthoWidth(w, h);
+	UpdateWorld();
 }
 
 void Sprite::BulidBuffer(ID3D11Device* device)

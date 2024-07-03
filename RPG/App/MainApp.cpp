@@ -16,13 +16,13 @@ MainApp::MainApp(HINSTANCE hInstance)
 MainApp::~MainApp()
 {
 	Effects::Release();
+	for (auto& it : layoutList)	ReleaseCOM(it.second);
 }
 
 void MainApp::InitGameScenes()
 {
 	GameScene* scene = new TitleScene;
-	SCENEMANAGER.AddScene(SceneManager::Name::Title, move(scene));
-
+	SCENEMANAGER.AddScene(SceneManager::Name::Title, scene);
 }
 
 bool MainApp::Init()
@@ -34,13 +34,14 @@ bool MainApp::Init()
 
 	InitGameScenes();
 
+	IDWriteTextLayout* tempLayout;
+	HR(DIRECTWRITE.GetDwFactory()->CreateTextLayout(L"ASDF", 4, DIRECTWRITE.GetFont(DirectWrite::FontName::DefaultFont), 100, 20, &tempLayout));
+	layoutList.insert(make_pair(0, tempLayout));
 
 	BuildBuffer();
 	BuildLayout();
 
 	//2D Graphic Setting (no depth check, alpha blend)
-	float factor[4]{};
-
 	md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS.Get(), {}, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDepthDSS.Get(), 0);
 
@@ -67,7 +68,15 @@ void MainApp::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, (const float*)Colors::LightSteelBlue);
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	DirectWrite::GetInstance().BeginDraw();
+
 	SCENEMANAGER.GetCurrentScene()->Render(md3dImmediateContext, mCamera);
+	IDWriteTextLayout* currentLayout = layoutList[0];
+	float fontSize = currentLayout->GetFontSize();
+	currentLayout->SetFontSize(fontSize* 5.0f, { 0,1 });
+	DirectWrite::GetInstance().DrawTextLayout({ 100, 200 }, currentLayout, DIRECTWRITE.GetSolidBrush(D2D1::ColorF(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1)));
+
+	DirectWrite::GetInstance().EndDraw();
 
 	HR(mSwapChain->Present(0, 0));
 }

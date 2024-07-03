@@ -5,5 +5,5 @@
 void _trace(LPCTSTR lpszFormat, ...);
 #define TRACE _trace
 #else
-#define TRACE false && _trace
+#define TRACE(x) {}
 #endif

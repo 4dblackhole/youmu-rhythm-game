@@ -15,6 +15,7 @@ public:
 	auto GetHeight() const { return mClientHeight; }
 	auto GetDevice() const { return md3dDevice; }
 	auto GetDeviceContext() const { return  md3dImmediateContext; }
+	auto GetSwapChain() const { return  mSwapChain; }
 
 	int Run(); //main thread
 
@@ -69,7 +70,7 @@ protected:
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;
 	D3D11_VIEWPORT mScreenViewport;
-	
+
 	//Driver Type
 	D3D_DRIVER_TYPE md3dDriverType;
 

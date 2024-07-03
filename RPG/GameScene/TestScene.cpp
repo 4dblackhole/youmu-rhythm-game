@@ -11,7 +11,7 @@ TestScene::~TestScene()
 {
 }
 
-void TestScene::BeginScene()
+void TestScene::BeginScene(float newW, float newH)
 {
 }
 
@@ -23,7 +23,19 @@ void TestScene::Update(float dt)
 {
 	if (KEYBOARD.Down(VK_ESCAPE))
 	{
-		SCENEMANAGER.ChangeScene(SceneManager::Name::Intro);
+		string* tempStr = new string(SceneManager::Name::Intro);
+		SceneManager::GetInstance().ChangeScene(*tempStr);
+		delete tempStr;
+	}
+	if (KEYBOARD.Press('Z'))
+	{
+		sq2.Position.x -= 400.0f * dt;
+		sq2.UpdateWorld();
+	}
+	if (KEYBOARD.Press('X'))
+	{
+		sq2.Position.x += 400.0f * dt;
+		sq2.UpdateWorld();
 	}
 }
 

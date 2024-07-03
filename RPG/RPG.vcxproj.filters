@@ -84,9 +84,6 @@
     <ClCompile Include="System\GameScene.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Object\BackGround.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="GameScene\LogoScene.cpp">
       <Filter>GameScene</Filter>
     </ClCompile>
@@ -95,6 +92,15 @@
     </ClCompile>
     <ClCompile Include="GameScene\TitleScene.cpp">
       <Filter>GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="System\DirectWrite.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\LayoutList.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,9 +155,6 @@
     <ClInclude Include="System\GameScene.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Object\BackGround.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="GameScene\LogoScene.h">
       <Filter>GameScene</Filter>
     </ClInclude>
@@ -160,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="GameScene\TitleScene.h">
       <Filter>GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="System\DirectWrite.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\LayoutList.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

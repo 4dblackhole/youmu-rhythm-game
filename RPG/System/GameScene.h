@@ -6,7 +6,7 @@ class GameScene
 public:
 	virtual ~GameScene() {}
 
-	virtual void BeginScene() = 0;
+	virtual void BeginScene(float newW, float newH) = 0;
 	virtual void OnResize(float newW, float newH) = 0;
 	virtual void Update(float dt) = 0;
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) = 0;

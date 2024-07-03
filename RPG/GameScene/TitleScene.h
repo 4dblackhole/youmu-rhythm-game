@@ -1,7 +1,7 @@
 #pragma once
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
-#include "Object/BackGround.h"
+#include "Object/LayoutList.h"
 
 class TitleScene : public GameScene
 {
@@ -9,7 +9,7 @@ public:
 	TitleScene();
 	virtual ~TitleScene();
 
-	virtual void BeginScene() final;
+	virtual void BeginScene(float newW, float newH) final;
 	virtual void OnResize(float newW, float newH) final;
 	virtual void Update(float dt) final;
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) final;
@@ -23,9 +23,10 @@ public:
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {}
 
 private:
-	Sprite titleImg;
+	Sprite titleLogoImg;
 	ID3D11ShaderResourceView* titleSrv = nullptr;
 
-	BackGround background;
+	Sprite background;
+	LayoutList layoutList;
 };
 

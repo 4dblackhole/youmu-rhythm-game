@@ -1,7 +1,6 @@
 #pragma once
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
-#include "Object/BackGround.h"
 #include "framework.h"
 
 class LogoScene : public GameScene
@@ -10,7 +9,7 @@ public:
 	LogoScene();
 	virtual ~LogoScene();
 
-	virtual void BeginScene() final;
+	virtual void BeginScene(float newW, float newH) final;
 	virtual void OnResize(float newW, float newH) final;
 	virtual void Update(float dt) final;
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) final;
@@ -27,7 +26,7 @@ private:
 	void Release();
 
 	Sprite fmodLogo;
-	BackGround background;
+	Sprite background;
 
 	GameTimer bgTimer;
 

@@ -7,12 +7,14 @@ public:
 	Sprite();
 	Sprite(float w, float h);
 	Sprite(float x, float y, float w, float h);
-	Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse);
+	Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 	virtual ~Sprite();
 
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
 	void UpdateWorld();
 	void Render(ID3D11DeviceContext*, const Camera&) const;
+
+	void Resize(float w, float h);
 
 	static void BulidBuffer(ID3D11Device*);
 	static void BuildLayout(ID3D11Device*);
@@ -23,10 +25,10 @@ public:
 
 	XMFLOAT4 Diffuse;
 
-	bool colorMode = false;
+	bool ColorMode = false;
 
 private:
-	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse);
+	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 
 	float x, y, w, h;
 

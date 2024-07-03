@@ -3,13 +3,13 @@
 
 void Keyboard::Update()
 {
-	memcpy(keyOldState, keyState, sizeof(keyOldState));
+	memcpy_s(keyOldState, sizeof(keyOldState), keyState, sizeof(keyState));
 
 	ZeroMemory(keyState, sizeof(keyState));
 	ZeroMemory(keyMap, sizeof(keyMap));
 
-
-	assert(GetKeyboardState(keyState));
+	BOOL result = GetKeyboardState(keyState);
+	assert(result);
 
 	for (DWORD i = 0; i < MAX_INPUT_KEY; i++)
 	{

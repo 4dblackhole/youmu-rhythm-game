@@ -1,15 +1,16 @@
+#include "Utility/ShortCut.h"
 #include "RenderStates.h"
 
 // Rasterizer states
-ComPtr<ID3D11RasterizerState> RenderStates::WireframeRS;
-ComPtr<ID3D11RasterizerState> RenderStates::NoCullRS;
-ComPtr<ID3D11RasterizerState> RenderStates::CullClockwiseRS;
+Microsoft::WRL::ComPtr<ID3D11RasterizerState> RenderStates::WireframeRS;
+Microsoft::WRL::ComPtr<ID3D11RasterizerState> RenderStates::NoCullRS;
+Microsoft::WRL::ComPtr<ID3D11RasterizerState> RenderStates::CullClockwiseRS;
 
 // Blend states
-ComPtr<ID3D11BlendState> RenderStates::TransparentBS;
+Microsoft::WRL::ComPtr<ID3D11BlendState> RenderStates::TransparentBS;
 
 // Depth/stencil states
-ComPtr<ID3D11DepthStencilState> RenderStates::NoDepthDSS;
+Microsoft::WRL::ComPtr<ID3D11DepthStencilState> RenderStates::NoDepthDSS;
 
 void RenderStates::Init(ID3D11Device* device)
 {

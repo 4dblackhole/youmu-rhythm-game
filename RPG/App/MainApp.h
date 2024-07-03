@@ -29,5 +29,7 @@ private:
 private:
 	Camera mCamera;
 
+	//DirectWrite devices
+	map<UINT, IDWriteTextLayout*> layoutList;
 
 };

@@ -32,6 +32,11 @@ inline void SafeDeleteArr(T*& ptr) { delete[] ptr; ptr = nullptr; }
 
 #define ReleaseCOM(x) { if(x) { x->Release(); x = nullptr; } }
 
+template <typename T, typename V>
+T ReInterpret(V val)
+{
+	return *((T*)&val);
+}
 
 #if defined(DEBUG) | defined(_DEBUG)
 #ifndef HR

@@ -1,5 +1,16 @@
 #pragma once
-#include "framework.h"
+#include <Windowsx.h>
+#include <wrl.h>
+
+#include <D3D11.h>
+#include <D3DX11.h>
+#include <d3dcompiler.h>
+#include <effects.h>
+#include <dxgidebug.h>
+#include <DxErr.h>
+#include <dxgi.h>
+#include <DirectXMath.h>
+#include <d3dx11effect.h>
 
 #pragma region Effect
 class Effect
@@ -13,7 +24,7 @@ private:
 	Effect& operator=(const Effect& rhs) = delete;
 
 protected:
-	ComPtr<ID3DX11Effect> mFX;
+	Microsoft::WRL::ComPtr<ID3DX11Effect> mFX;
 };
 #pragma endregion
 
@@ -24,8 +35,8 @@ public:
 	SpriteEffect(ID3D11Device* device, const std::tstring& filename);
 	~SpriteEffect();
 
-	void SetWorld(CXMMATRIX M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldViewProj(CXMMATRIX M) const { mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorld(DirectX::CXMMATRIX M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetWorldViewProj(DirectX::CXMMATRIX M) const { mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexture(ID3D11ShaderResourceView* tex) const { mfxTexture->SetResource(tex); }
 
 	ID3DX11EffectTechnique* mTechTexture;
@@ -45,6 +56,6 @@ public:
 	static void Init(ID3D11Device* device);
 	static void Release();
 
-	static unique_ptr<SpriteEffect> SpriteFX;
+	static std::unique_ptr<SpriteEffect> SpriteFX;
 };
 #pragma endregion

@@ -6,6 +6,8 @@
 using namespace Microsoft::WRL;
 
 //DirectX
+#include <D2D1_1.h>
+#include <dwrite.h>
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <d3dcompiler.h>
@@ -43,6 +45,7 @@ using namespace std;
 
 #include "System/Keyboard.h"
 #include "System/Camera.h"
+#include "System/DirectWrite.h"
 
 #include "Effect/Effects.h"
 #include "Effect/RenderStates.h"
