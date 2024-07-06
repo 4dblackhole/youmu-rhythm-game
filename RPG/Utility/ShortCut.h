@@ -22,6 +22,9 @@ public:
 	static void TraceTimingPoint();
 
 	static float GetOrthoWidth(float w, float h);
+
+	static D2D1_POINT_2F Resize2DtoStandardCS(float newW, float newH, float x, float y, float alignPosX = 0.0f);
+	
 };
 
 template <typename T>

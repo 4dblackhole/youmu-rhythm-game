@@ -1,7 +1,8 @@
 #pragma once
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
-#include "Object/LayoutList.h"
+#include "Object/DwLayout.h"
+#include "Object/Shape2D/Triangle2D.h"
 
 class TitleScene : public GameScene
 {
@@ -23,10 +24,23 @@ public:
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {}
 
 private:
+	Sprite background;
 	Sprite titleLogoImg;
 	ID3D11ShaderResourceView* titleSrv = nullptr;
 
-	Sprite background;
-	LayoutList layoutList;
+	enum LayoutKey
+	{
+		GameStart,
+		Options,
+		Exit,
+		MAX
+	};
+	LayoutKey currentKey = GameStart;
+	Triangle2D* keySelectTriangle;
+
+	vector<DwLayout> layoutList;
+	void InitLayout();
+
+
 };
 

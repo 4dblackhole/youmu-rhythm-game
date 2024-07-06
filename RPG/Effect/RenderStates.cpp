@@ -1,4 +1,4 @@
-#include "Utility/ShortCut.h"
+#include "framework.h"
 #include "RenderStates.h"
 
 // Rasterizer states

@@ -175,13 +175,14 @@
     <ClCompile Include="GameScene\TestScene.cpp" />
     <ClCompile Include="GameScene\TitleScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object\LayoutList.cpp" />
+    <ClCompile Include="Object\DwLayout.cpp" />
+    <ClCompile Include="Object\Shape2D\Triangle2D.cpp" />
     <ClCompile Include="Object\Sprite.cpp" />
     <ClCompile Include="Object\Vertex.cpp" />
     <ClCompile Include="Singleton\SceneManager.cpp" />
     <ClCompile Include="Singleton\TextureManager.cpp" />
     <ClCompile Include="System\Camera.cpp" />
-    <ClCompile Include="System\DirectWrite.cpp" />
+    <ClCompile Include="System\D2Ddevice.cpp" />
     <ClCompile Include="System\GameScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
@@ -198,14 +199,16 @@
     <ClInclude Include="GameScene\LogoScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />
-    <ClInclude Include="Object\LayoutList.h" />
+    <ClInclude Include="Object\DwLayout.h" />
+    <ClInclude Include="Object\Shape2D\AlignMode.h" />
+    <ClInclude Include="Object\Shape2D\Triangle2D.h" />
     <ClInclude Include="Object\Sprite.h" />
     <ClInclude Include="Object\Vertex.h" />
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
     <ClInclude Include="Singleton\TextureManager.h" />
     <ClInclude Include="System\Camera.h" />
-    <ClInclude Include="System\DirectWrite.h" />
+    <ClInclude Include="System\D2Ddevice.h" />
     <ClInclude Include="System\GameScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />
@@ -214,20 +217,20 @@
     <ClInclude Include="Utility\Trace.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Object\Sprite.fx">
+    <CustomBuild Include="Shader\Sprite.fx">
       <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)%(Filename).fxo</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for Debug: %(FullPath)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for debug: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc /Fc /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fxc compile for Debug: %(FullPath)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for Release: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fxc compile for Release: %(FullPath)</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)\%(Filename).fxo</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

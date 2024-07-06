@@ -34,3 +34,11 @@ float ShortCut::GetOrthoWidth(float w, float h)
 {
     return (float)w * ((float)StandardHeight / (float)h);
 }
+
+D2D1_POINT_2F ShortCut::Resize2DtoStandardCS(const float newW, const float newH, float x, float y, const float alignPosX)
+{
+    const float rateY = newH / (float)StandardHeight;
+    const float DrawX = alignPosX + (float)x * rateY;
+    const float DrawY = (float)y * rateY;
+    return { DrawX, DrawY };
+}

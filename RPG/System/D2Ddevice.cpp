@@ -1,13 +1,13 @@
 #include "framework.h"
-#include "DirectWrite.h"
+#include "D2Ddevice.h"
 
-DirectWrite::DirectWrite()
+D2Ddevice::D2Ddevice()
 {
 	CreateD2DDWFactory();
 	InitFonts();
 }
 
-DirectWrite::~DirectWrite()
+D2Ddevice::~D2Ddevice()
 {
 	for (pair<const D2D1::ColorF, ID2D1SolidColorBrush*>& it : brushList) ReleaseCOM(it.second);
 	for (pair<const string, IDWriteTextFormat*>& it : fontList) ReleaseCOM(it.second);
@@ -15,7 +15,7 @@ DirectWrite::~DirectWrite()
 	ReleaseCOM(pBackBuffer);
 }
 
-void DirectWrite::CreateD2DDWFactory()
+void D2Ddevice::CreateD2DDWFactory()
 {
 	HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf()));
 
@@ -23,7 +23,7 @@ void DirectWrite::CreateD2DDWFactory()
 		__uuidof(IDWriteFactory), (IUnknown**)dwFactory.GetAddressOf()));
 }
 
-void DirectWrite::InitFonts()
+void D2Ddevice::InitFonts()
 {
 	IDWriteTextFormat* format;
 	HR(dwFactory->CreateTextFormat(
@@ -39,7 +39,7 @@ void DirectWrite::InitFonts()
 }
 
 //get backbuffer from swapchain and set 2d Rendertarget
-void DirectWrite::ResetBackBuffer(IDXGISwapChain* swapChain)
+void D2Ddevice::ResetBackBuffer(IDXGISwapChain* swapChain)
 {
 	swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
 
@@ -56,14 +56,14 @@ void DirectWrite::ResetBackBuffer(IDXGISwapChain* swapChain)
 }
 
 //idk why but you should release backbuffer and rendertarget before resize swapchain buffer
-void DirectWrite::ResetBackBuffer_Release()
+void D2Ddevice::ResetBackBuffer_Release()
 {
 	ReleaseCOM(pBackBuffer);
 	ReleaseCOM(d2Rtg);
 }
 
 
-ID2D1SolidColorBrush*& DirectWrite::GetSolidBrush(const D2D1::ColorF color)
+ID2D1SolidColorBrush*& D2Ddevice::GetSolidBrush(const D2D1::ColorF color)
 {
 	//in case not found, create a solid brush
 	if (brushList.find(color) == brushList.end())
@@ -76,7 +76,7 @@ ID2D1SolidColorBrush*& DirectWrite::GetSolidBrush(const D2D1::ColorF color)
 	return brushList[color];
 }
 
-IDWriteTextFormat*& DirectWrite::GetFont(const string name)
+IDWriteTextFormat*& D2Ddevice::GetFont(const string name)
 {
 	//in case not found, returns default font
 	if (fontList.find(name) == fontList.end()) return fontList[FontName::DefaultFont];

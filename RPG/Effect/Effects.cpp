@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include "Utility/ShortCut.h"
+#include "framework.h"
 
 #include "Effects.h"
 
@@ -54,7 +51,7 @@ std::unique_ptr<SpriteEffect> Effects::SpriteFX;
 
 void Effects::Init(ID3D11Device* device)
 {
-	SpriteFX.reset(new SpriteEffect(device, L"Object/Sprite.fxo"));
+	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
 }
 
 void Effects::Release()

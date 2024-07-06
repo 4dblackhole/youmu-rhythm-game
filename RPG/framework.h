@@ -45,7 +45,7 @@ using namespace std;
 
 #include "System/Keyboard.h"
 #include "System/Camera.h"
-#include "System/DirectWrite.h"
+#include "System/D2Ddevice.h"
 
 #include "Effect/Effects.h"
 #include "Effect/RenderStates.h"

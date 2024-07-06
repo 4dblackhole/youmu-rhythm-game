@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "TextureManager.h"
 
 static constexpr LPCSTR TextureFindError = "NullImg";

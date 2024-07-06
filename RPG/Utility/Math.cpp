@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "Math.h"
 
 using namespace DirectX;

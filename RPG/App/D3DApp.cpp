@@ -124,7 +124,7 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilBuffer);
 
 	//Release D2 BackBuffer and RenderTarget
-	DIRECTWRITE.ResetBackBuffer_Release();
+	D2D.ResetBackBuffer_Release();
 
 	//Resize the swap chain and recreate the RTV
 	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
@@ -134,7 +134,7 @@ void D3DApp::OnResize()
 	HR(md3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, &mRenderTargetView));
 
 	//Direct Write
-	DIRECTWRITE.ResetBackBuffer(mSwapChain);
+	D2D.ResetBackBuffer(mSwapChain);
 
 	//Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -440,7 +440,7 @@ bool D3DApp::InitDirect3D()
 	//Init singletons
 	TextureManager::GetInstance().InitTextures(md3dDevice);
 	SceneManager::GetInstance();
-	DirectWrite::GetInstance();
+	D2Ddevice::GetInstance();
 
 	OnResize();
 	return true;

@@ -11,11 +11,11 @@
 #include "Utility/ShortCut.h"
 #include "Singleton/SingletonBase.h"
 
-class DirectWrite : public SingletonBase<DirectWrite>
+class D2Ddevice : public SingletonBase<D2Ddevice>
 {
 public:
-	DirectWrite();
-	~DirectWrite();
+	D2Ddevice();
+	~D2Ddevice();
 
 	void CreateD2DDWFactory();
 	void ResetBackBuffer(IDXGISwapChain* swapChain);
@@ -27,8 +27,9 @@ public:
 	ID2D1SolidColorBrush*& GetSolidBrush(const D2D1::ColorF color);
 	IDWriteTextFormat*& GetFont(const std::string name);
 
+	ID2D1Factory* GetD2DFactory() const { return d2dFactory.Get(); }
 	IDWriteFactory* GetDwFactory() const { return dwFactory.Get(); }
-
+	ID2D1RenderTarget* GetRenderTarget() const { return d2Rtg; }
 private:
 	void InitFonts();
 
@@ -82,4 +83,4 @@ public:
 };
 
 
-#define DIRECTWRITE DirectWrite::GetInstance()
+#define D2D D2Ddevice::GetInstance()

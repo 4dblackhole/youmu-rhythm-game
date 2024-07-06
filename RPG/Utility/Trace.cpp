@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "Trace.h"
 #include <tchar.h>
 

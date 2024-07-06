@@ -34,6 +34,12 @@
     <Filter Include="GameScene">
       <UniqueIdentifier>{dc8f8f05-8e0c-4b37-905a-a0678b9ff656}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{99611c0f-c37a-468c-9e7c-5bb5a3047ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Shape2D">
+      <UniqueIdentifier>{abfc70be-aebd-4bc3-a86b-e0668e5a2879}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -93,14 +99,17 @@
     <ClCompile Include="GameScene\TitleScene.cpp">
       <Filter>GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="System\DirectWrite.cpp">
+    <ClCompile Include="System\D2Ddevice.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Object\LayoutList.cpp">
+    <ClCompile Include="Object\DwLayout.cpp">
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="framework.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Shape2D\Triangle2D.cpp">
+      <Filter>Object\Shape2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -164,16 +173,22 @@
     <ClInclude Include="GameScene\TitleScene.h">
       <Filter>GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="System\DirectWrite.h">
+    <ClInclude Include="System\D2Ddevice.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Object\LayoutList.h">
+    <ClInclude Include="Object\DwLayout.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Shape2D\Triangle2D.h">
+      <Filter>Object\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Shape2D\AlignMode.h">
+      <Filter>Object\Shape2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Object\Sprite.fx">
-      <Filter>Object</Filter>
+    <CustomBuild Include="Shader\Sprite.fx">
+      <Filter>Shader</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
