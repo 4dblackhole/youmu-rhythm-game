@@ -44,6 +44,7 @@ LayoutDesc& LayoutDesc::operator=(const LayoutDesc& l)
 	DrawPos = l.DrawPos;
 	maxW = l.maxW;
 	maxH = l.maxH;
+	alignX = l.alignX;
 	return *this;
 }
 
@@ -55,6 +56,7 @@ LayoutDesc& LayoutDesc::operator=(LayoutDesc&& l) noexcept
 	DrawPos = l.DrawPos;
 	maxW = l.maxW;
 	maxH = l.maxH;
+	alignX = l.alignX;
 	return *this;
 }
 

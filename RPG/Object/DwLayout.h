@@ -12,8 +12,10 @@ class LayoutDesc
 public:
 	LayoutDesc() : LayoutDesc(10.0f, D2D1::ColorF::White, {}) {}
 	LayoutDesc(float size, D2D1::ColorF color, POINT pos) : Color(color), FontSize(size), Pos(pos) {}
-	LayoutDesc(const LayoutDesc& l) : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos) {}
-	LayoutDesc(LayoutDesc&& l) noexcept : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos) {}
+	LayoutDesc(const LayoutDesc& l) : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
+	{
+		TRACE(_T("asdf\n")); }
+	LayoutDesc(LayoutDesc&& l) noexcept : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX) {}
 
 	LayoutDesc& operator=(const LayoutDesc& l);
 	LayoutDesc& operator=(LayoutDesc&& l) noexcept;
@@ -40,6 +42,7 @@ public:
 	DwLayout() : DwLayout(LayoutDesc()) {}
 	DwLayout(float size, D2D1::ColorF color, POINT pos) : DwLayout(LayoutDesc()) {}
 	DwLayout(const LayoutDesc& l) : layout(nullptr), desc(l) {}
+	DwLayout(LayoutDesc&& l) : layout(nullptr), desc(l) {}
 
 	~DwLayout();
 

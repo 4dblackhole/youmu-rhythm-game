@@ -22,6 +22,10 @@ public:
 	const FLOAT& GetRotation() const { return this->Rotation; }
 	const D2D1_SIZE_F& GetPosition() const { return this->Position; }
 
+	D2D1::ColorF FillColor = { 1,1,1,1 };
+	D2D1::ColorF BorderColor = { 1,1,1,1 };
+	float borderSize = 0.5f;
+
 private:
 	void Repositioning(float newW, float newH);
 

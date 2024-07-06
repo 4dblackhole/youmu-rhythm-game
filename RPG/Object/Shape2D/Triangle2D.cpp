@@ -48,8 +48,8 @@ void Triangle2D::Draw()
 		worldUpdateFlag = false;
 	}
 	D2D.GetRenderTarget()->SetTransform(mWorld);
-	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(D2D1::ColorF(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f)), 0.5f);
-	D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(D2D1::ColorF(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1)));
+	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(BorderColor), borderSize);
+	D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(FillColor));
 }
 
 void Triangle2D::Repositioning(float newW, float newH)

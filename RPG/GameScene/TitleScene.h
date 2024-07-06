@@ -25,22 +25,32 @@ public:
 
 private:
 	Sprite background;
+	Sprite tooltipBG;
 	Sprite titleLogoImg;
 	ID3D11ShaderResourceView* titleSrv = nullptr;
 
-	enum LayoutKey
+	enum class SelectKey
 	{
 		GameStart,
 		Options,
 		Exit,
 		MAX
 	};
-	LayoutKey currentKey = GameStart;
+	SelectKey selectKey = SelectKey::GameStart;
 	Triangle2D* keySelectTriangle;
+	void ChangeTrianglePos();
 
+
+	enum class LayoutKey
+	{
+		GameStart,
+		Options,
+		Exit,
+		Tooltip,
+		MAX
+	};
 	vector<DwLayout> layoutList;
 	void InitLayout();
-
 
 };
 

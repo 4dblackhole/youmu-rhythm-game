@@ -17,25 +17,29 @@ LogoScene::~LogoScene()
 //Any key input process
 void LogoScene::OnKeyDown(WPARAM wParam, LPARAM lParam)
 {
-	switch (state)
+	if (wParam == VK_ESCAPE) PostQuitMessage(0);
+	else
 	{
-	case LogoScene::Normal:
-		if (keyState[wParam] == false)
+		switch (state)
 		{
-			keyState[wParam] = true;
-			bgTimer.Reset();
-			state = LogoScene::Fade;
+		case LogoScene::Normal:
+			if (keyState[wParam] == false)
+			{
+				keyState[wParam] = true;
+				bgTimer.Reset();
+				state = LogoScene::Fade;
+			}
+			break;
+		case LogoScene::Fade:
+			if (keyState[wParam] == false)
+			{
+				keyState[wParam] = true;
+				state = LogoScene::End;
+			}
+			break;
+		default:
+			break;
 		}
-		break;
-	case LogoScene::Fade:
-		if (keyState[wParam] == false)
-		{
-			keyState[wParam] = true;
-			state = LogoScene::End;
-		}
-	break;
-	default:
-		break;
 	}
 }
 
