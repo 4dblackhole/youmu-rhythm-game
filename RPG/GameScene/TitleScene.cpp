@@ -46,7 +46,7 @@ void TitleScene::OnResize(float newW, float newH)
 {
 	background.Resize(newW, newH);
 	tooltipBG.Resize(newW, newH);
-	for (DwLayout& it : layoutList)it.Resize(newW, newH);
+	for (DwLayout& it : layoutList) it.Resize(newW, newH);
 	keySelectTriangle->Resize(newW, newH);
 }
 
@@ -127,15 +127,15 @@ void TitleScene::InitLayout()
 	LayoutDesc tempDesc(40.0f, D2D1::ColorF(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1), { layoutStartPosX, layoutStartPosY });
 
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::GameStart].CreateLayout(L"Game Start", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"Game Start", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	tempDesc.Pos.y = optionPosY;
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Options].CreateLayout(L"Options", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Options].SetLayout(L"Options", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	tempDesc.Pos.y = exitPosY;
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Exit].CreateLayout(L"Exit", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Exit].SetLayout(L"Exit", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	tempDesc.Color = D2D1::ColorF({ 1, 1, 1, 1 });
 	tempDesc.FontSize = 20.0f;
@@ -144,6 +144,6 @@ void TitleScene::InitLayout()
 	tempDesc.DrawPos = { (float)tempDesc.Pos.x, (float)tempDesc.Pos.y };
 	tempDesc.alignX = AlignModeX::Left;
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Tooltip].CreateLayout(L"Press Enter to Select", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 }

@@ -11,12 +11,20 @@ MainApp::MainApp(HINSTANCE hInstance)
 {
 	mMainWndCaption = _T("2D Test");
 
+	LayoutDesc tempDesc(20.0f, D2D1::ColorF(1, 1, 1, 1), { -80, StandardHeight - 30 });
+	tempDesc.alignX = AlignModeX::Right;
+	tempDesc.maxW = 84.0f;
+	tempDesc.maxH = 30.0f;
+	fpsLayout = new DwLayout(tempDesc);
+	fpsLayout->SetLayout(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+		
+	fpsTimer.Reset();
 }
 
 MainApp::~MainApp()
 {
 	Effects::Release();
-	for (auto& it : layoutList)	ReleaseCOM(it.second);
+	delete fpsLayout;
 }
 
 void MainApp::InitGameScenes()
@@ -33,18 +41,12 @@ bool MainApp::Init()
 	Effects::Init(md3dDevice);
 
 	InitGameScenes();
-	/*
-	IDWriteTextLayout* tempLayout;
-	HR(DIRECTWRITE.GetDwFactory()->CreateTextLayout(L"ASDF", 4, DIRECTWRITE.GetFont(DirectWrite::FontName::DefaultFont), 100, 20, &tempLayout));
-	layoutList.insert(make_pair(0, tempLayout));
-	*/
 	BuildBuffer();
 	BuildLayout();
 
 	//2D Graphic Setting (no depth check, alpha blend)
 	md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS.Get(), {}, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDepthDSS.Get(), 0);
-
 
 	return true;
 }
@@ -54,11 +56,38 @@ void MainApp::OnResize()
 	__super::OnResize();
 	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight / (float)mClientHeight), (float)StandardHeight);
 	SCENEMANAGER.GetCurrentScene()->OnResize((float)mClientWidth, (float)mClientHeight);
+	
+	fpsLayout->Resize((float)mClientWidth, (float)mClientHeight);
 }
 
 void MainApp::UpdateScene(float dt)
 {
 	SCENEMANAGER.GetCurrentScene()->Update(dt);
+}
+
+void MainApp::UpdateFPS()
+{
+	static int frameCnt;
+	static float timeElapsed;
+	constexpr float calculateInterval = 0.5f;
+	
+	fpsTimer.Tick();
+	++frameCnt;
+
+	if ((fpsTimer.TotalTime() - timeElapsed) >= calculateInterval)
+	{
+		const float intervalInverse = 1.0f / calculateInterval;
+		const float fps = (float)frameCnt * intervalInverse;
+
+		WCHAR fpsStr[20];
+		swprintf_s(fpsStr, L"FPS: %.f", fps);
+		fpsLayout->SetLayout(fpsStr, D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+
+		//frame calculation end
+		frameCnt = 0;
+		timeElapsed += calculateInterval;
+	}
+
 }
 
 void MainApp::DrawScene()
@@ -71,6 +100,9 @@ void MainApp::DrawScene()
 	D2D.BeginDraw();
 
 	SCENEMANAGER.GetCurrentScene()->Render(md3dImmediateContext, mCamera);
+
+	UpdateFPS();
+	fpsLayout->Draw();
 
 	D2D.EndDraw();
 	HR(mSwapChain->Present(0, 0));

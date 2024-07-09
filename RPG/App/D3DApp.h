@@ -40,6 +40,8 @@ protected:
 
 	void CalculateFrameStats();
 
+	void GetMonitorFrequency();
+
 protected:
 
 	//window status
@@ -74,4 +76,6 @@ protected:
 	//Driver Type
 	D3D_DRIVER_TYPE md3dDriverType;
 
+	//monitor frequency
+	DWORD dwMonitorFrequency;
 };

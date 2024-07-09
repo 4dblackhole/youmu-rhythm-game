@@ -1,6 +1,7 @@
 #pragma once
 #include "D3DApp.h"
 #include "Object/Sprite.h"
+#include "Object/DwLayout.h"
 
 class MainApp : public D3DApp
 {
@@ -25,11 +26,16 @@ private:
 	void BuildLayout();
 
 	void InitGameScenes();
+	void UpdateFPS();
 
 private:
 	Camera mCamera;
-
-	//DirectWrite devices
-	map<UINT, IDWriteTextLayout*> layoutList;
+	GameTimer fpsTimer;
+	enum class LayoutKey
+	{
+		Frame,
+		MAX
+	};
+	DwLayout *fpsLayout;
 
 };

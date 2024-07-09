@@ -12,9 +12,7 @@ class LayoutDesc
 public:
 	LayoutDesc() : LayoutDesc(10.0f, D2D1::ColorF::White, {}) {}
 	LayoutDesc(float size, D2D1::ColorF color, POINT pos) : Color(color), FontSize(size), Pos(pos) {}
-	LayoutDesc(const LayoutDesc& l) : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
-	{
-		TRACE(_T("asdf\n")); }
+	LayoutDesc(const LayoutDesc& l) : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX) {}
 	LayoutDesc(LayoutDesc&& l) noexcept : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX) {}
 
 	LayoutDesc& operator=(const LayoutDesc& l);
@@ -24,7 +22,7 @@ public:
 
 	D2D1::ColorF Color;
 	POINT Pos; //middle align
-	FLOAT maxW = 1000.0f, maxH = 0.0f;
+	FLOAT maxW = 500.0f, maxH = 54.0f;
 
 	float FontSize;
 	D2D1_POINT_2F DrawPos{};
@@ -46,15 +44,14 @@ public:
 
 	~DwLayout();
 
-	HRESULT ChangeSize(FLOAT size, const DWRITE_TEXT_RANGE sizeRange = { 0, (UINT32)-1 });
-	void CreateLayout(const std::wstring text, IDWriteTextFormat* textFormat);
+	void ChangeClipArea(FLOAT rate);
+	void ChangeSize(FLOAT size, const DWRITE_TEXT_RANGE sizeRange = { 0, (UINT32)-1 });
+	void SetLayout(const std::wstring text, IDWriteTextFormat* textFormat);
 	void Draw() const;
-	void Resize(const float w, const float h);
+	void Resize(float w, float h);
 
 	LayoutDesc desc;
 
-private:
 	IDWriteTextLayout* layout;
-
 
 };

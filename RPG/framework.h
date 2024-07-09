@@ -28,6 +28,7 @@ using namespace DirectX;
 #include <malloc.h>
 #include <map>
 #include <memory.h>
+#include <mutex>
 #include <sstream>
 #include <stdlib.h>
 #include <vector>
@@ -56,5 +57,6 @@ using namespace std;
 #include "App/D3DApp.h"
 extern const D3DApp* App;
 
+//all coordinates are based on these numbers.
 constexpr UINT StandardWidth = 1280;
 constexpr UINT StandardHeight = 720;

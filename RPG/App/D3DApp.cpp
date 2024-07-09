@@ -15,7 +15,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 D3DApp::D3DApp(HINSTANCE hInstance)
-:	mhAppInst(hInstance),
+	: mhAppInst(hInstance),
 	mMainWndCaption(_T("D3D11 Application")),
 	szWindowClass(_T("D3DWndClassName")),
 	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
@@ -35,8 +35,10 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mDepthStencilBuffer(nullptr),
 	mRenderTargetView(nullptr),
 	mDepthStencilView(nullptr),
-	mScreenViewport({})
+	mScreenViewport({}),
+	dwMonitorFrequency(60u)
 {
+	App = this;
 	gd3dApp = this;
 }
 
@@ -71,12 +73,11 @@ float D3DApp::AspectRatio() const
 }
 
 //main thread
-static constexpr chrono::duration<double> fpsLimit = chrono::duration<double>(1.0 / 360.0);
 int D3DApp::Run()
 {
 	MSG msg{};
 	mTimer.Reset();
-
+	
 	while (msg.message != WM_QUIT)
 	{
 		using namespace chrono;
@@ -88,13 +89,23 @@ int D3DApp::Run()
 		else
 		{
 			mTimer.Tick();
-			KEYBOARD.Update();
 
 			if (!mAppPaused)
 			{
+				KEYBOARD.Update();
 				CalculateFrameStats();
 				UpdateScene(mTimer.DeltaTime());
-				DrawScene();
+				
+				//render limit according to monitor hz
+				static float renderTime = 0.0f;
+				renderTime += mTimer.DeltaTime();
+				const float fpsLimit = 1.0f / (float)dwMonitorFrequency;
+				if (renderTime >= fpsLimit)
+				{
+					DrawScene();
+					if (renderTime < 1.0f)renderTime -= fpsLimit; 
+					else renderTime = 0.0f;
+				}
 			}
 			//no msg and app paused
 			else std::this_thread::sleep_for(milliseconds(100));
@@ -305,6 +316,10 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnKeyUp(wParam, lParam);
 		return 0;
 
+	case WM_WINDOWPOSCHANGING:
+		GetMonitorFrequency();
+		return 0;
+
 	default: break;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -386,7 +401,7 @@ bool D3DApp::InitDirect3D()
 
 	//check 4X MSAA quality support for our back buffer format
 	HR(md3dDevice->CheckMultisampleQualityLevels
-		(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
+	(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
 	assert(m4xMsaaQuality > 0);
 
 	//Fill out a DXGI_SWAPCHAIN_DESC to describe our swap chain
@@ -404,7 +419,7 @@ bool D3DApp::InitDirect3D()
 	if (mEnable4xMsaa)
 	{
 		sd.SampleDesc.Count = 4;
-		sd.SampleDesc.Quality = m4xMsaaQuality-1;
+		sd.SampleDesc.Quality = m4xMsaaQuality - 1;
 	}
 	else
 	{
@@ -432,7 +447,7 @@ bool D3DApp::InitDirect3D()
 	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
 	//Alt-Enter Disable
 	//HR(dxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_ALT_ENTER));
-			
+
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);
 	ReleaseCOM(dxgiFactory);
@@ -461,8 +476,8 @@ void D3DApp::CalculateFrameStats()
 
 		tostringstream outs;
 		outs.precision(6);
-		outs << mMainWndCaption << _T("   FPS: ") << fps << L"    "
-			<< _T("Frame Time: ") << mspf << _T(" (ms)");
+		outs << mMainWndCaption << _T("   UPS: ") << fps << L"    "
+			<< _T("Update Time: ") << mspf << _T(" (ms)");
 		SetWindowText(mhMainWnd, outs.str().c_str());
 
 		//frame calculation end
@@ -470,4 +485,13 @@ void D3DApp::CalculateFrameStats()
 		timeElapsed += calculateInterval;
 	}
 
+}
+
+void D3DApp::GetMonitorFrequency()
+{
+	DEVMODE devMode{};
+	devMode.dmSize = sizeof(DEVMODE);
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+
+	dwMonitorFrequency = devMode.dmDisplayFrequency;
 }

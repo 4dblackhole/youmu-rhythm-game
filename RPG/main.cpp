@@ -14,7 +14,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 #endif
 
 	MainApp theApp(hInstance);
-	App = &theApp;
 
 	if (!theApp.Init()) return 0;
 	return theApp.Run();

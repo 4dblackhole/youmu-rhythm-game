@@ -75,7 +75,6 @@ void Triangle2D::Resize(float newW, float newH)
 	drawScale = newH / (float)StandardHeight;;
 
 	Repositioning(newW, newH);
-
 	worldUpdateFlag = true;
 }
 
