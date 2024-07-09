@@ -1,9 +1,0 @@
-layout resize
-gamestart/option/exit 선택기능
-옵션창(빈화면) 토글기능
-
-
-==== complete ===========
-타이틀 띄우기
-글자 띄우기 https://blog.naver.com/khk6435/50132700788
-DirectWrite 객체 캡슐화
