@@ -6,3 +6,10 @@ enum class AlignModeX
 	Mid,
 	Right
 };
+
+enum class AlignModeY
+{
+	Top,
+	Mid,
+	Bottom
+};

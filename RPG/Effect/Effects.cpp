@@ -34,6 +34,7 @@ SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
 	mTechColor = mFX->GetTechniqueByName("TechColor");
 
 	mfxWorld = mFX->GetVariableByName("gWorld")->AsMatrix();
+	mfxUvWorld = mFX->GetVariableByName("gUvWorld")->AsMatrix();
 	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	mfxTexture = mFX->GetVariableByName("gTexture")->AsShaderResource();
 	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();

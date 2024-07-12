@@ -42,6 +42,7 @@ public:
 	ID3DX11EffectTechnique* mTechTexture;
 	ID3DX11EffectTechnique* mTechColor;
 	ID3DX11EffectMatrixVariable* mfxWorld;
+	ID3DX11EffectMatrixVariable* mfxUvWorld;
 	ID3DX11EffectMatrixVariable* mfxWorldViewProj;
 	ID3DX11EffectShaderResourceVariable* mfxTexture;
 	ID3DX11EffectVectorVariable* mfxTextureDiffuse;

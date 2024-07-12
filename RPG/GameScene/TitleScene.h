@@ -10,7 +10,7 @@ public:
 	TitleScene();
 	virtual ~TitleScene();
 
-	virtual void BeginScene(float newW, float newH) final;
+	virtual void BeginScene() final;
 	virtual void OnResize(float newW, float newH) final;
 	virtual void Update(float dt) final;
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) final;

@@ -11,7 +11,7 @@ void SceneManager::InitScene(const mapSceneList::key_type& sceneName, const mapS
 	if (AddScene(sceneName, scene))
 	{
 		currentScene = scene;
-		currentScene->BeginScene((float)App->GetWidth(), (float)App->GetHeight());
+		currentScene->BeginScene();
 	}
 }
 
@@ -33,7 +33,8 @@ void SceneManager::ChangeScene(const mapSceneList::key_type& sceneName)
 	{
 		currentScene->EndScene();
 		currentScene = it->second;
-		currentScene->BeginScene((float)App->GetWidth(), (float)App->GetHeight());
+		currentScene->BeginScene();
+		currentScene->OnResize((float)App->GetWidth(), (float)App->GetHeight());
 	}
 }
 

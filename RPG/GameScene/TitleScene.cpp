@@ -16,10 +16,12 @@ constexpr int ToolTipOffsetX = 8;
 
 constexpr float ToolTipSize = 30.0f;
 
+constexpr XMFLOAT4 DefaultTooltipBgColor{ 0.04f,0.04f,0.04f,1.0f };
+
 TitleScene::TitleScene() :
 	titleLogoImg(0.0f, 135.0f, 360.0f, 360.0f),
 	background(0, 0, (float)StandardWidth, (float)StandardHeight, { 0, 0, 0, 1 }, true),
-	tooltipBG(0, (ToolTipSize -(float)(StandardHeight))*0.5f, (float)StandardWidth, ToolTipSize, { 0.04f,0.04f,0.04f,1.0f }, true)
+	tooltipBG(0, (ToolTipSize -(float)(StandardHeight))*0.5f, (float)StandardWidth, ToolTipSize, DefaultTooltipBgColor, true)
 {
 	InitLayout();
 }
@@ -28,24 +30,22 @@ TitleScene::~TitleScene()
 {
 }
 
-void TitleScene::BeginScene(float newW, float newH)
+void TitleScene::BeginScene()
 {
-
 	HR(D3DX11CreateShaderResourceViewFromFile(App->GetDevice(),
 		L"Textures/Title/TitleLogo_ghost.png", 0, 0, &titleSrv, 0));
 	titleLogoImg.SetTexture(titleSrv);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->SetScale({ 12.0f,12.0f });
-	keySelectTriangle->SetPosition({ selectKeyPosX , (float)gamestartPosY + selectKeyOffsetY });
-	keySelectTriangle->FillColor = D2D1::ColorF(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1);
+	keySelectTriangle->FillColor = MyColorF::GhostGreen;
+	ChangeTrianglePos();
 
-	OnResize(newW, newH);
 }
 
 void TitleScene::OnResize(float newW, float newH)
 {
-	background.Resize(newW, newH);
-	tooltipBG.Resize(newW, newH);
+	background.ChangeWidthToCurrentWidth(newW, newH);
+	tooltipBG.ChangeWidthToCurrentWidth(newW, newH);
 	for (DwLayout& it : layoutList) it.Resize(newW, newH);
 	keySelectTriangle->Resize(newW, newH);
 }
@@ -76,9 +76,10 @@ void TitleScene::Update(float dt)
 		switch (selectKey)
 		{
 		case TitleScene::SelectKey::GameStart:
-			SCENEMANAGER.ChangeScene(SceneManager::Name::test);
+			SCENEMANAGER.ChangeScene(SceneManager::Name::SelectMusic);
 			break;
 		case TitleScene::SelectKey::Options:
+			SCENEMANAGER.ChangeScene(SceneManager::Name::test);
 			break;
 		case TitleScene::SelectKey::Exit:
 			PostQuitMessage(0);
@@ -124,10 +125,10 @@ void TitleScene::InitLayout()
 {
 	layoutList.reserve((size_t)LayoutKey::MAX);
 
-	LayoutDesc tempDesc(40.0f, D2D1::ColorF(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1), { layoutStartPosX, layoutStartPosY });
+	LayoutDesc tempDesc(40.0f, MyColorF::GhostGreen, { layoutStartPosX, layoutStartPosY });
 
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"Game Start", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"GameStart", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	tempDesc.Pos.y = optionPosY;
 	layoutList.emplace_back(tempDesc);

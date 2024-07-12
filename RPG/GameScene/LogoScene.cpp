@@ -20,21 +20,21 @@ void LogoScene::OnKeyDown(WPARAM wParam, LPARAM lParam)
 	if (wParam == VK_ESCAPE) PostQuitMessage(0);
 	else
 	{
-		switch (state)
+		switch (logoState)
 		{
 		case LogoScene::Normal:
 			if (keyState[wParam] == false)
 			{
 				keyState[wParam] = true;
 				bgTimer.Reset();
-				state = LogoScene::Fade;
+				logoState = LogoScene::Fade;
 			}
 			break;
 		case LogoScene::Fade:
 			if (keyState[wParam] == false)
 			{
 				keyState[wParam] = true;
-				state = LogoScene::End;
+				logoState = LogoScene::End;
 			}
 			break;
 		default:
@@ -58,37 +58,17 @@ void LogoScene::Release()
 {
 }
 
-void LogoScene::BeginScene(float newW, float newH)
+void LogoScene::UpdateLogo()
 {
-	//Key input state reset
-	ZeroMemory(keyState, sizeof(keyState));
-
-	//Logo state machine reset
-	bgTimer.Reset();
-	state = LogoScene::Normal;
-	
-	fmodLogo.Diffuse.w = 1.0f;
-
-	//Logo image setting reset
-	OnResize(newW, newH);
-}
-
-void LogoScene::OnResize(float newW, float newH)
-{
-	background.Resize(newW, newH);
-}
-
-void LogoScene::Update(float dt)
-{
-	switch (state)
+	switch (logoState)
 	{
 	case LogoScene::Normal:
 	{
 		bgTimer.Tick();
-		if (bgTimer.TotalTime() > 5.0f)
+		if (bgTimer.TotalTime() > 3.0f)
 		{
 			bgTimer.Reset();
-			state = LogoScene::Fade;
+			logoState = LogoScene::Fade;
 		}
 	}
 	break;
@@ -98,7 +78,7 @@ void LogoScene::Update(float dt)
 		constexpr float FadeSpeed = 0.7f;
 		fmodLogo.Diffuse.w = Math::Clamp(1.0f - (bgTimer.TotalTime() * FadeSpeed), 0.0f, 1.0f);
 
-		if (fmodLogo.Diffuse.w < 0.01f) state = LogoScene::End;
+		if (fmodLogo.Diffuse.w < 0.01f) logoState = LogoScene::End;
 	}
 	break;
 	case LogoScene::End:
@@ -107,6 +87,28 @@ void LogoScene::Update(float dt)
 	default:
 		break;
 	}
+}
+
+
+void LogoScene::BeginScene()
+{
+	//Key input state reset
+	ZeroMemory(keyState, sizeof(keyState));
+
+	//Logo state machine reset
+	bgTimer.Reset();
+	logoState = LogoScene::Normal;
+	fmodLogo.Diffuse.w = 1.0f;
+}
+
+void LogoScene::OnResize(float newW, float newH)
+{
+	background.ChangeWidthToCurrentWidth(newW, newH);
+}
+
+void LogoScene::Update(float dt)
+{
+	UpdateLogo();
 }
 
 void LogoScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)

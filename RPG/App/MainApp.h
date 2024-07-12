@@ -26,6 +26,8 @@ private:
 	void BuildLayout();
 
 	void InitGameScenes();
+
+	bool drawFPSCounterFlag;
 	void UpdateFPS();
 
 private:

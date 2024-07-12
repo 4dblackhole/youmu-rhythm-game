@@ -27,13 +27,13 @@ void D2Ddevice::InitFonts()
 {
 	IDWriteTextFormat* format;
 	HR(dwFactory->CreateTextFormat(
-		L"sans",
+		L"",
 		0,
 		DWRITE_FONT_WEIGHT_REGULAR,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
-		15.0f,
-		L"en",
+		DefaultFontSize,
+		L"ko",
 		&format));
 	fontList.insert(make_pair(FontName::DefaultFont, format));
 }

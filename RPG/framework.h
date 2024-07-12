@@ -54,9 +54,16 @@ using namespace std;
 #include "Singleton/TextureManager.h"
 #include "Singleton/SceneManager.h"
 
+#include "Object/DwLayout.h"
+
 #include "App/D3DApp.h"
 extern const D3DApp* App;
 
 //all coordinates are based on these numbers.
 constexpr UINT StandardWidth = 1280;
 constexpr UINT StandardHeight = 720;
+
+namespace MyColorF
+{
+	extern const D2D1::ColorF GhostGreen;
+}

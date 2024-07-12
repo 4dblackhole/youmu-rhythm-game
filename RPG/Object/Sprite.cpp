@@ -98,17 +98,61 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 	Position = { x,y,0 };
 
 	UpdateWorld();
+
+	UvScale = { 1.0f,1.0f };
+	UvRotation = { 0,0,0 };
+	UvPosition = { 0,0 };
+	XMStoreFloat4x4(&mUvWorld, I);
 }
 
+//center coordinate system to other system
+XMFLOAT3 Sprite::AdjustDrawPos()
+{
+	XMFLOAT3 DrawPos{};
+	const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
+	switch (alignX)
+	{
+	case AlignModeX::Left:
+		DrawPos.x = (Scale.x - localWidth) * 0.5f;
+		break;
+	case AlignModeX::Right:
+		DrawPos.x = (localWidth - Scale.x) * 0.5f;
+		break;
+	}
+	switch (alignY)
+	{
+	case AlignModeY::Top:
+		DrawPos.y = ((float)StandardHeight - Scale.y) * 0.5f;
+		break;
+	case AlignModeY::Bottom:
+		DrawPos.y = (Scale.y - (float)StandardHeight) * 0.5f;
+		break;
+	}
+	DrawPos.x += Position.x;
+	DrawPos.y += Position.y;
+	return DrawPos;
+}
+
+//reflects the align states and updates world matrix
 void Sprite::UpdateWorld()
 {
 	XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&Scale));
 	XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&Rotation));
-	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&Position));
+
+	XMFLOAT3 drawPos = AdjustDrawPos();
+	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&drawPos));
 	XMStoreFloat4x4(&mWorld, S * R * T);
 }
 
-void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam) const
+void Sprite::UpdateUvWorld()
+{
+	XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&UvScale));
+	XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&UvRotation));
+	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat2(&UvPosition));
+	XMStoreFloat4x4(&mUvWorld, S * R * T);
+}
+
+void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	deviceContext->IASetInputLayout(mInputLayout.Get());
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -131,11 +175,24 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam) const
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
+		if (updateWorldFlag)
+		{
+			UpdateWorld();
+			updateWorldFlag = false;
+		}
 		CXMMATRIX world = XMLoadFloat4x4(&mWorld);
+
+		if (updateUvWorldFlag)
+		{
+			UpdateUvWorld();
+			updateUvWorldFlag = false;
+		}
+		CXMMATRIX uvWorld = XMLoadFloat4x4(&mUvWorld);
 		CXMMATRIX WVP = world * cam.View() * cam.Proj();
 
 		Effects::SpriteFX->mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
 		Effects::SpriteFX->mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&WVP));
+		Effects::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
 		Effects::SpriteFX->mfxTexture->SetResource(textureSRV);
 		Effects::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 
@@ -145,7 +202,12 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam) const
 	}
 }
 
-void Sprite::Resize(float w, float h)
+void Sprite::OnResize()
+{
+	UpdateWorld();
+}
+
+void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
 	Scale.x = ShortCut::GetOrthoWidth(w, h);
 	UpdateWorld();
@@ -195,4 +257,59 @@ void Sprite::BuildLayout(ID3D11Device* device)
 	Effects::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
 	HR(device->CreateInputLayout(VertexColorTexture::InputLayoutDesc::desc, VertexColorTexture::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
+}
+
+void Sprite::SetScale(const XMFLOAT2 s)
+{
+	Scale = s;
+	updateWorldFlag = true;
+}
+
+void Sprite::SetRotation(const XMFLOAT3 s)
+{
+	Rotation = s;
+	updateWorldFlag = true;
+}
+
+void Sprite::SetPosition(const XMFLOAT3 s)
+{
+	Position = s;
+	updateWorldFlag = true;
+}
+
+void Sprite::ChangePosition(float x, float y, float z)
+{
+	if (x) Position.x += x, updateWorldFlag = true;
+	if (y) Position.y += y, updateWorldFlag = true;
+	if (z) Position.z += z, updateWorldFlag = true;
+}
+
+void Sprite::SetUvScale(const XMFLOAT2 s)
+{
+	UvScale = s;
+	updateUvWorldFlag = true;
+}
+
+void Sprite::SetUvRotation(const XMFLOAT3 s)
+{
+	UvRotation = s;
+	updateUvWorldFlag = true;
+}
+
+void Sprite::SetUvPosition(const XMFLOAT2 s)
+{
+	UvPosition = s;
+	updateUvWorldFlag = true;
+}
+
+void Sprite::SetAlignX(AlignModeX m)
+{
+	alignX = m;
+	updateWorldFlag = true;
+}
+
+void Sprite::SetAlignY(AlignModeY m)
+{
+	alignY = m;
+	updateWorldFlag = true;
 }

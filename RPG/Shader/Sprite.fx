@@ -1,6 +1,7 @@
 cbuffer cbPerFrame
 {
     matrix gWorld;
+    matrix gUvWorld;
     matrix gWorldViewProj;
     float4 gTextureDiffuse;
 };
@@ -43,6 +44,22 @@ VertexOut VS(VertexIn vin)
 
 	return vout;
 }
+
+VertexOut VS_Texture(VertexIn vin)
+{
+    VertexOut vout;
+	
+	// Transform to world space space.
+    vout.Pos = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+	
+	// Output vertex attributes for interpolation across triangle.
+    vout.Color = vin.Color;
+    
+	// Output vertex attributes for interpolation across triangle.
+    vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gUvWorld).xy;
+
+    return vout;
+}
  
 float4 PS_Texture(VertexOut pin) : SV_Target
 {
@@ -58,7 +75,7 @@ technique11 TechTexture
 {
     pass P0
     {
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
+        SetVertexShader( CompileShader( vs_5_0, VS_Texture() ) );
 		SetGeometryShader( NULL );
         SetPixelShader(CompileShader(ps_5_0, PS_Texture()));
     }

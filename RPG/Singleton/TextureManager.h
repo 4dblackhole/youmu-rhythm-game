@@ -16,6 +16,7 @@ public:
 	public:
 		static constexpr LPCSTR fmodLogo = "fmod Logo";
 		static constexpr LPCSTR Title = "Title";
+		static constexpr LPCSTR MusicScroll = "MusicScroll";
 	};
 
 private:

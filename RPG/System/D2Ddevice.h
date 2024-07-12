@@ -62,6 +62,7 @@ public:
 		static constexpr LPCSTR DefaultFont = "DefaultFont";
 	};
 
+	static constexpr float DefaultFontSize = 15.0f;
 public:
 	void DrawTextLayout(D2D1_POINT_2F origin,
 		_In_ IDWriteTextLayout* textLayout,

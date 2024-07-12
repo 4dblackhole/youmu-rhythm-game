@@ -30,6 +30,9 @@ void ShortCut::TraceTimingPoint()
     TRACE(_T("%lfms\n"), (float)((float)(t % 10000000) / 100) * 0.01f);
 }
 
+//return internal width
+//in case that the current dimensions of window are 1280x360, the actual dimensions are 2560x720,
+//because StandardHeight is 720.
 float ShortCut::GetOrthoWidth(float w, float h)
 {
     return (float)w * ((float)StandardHeight / (float)h);

@@ -9,7 +9,7 @@ public:
 	LogoScene();
 	virtual ~LogoScene();
 
-	virtual void BeginScene(float newW, float newH) final;
+	virtual void BeginScene() final;
 	virtual void OnResize(float newW, float newH) final;
 	virtual void Update(float dt) final;
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) final;
@@ -21,9 +21,12 @@ public:
 
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) final;
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final;
+
 private:
 	void Init();
 	void Release();
+
+	void UpdateLogo();
 
 	Sprite fmodLogo;
 	Sprite background;
@@ -36,7 +39,7 @@ private:
 		Fade,
 		End
 	};
-	BGState state = Normal;
+	BGState logoState = Normal;
 
 	bool keyState[MAX_INPUT_KEY];
 };

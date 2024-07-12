@@ -18,6 +18,7 @@ void TextureManager::InitTextures(ID3D11Device* device)
 	AddTexture(device, L"Textures/tempTexture.png", "test");
 	AddTexture(device, L"Textures/myon.png", "myon");
 	AddTexture(device, L"Textures/Fmod/FMOD Logo White - Black Background.png", Name::fmodLogo);
+	AddTexture(device, L"Textures/SelectMusic/MusicScroll.png", Name::MusicScroll);
 }
 
 const ComPtr<ID3D11ShaderResourceView>& TextureManager::GetTexture(const string& str)

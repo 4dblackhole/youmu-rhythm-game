@@ -12,9 +12,14 @@ class LayoutDesc
 public:
 	LayoutDesc() : LayoutDesc(10.0f, D2D1::ColorF::White, {}) {}
 	LayoutDesc(float size, D2D1::ColorF color, POINT pos) : Color(color), FontSize(size), Pos(pos) {}
-	LayoutDesc(const LayoutDesc& l) : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX) {}
-	LayoutDesc(LayoutDesc&& l) noexcept : Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX) {}
 
+	LayoutDesc(const LayoutDesc& l)
+		: Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
+		, maxW(l.maxW), maxH(l.maxH) {}
+
+	LayoutDesc(LayoutDesc&& l) noexcept 
+		: Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
+		, maxW(l.maxW), maxH(l.maxH) {}
 	LayoutDesc& operator=(const LayoutDesc& l);
 	LayoutDesc& operator=(LayoutDesc&& l) noexcept;
 
@@ -47,6 +52,9 @@ public:
 	void ChangeClipArea(FLOAT rate);
 	void ChangeSize(FLOAT size, const DWRITE_TEXT_RANGE sizeRange = { 0, (UINT32)-1 });
 	void SetLayout(const std::wstring text, IDWriteTextFormat* textFormat);
+	void SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* textFormat);
+	static void GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* textFormat, DWRITE_TEXT_METRICS* out);
+
 	void Draw() const;
 	void Resize(float w, float h);
 

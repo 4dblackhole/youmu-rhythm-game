@@ -5,19 +5,19 @@
 #include "Singleton/SceneManager.h"
 
 #include "GameScene/TitleScene.h"
+#include "GameScene/SelectMusicScene.h"
 
 MainApp::MainApp(HINSTANCE hInstance)
-	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight)
+	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
+	drawFPSCounterFlag(true)
 {
 	mMainWndCaption = _T("2D Test");
 
-	LayoutDesc tempDesc(20.0f, D2D1::ColorF(1, 1, 1, 1), { -80, StandardHeight - 30 });
+	LayoutDesc tempDesc(20.0f, D2D1::ColorF(1, 1, 1, 1), { -10, StandardHeight - 30 });
 	tempDesc.alignX = AlignModeX::Right;
-	tempDesc.maxW = 84.0f;
-	tempDesc.maxH = 30.0f;
 	fpsLayout = new DwLayout(tempDesc);
-	fpsLayout->SetLayout(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
-		
+	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+
 	fpsTimer.Reset();
 }
 
@@ -31,6 +31,8 @@ void MainApp::InitGameScenes()
 {
 	GameScene* scene = new TitleScene;
 	SCENEMANAGER.AddScene(SceneManager::Name::Title, scene);
+	scene = new SelectMusicScene;
+	SCENEMANAGER.AddScene(SceneManager::Name::SelectMusic, scene);
 }
 
 bool MainApp::Init()
@@ -63,6 +65,7 @@ void MainApp::OnResize()
 void MainApp::UpdateScene(float dt)
 {
 	SCENEMANAGER.GetCurrentScene()->Update(dt);
+	if (KEYBOARD.Press(VK_CONTROL) && KEYBOARD.Down(VK_F7)) drawFPSCounterFlag = !drawFPSCounterFlag;
 }
 
 void MainApp::UpdateFPS()
@@ -70,13 +73,13 @@ void MainApp::UpdateFPS()
 	static int frameCnt;
 	static float timeElapsed;
 	constexpr float calculateInterval = 0.5f;
+	constexpr float intervalInverse = 1.0f / calculateInterval;
 	
 	fpsTimer.Tick();
 	++frameCnt;
 
 	if ((fpsTimer.TotalTime() - timeElapsed) >= calculateInterval)
 	{
-		const float intervalInverse = 1.0f / calculateInterval;
 		const float fps = (float)frameCnt * intervalInverse;
 
 		WCHAR fpsStr[20];
@@ -101,9 +104,11 @@ void MainApp::DrawScene()
 
 	SCENEMANAGER.GetCurrentScene()->Render(md3dImmediateContext, mCamera);
 
-	UpdateFPS();
-	fpsLayout->Draw();
-
+	if (drawFPSCounterFlag)
+	{
+		UpdateFPS();
+		fpsLayout->Draw();
+	}
 	D2D.EndDraw();
 	HR(mSwapChain->Present(0, 0));
 }

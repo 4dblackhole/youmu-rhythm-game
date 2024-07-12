@@ -29,7 +29,28 @@ void DwLayout::SetLayout(const std::wstring text, IDWriteTextFormat* textFormat)
 	ReleaseCOM(this->layout);
 	HR(D2D.GetDwFactory()->CreateTextLayout(text.c_str(), (UINT32)text.length(), textFormat, desc.maxW, desc.maxH, &this->layout));
 	//resize according to monitor dimensions
-	Resize(App->GetWidth(), App->GetHeight());
+	Resize((float)App->GetWidth(), (float)App->GetHeight());
+}
+
+void DwLayout::GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* textFormat, DWRITE_TEXT_METRICS* out)
+{
+	IDWriteTextLayout* tempLayout = nullptr;
+	HR(D2D.GetDwFactory()->CreateTextLayout(text.c_str(), (UINT32)text.length(), textFormat, 10000.0f, 0.0f, &tempLayout));
+	tempLayout->GetMetrics(out);
+	ReleaseCOM(tempLayout);
+}
+
+void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* textFormat)
+{
+	//Get Total Width and Height
+	DWRITE_TEXT_METRICS mt;
+	GetLayoutMetrics(text, textFormat, &mt);
+
+	float sizeRate = desc.FontSize / textFormat->GetFontSize();
+	desc.Pos.x = desc.Pos.x - (int)mt.width * sizeRate;
+
+	SetLayout(text, textFormat);
+
 }
 
 void DwLayout::Draw() const
