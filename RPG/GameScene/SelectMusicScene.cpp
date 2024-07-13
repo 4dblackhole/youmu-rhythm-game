@@ -11,8 +11,8 @@ constexpr int NoMusicTextX = MusicScrollX - (int)MusicScrollWidth;
 constexpr int NoMusicTextY = MusicScrollY + 80;
 
 SelectMusicScene::SelectMusicScene() :
-	background(0, 0, (float)0, (float)StandardHeight, { 0, 0, 0, 1 }, true),
-	musicScroll(MusicScrollX, MusicScrollY, 450.0f, 670.0f)
+	background(0, 0, (float)0, (float)StandardHeight, MyColor4::Black, true),
+	musicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
 {
 	musicScroll.SetAlignX(AlignModeX::Right);
 	musicScroll.SetAlignY(AlignModeY::Top);

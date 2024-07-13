@@ -1,6 +1,7 @@
 [Metadata]
 Music metadata: Music/Rabpit - Saika/saika.txt
 Pattern Maker: Konpaku Sariel
+Difficulty Name: Test
 
 
 Pattern Offset: 1045

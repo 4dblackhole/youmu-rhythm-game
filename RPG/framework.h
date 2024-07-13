@@ -67,3 +67,10 @@ namespace MyColorF
 {
 	extern const D2D1::ColorF GhostGreen;
 }
+namespace MyColor4
+{
+	constexpr DirectX::XMFLOAT4 Black(0, 0, 0, 1);
+	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
+}
+
+constexpr LPCWSTR SongsDir = L"Songs/";
