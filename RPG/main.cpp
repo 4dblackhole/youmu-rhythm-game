@@ -14,8 +14,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 #endif
 
 	constexpr XMFLOAT4 f(1, 1, 1, 1);
-	constexpr RationalNumber cr(3, 6);
-	RationalNumber df = RationalNumber{ 2,4 } + RationalNumber{ -34,47 } / RationalNumber{ 7,59 };
+	constexpr RationalNumber<64> cr = { 3, 6 };
+	RationalNumber<64> df = RationalNumber<64>{ 2,4 } * cr + RationalNumber<64>{ -34,47 } / RationalNumber<64>{ 7,59 };
 
 	MainApp theApp(hInstance);
 

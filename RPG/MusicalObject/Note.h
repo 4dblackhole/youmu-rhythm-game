@@ -10,7 +10,7 @@ class Measure
 public:
 
 private:
-	//RationalNumber length;
+	RationalNumber<64> length;
 	vector<Note*> notes;
 };
 
@@ -21,14 +21,10 @@ public:
 	~Note() {};
 
 private:
-	//RationalNumber position;
-	int keyType;
-	int actionType;
+	RationalNumber<64> position;
+	UINT keyType;
+	UINT actionType;
 	FMOD::Channel* hitSound;
 	string extraData;
-
-	UINT64 measureIdx;
-
-	double posMs;
 };
 
