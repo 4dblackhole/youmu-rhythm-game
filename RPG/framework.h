@@ -25,6 +25,7 @@ using namespace DirectX;
 #include <assert.h>
 #include <chrono>
 #include <fstream>
+#include <functional>
 #include <malloc.h>
 #include <map>
 #include <memory.h>
@@ -40,9 +41,13 @@ using namespace DirectX;
 using namespace std;
 
 
+//Fmod
+#include <fmod.hpp>
+
 //my headers
 #include "Utility/ShortCut.h"
 #include "Utility/Math.h"
+#include "Utility/RationalNumber.h"
 
 #include "System/Keyboard.h"
 #include "System/Camera.h"
@@ -55,6 +60,8 @@ using namespace std;
 #include "Singleton/SceneManager.h"
 
 #include "Object/DwLayout.h"
+
+
 
 #include "App/D3DApp.h"
 extern const D3DApp* App;

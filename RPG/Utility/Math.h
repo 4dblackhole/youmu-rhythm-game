@@ -22,4 +22,17 @@ public:
 	static XMMATRIX InverseTranspose(CXMMATRIX M);
 	static XMVECTOR RandUnitVec3();
 	static XMVECTOR RandHemisphereUnitVec3(XMVECTOR n);
+
+	template <typename _Integer>
+	static constexpr _Integer GCD(_Integer a, _Integer b) noexcept
+	{
+		if (b == 0) return a;	// found the GCD
+		else return GCD<_Integer>(b, a % b);
+	}
+
+	template <typename _Integer>
+	static constexpr _Integer LCM(_Integer a, _Integer b) noexcept
+	{
+		return  (a / GCD<_Integer>(b, a % b)) * b;
+	}
 };

@@ -123,6 +123,9 @@
     <ClCompile Include="MusicalObject\Note.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\RationalNumber.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\Note.h">
       <Filter>MusicalObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\RationalNumber.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

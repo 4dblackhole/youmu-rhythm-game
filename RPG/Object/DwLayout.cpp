@@ -47,7 +47,7 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 	GetLayoutMetrics(text, textFormat, &mt);
 
 	float sizeRate = desc.FontSize / textFormat->GetFontSize();
-	desc.Pos.x = desc.Pos.x - (int)mt.width * sizeRate;
+	desc.Pos.x = desc.Pos.x - (int)(mt.width * sizeRate);
 
 	SetLayout(text, textFormat);
 
