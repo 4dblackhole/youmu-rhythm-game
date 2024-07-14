@@ -14,11 +14,11 @@ void TextureManager::AddTexture(ID3D11Device* device, const wstring& file, strin
 
 void TextureManager::InitTextures(ID3D11Device* device)
 {
-	AddTexture(device, L"Textures/TextureNotFound.png", TextureFindError);
-	AddTexture(device, L"Textures/tempTexture.png", "test");
-	AddTexture(device, L"Textures/myon.png", "myon");
-	AddTexture(device, L"Textures/Fmod/FMOD Logo White - Black Background.png", Name::fmodLogo);
-	AddTexture(device, L"Textures/SelectMusic/MusicScroll.png", Name::MusicScroll);
+	AddTexture(device, TextureDir+ L"TextureNotFound.png", TextureFindError);
+	AddTexture(device, TextureDir+ L"tempTexture.png", "test");
+	AddTexture(device, TextureDir+ L"myon.png", "myon");
+	AddTexture(device, TextureDir+ L"Fmod/FMOD Logo White - Black Background.png", Name::fmodLogo);
+	AddTexture(device, TextureDir+ L"SelectMusic/MusicScroll.png", Name::MusicScroll);
 }
 
 const ComPtr<ID3D11ShaderResourceView>& TextureManager::GetTexture(const string& str)

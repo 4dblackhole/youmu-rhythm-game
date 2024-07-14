@@ -1,18 +1,46 @@
 #include "framework.h"
-#include "Shape2D.h"
+#include "Rectangle2D.h"
 
 using namespace D2D1;
 
-Shape2D::Shape2D()
+Rectangle2D::Rectangle2D()
+	: Rectangle2D({
+		{ 1.0f, 0.0f },
+		{ -0.5f,  0.86602540378443864676372317075294f},
+		{ -0.5f, -0.86602540378443864676372317075294f} })
 {
 }
 
-Shape2D::~Shape2D()
+Rectangle2D::Rectangle2D(const D2D1_TRIANGLE& pts)
+{
+	ID2D1GeometrySink* pSink = nullptr;
+	mWorld = Matrix3x2F::Identity();
+
+	D2D.GetD2DFactory()->CreatePathGeometry(&geometry);
+	geometry->Open(&pSink);
+
+	pSink->BeginFigure(
+		pts.point1,
+		D2D1_FIGURE_BEGIN_FILLED
+	);
+
+	pSink->AddLine(pts.point2);
+	pSink->AddLine(pts.point3);
+	pSink->AddLine(pts.point1);
+	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+
+	pSink->Close();
+	ReleaseCOM(pSink);
+
+	drawPos = { (float)Position.width,(float)Position.height };
+}
+
+Rectangle2D::~Rectangle2D()
 {
 	ReleaseCOM(geometry);
 }
 
-void Shape2D::Draw()
+void Rectangle2D::Draw()
 {
 	if (worldUpdateFlag == true)
 	{
@@ -20,13 +48,11 @@ void Shape2D::Draw()
 		worldUpdateFlag = false;
 	}
 	D2D.GetRenderTarget()->SetTransform(mWorld);
-	/*
 	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(BorderColor), borderSize);
 	D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(FillColor));
-	*/
 }
 
-void Shape2D::Repositioning(float newW, float newH)
+void Rectangle2D::Repositioning(float newW, float newH)
 {
 	const float rateY = newH / (float)StandardHeight;
 	const float centerWidth = newW * 0.5f;
@@ -44,7 +70,7 @@ void Shape2D::Repositioning(float newW, float newH)
 	}
 }
 
-void Shape2D::Resize(float newW, float newH)
+void Rectangle2D::Resize(float newW, float newH)
 {
 	drawScale = newH / (float)StandardHeight;;
 
@@ -52,32 +78,32 @@ void Shape2D::Resize(float newW, float newH)
 	worldUpdateFlag = true;
 }
 
-void Shape2D::SetCenter(const D2D1_POINT_2F s)
+void Rectangle2D::SetCenter(const D2D1_POINT_2F s)
 {
 	memcpy_s(&this->Center, sizeof(D2D1_POINT_2F), &s, sizeof(D2D1_POINT_2F));
 	worldUpdateFlag = true;
 }
 
-void Shape2D::SetScale(const D2D1_SIZE_F s)
+void Rectangle2D::SetScale(const D2D1_SIZE_F s)
 {
 	this->Scale = s;
 	worldUpdateFlag = true;
 }
 
-void Shape2D::SetRotation(const FLOAT s)
+void Rectangle2D::SetRotation(const FLOAT s)
 {
 	this->Rotation = s;
 	worldUpdateFlag = true;
 }
 
-void Shape2D::SetPosition(const D2D1_SIZE_F s)
+void Rectangle2D::SetPosition(const D2D1_SIZE_F s)
 {
 	this->Position = s;
 	Repositioning((float)App->GetWidth(), (float)App->GetHeight());
 	worldUpdateFlag = true;
 }
 
-void Shape2D::UpdateWorld()
+void Rectangle2D::UpdateWorld()
 {
 	D2D1_SIZE_F totalScale = { Scale.width * drawScale, Scale.height * drawScale };
 	mWorld = Matrix3x2F::Scale(totalScale, Center) * D2D1::Matrix3x2F::Rotation(Rotation, Center) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });

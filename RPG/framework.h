@@ -49,6 +49,7 @@ using namespace std;
 #include "Utility/Math.h"
 #include "Utility/RationalNumber.h"
 
+#include "System/FmodSystem.h"
 #include "System/Keyboard.h"
 #include "System/Camera.h"
 #include "System/D2Ddevice.h"
@@ -80,4 +81,6 @@ namespace MyColor4
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
 }
 
-constexpr LPCWSTR SongsDir = L"Songs/";
+extern const wstring SongsDir;
+extern const wstring TextureDir;
+extern const wstring SystemSoundDir;

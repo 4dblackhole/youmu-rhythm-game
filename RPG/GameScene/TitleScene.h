@@ -37,7 +37,7 @@ private:
 		MAX
 	};
 	SelectKey selectKey = SelectKey::GameStart;
-	Triangle2D* keySelectTriangle;
+	Triangle2D* keySelectTriangle{};
 	void ChangeTrianglePos();
 
 
@@ -52,5 +52,7 @@ private:
 	vector<DwLayout> layoutList;
 	void InitLayout();
 
+	FmodSystem fmodSystem;
+	void InitFmod();
 };
 

@@ -23,7 +23,10 @@ TitleScene::TitleScene() :
 	background(0, 0, (float)StandardWidth, (float)StandardHeight, { 0, 0, 0, 1 }, true),
 	tooltipBG(0, (ToolTipSize -(float)(StandardHeight))*0.5f, (float)StandardWidth, ToolTipSize, DefaultTooltipBgColor, true)
 {
-	InitLayout();
+	vector<thread>initThreads;
+	initThreads.emplace_back(thread(&TitleScene::InitLayout, this));
+	initThreads.emplace_back(thread(&TitleScene::InitFmod, this));
+	for (thread& it : initThreads) it.join();
 }
 
 TitleScene::~TitleScene()
@@ -33,7 +36,7 @@ TitleScene::~TitleScene()
 void TitleScene::BeginScene()
 {
 	HR(D3DX11CreateShaderResourceViewFromFile(App->GetDevice(),
-		L"Textures/Title/TitleLogo_ghost.png", 0, 0, &titleSrv, 0));
+		(TextureDir+L"/Title/TitleLogo_ghost.png").c_str(), 0, 0, &titleSrv, 0));
 	titleLogoImg.SetTexture(titleSrv);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->SetScale({ 12.0f,12.0f });
@@ -147,4 +150,9 @@ void TitleScene::InitLayout()
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
+}
+
+void TitleScene::InitFmod()
+{
+	fmodSystem.Init();
 }

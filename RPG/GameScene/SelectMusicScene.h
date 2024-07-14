@@ -28,4 +28,5 @@ private:
 
 	Sprite musicScroll;
 	unique_ptr<DwLayout> musicScrollNoMusicText;
+	UINT musicCount = 0;
 };

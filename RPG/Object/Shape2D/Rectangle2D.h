@@ -2,13 +2,14 @@
 #include <d2d1.h>
 #include "AlignMode.h"
 
-class Shape2D
+class Rectangle2D
 {
 public:
-	Shape2D();
-	virtual ~Shape2D();
+	Rectangle2D();
+	Rectangle2D(const D2D1_TRIANGLE& pts);
+	~Rectangle2D();
 
-	virtual void Draw();
+	void Draw();
 	void Resize(float newW, float newH);
 
 	void SetCenter(const D2D1_POINT_2F);

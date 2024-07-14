@@ -63,7 +63,7 @@ void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& 
 {
 	background.Render(deviceContext, cam);
 	musicScroll.Render(deviceContext, cam);
-	musicScrollNoMusicText->Draw();
+	if (musicCount == 0) musicScrollNoMusicText->Draw();
 }
 
 void SelectMusicScene::EndScene()
