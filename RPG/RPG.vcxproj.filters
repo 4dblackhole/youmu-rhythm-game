@@ -135,6 +135,9 @@
     <ClCompile Include="Object\Shape2D\Shape2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
+    <ClCompile Include="System\World2D.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -203,9 +206,6 @@
     <ClInclude Include="Object\Shape2D\Triangle2D.h">
       <Filter>Object\Shape2D</Filter>
     </ClInclude>
-    <ClInclude Include="Object\Shape2D\AlignMode.h">
-      <Filter>Object\Shape2D</Filter>
-    </ClInclude>
     <ClInclude Include="GameScene\SelectMusicScene.h">
       <Filter>GameScene</Filter>
     </ClInclude>
@@ -229,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="Object\Shape2D\Shape2D.h">
       <Filter>Object\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="System\AlignMode.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\World2D.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

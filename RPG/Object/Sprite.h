@@ -1,6 +1,6 @@
 #pragma once
 #include "framework.h"
-#include "Shape2D/AlignMode.h"
+#include "System/AlignMode.h"
 
 class Sprite
 {

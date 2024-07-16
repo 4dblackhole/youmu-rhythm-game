@@ -5,7 +5,7 @@
 #include <d2d1_1.h>
 #include <dwrite.h>
 
-#include "Shape2D/AlignMode.h"
+#include "System/AlignMode.h"
 
 class LayoutDesc
 {
@@ -23,7 +23,7 @@ public:
 	LayoutDesc& operator=(const LayoutDesc& l);
 	LayoutDesc& operator=(LayoutDesc&& l) noexcept;
 
-	void Resize(const float rateX, const float rateY, IDWriteTextLayout* layout);
+	void Resize(const float rateX, const float rateY);
 
 	D2D1::ColorF Color;
 	POINT Pos; //middle align

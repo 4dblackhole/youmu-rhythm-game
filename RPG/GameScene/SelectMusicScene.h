@@ -2,6 +2,8 @@
 
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
+#include "Object/Shape2D/Rectangle2D.h"
+
 #include "framework.h"
 
 class SelectMusicScene : public GameScene
@@ -29,4 +31,6 @@ private:
 	Sprite musicScroll;
 	unique_ptr<DwLayout> musicScrollNoMusicText;
 	UINT musicCount = 0;
+
+	Rectangle2D box;
 };

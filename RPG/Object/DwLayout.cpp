@@ -55,6 +55,7 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 
 void DwLayout::Draw() const
 {
+	D2D.GetRenderTarget()->SetTransform(Matrix3x2F::Identity());
 	D2D.DrawTextLayout(desc.DrawPos, layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 
@@ -63,7 +64,7 @@ void DwLayout::Resize(float w, float h)
 	const float rateY = h / (float)StandardHeight;
 	ChangeSize(this->desc.FontSize * rateY);
 	ChangeClipArea(rateY);
-	desc.Resize(w, h, layout);
+	desc.Resize(w, h);
 }
 
 LayoutDesc& LayoutDesc::operator=(const LayoutDesc& l)
@@ -90,7 +91,7 @@ LayoutDesc& LayoutDesc::operator=(LayoutDesc&& l) noexcept
 	return *this;
 }
 
-void LayoutDesc::Resize(const float w, const float h, IDWriteTextLayout* layout)
+void LayoutDesc::Resize(const float w, const float h)
 {
 	switch (alignX)
 	{

@@ -84,3 +84,6 @@ namespace MyColor4
 extern const wstring SongsDir;
 extern const wstring TextureDir;
 extern const wstring SystemSoundDir;
+
+constexpr LPCWSTR ExtMusic = L".ymm";
+constexpr LPCWSTR ExtPattern = L".ymp";

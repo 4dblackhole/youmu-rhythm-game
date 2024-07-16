@@ -10,7 +10,7 @@ constexpr float NoMusicTextSize = 40.0f;
 constexpr int NoMusicTextX = MusicScrollX - (int)MusicScrollWidth;
 constexpr int NoMusicTextY = MusicScrollY + 80;
 
-SelectMusicScene::SelectMusicScene() :
+SelectMusicScene::SelectMusicScene() : box({ MusicScrollX,-0.2f,+MusicScrollWidth,MusicScrollHeight }),
 	background(0, 0, (float)0, (float)StandardHeight, MyColor4::Black, true),
 	musicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
 {
@@ -32,6 +32,10 @@ SelectMusicScene::SelectMusicScene() :
 	musicScrollNoMusicText.reset(new DwLayout(tempDesc));
 	musicScrollNoMusicText->SetLayoutRightAlign(tempstr, tempFormat);
 	musicScrollNoMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+	box.BorderSize = 0.1f;
+	box.SetPosition({ 300,300 });
+	box.SetScale({ 30,30 });
 }
 
 SelectMusicScene::~SelectMusicScene()
@@ -47,6 +51,7 @@ void SelectMusicScene::OnResize(float newW, float newH)
 	background.ChangeWidthToCurrentWidth(newW, newH);
 	musicScroll.OnResize();
 	musicScrollNoMusicText->Resize(newW, newH);
+	box.Resize(newW, newH);
 }
 
 void SelectMusicScene::Update(float dt)
@@ -56,7 +61,6 @@ void SelectMusicScene::Update(float dt)
 		string tempStr(SceneManager::Name::Title);
 		SceneManager::GetInstance().ChangeScene(tempStr);
 	}
-
 }
 
 void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
@@ -64,6 +68,7 @@ void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& 
 	background.Render(deviceContext, cam);
 	musicScroll.Render(deviceContext, cam);
 	if (musicCount == 0) musicScrollNoMusicText->Draw();
+	box.Draw();
 }
 
 void SelectMusicScene::EndScene()

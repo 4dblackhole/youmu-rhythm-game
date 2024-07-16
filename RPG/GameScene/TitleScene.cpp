@@ -155,4 +155,6 @@ void TitleScene::InitLayout()
 void TitleScene::InitFmod()
 {
 	fmodSystem.Init();
+	fmodSystem.Release();
+	fmodSystem.Init();
 }

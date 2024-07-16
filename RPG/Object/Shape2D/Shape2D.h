@@ -1,6 +1,6 @@
 #pragma once
 #include <d2d1.h>
-#include "AlignMode.h"
+#include "System/AlignMode.h"
 
 class Shape2D
 {
@@ -16,22 +16,22 @@ public:
 	void SetRotation(const FLOAT);
 	void SetPosition(const D2D1_SIZE_F);
 
-	const D2D1_POINT_2F& GetCenter() const { return this->Center; }
-	const D2D1_SIZE_F& GetScale() const { return this->Scale; }
-	const FLOAT& GetRotation() const { return this->Rotation; }
-	const D2D1_SIZE_F& GetPosition() const { return this->Position; }
+	const D2D1_POINT_2F& GetCenter() const { return this->centerPos; }
+	const D2D1_SIZE_F& GetScale() const { return this->scale; }
+	const FLOAT& GetRotation() const { return this->rotation; }
+	const D2D1_SIZE_F& GetPosition() const { return this->position; }
 
 	D2D1::ColorF FillColor = { 1,1,1,1 };
 	D2D1::ColorF BorderColor = { 1,1,1,1 };
-	float borderSize = 0.5f;
+	float BorderSize = 0.5f;
 
-private:
+protected:
 	void Repositioning(float newW, float newH);
 
-	D2D1_POINT_2F Center = { 0.0f, 0.0f };
-	D2D1_SIZE_F Scale = { 1.0f, 1.0f };
-	FLOAT Rotation = 0.0f;
-	D2D1_SIZE_F Position = { 0.0f, 0.0f };
+	D2D1_POINT_2F centerPos = { 0.0f, 0.0f };
+	D2D1_SIZE_F scale = { 1.0f, 1.0f };
+	FLOAT rotation = 0.0f;
+	D2D1_SIZE_F position = { 0.0f, 0.0f };
 
 	bool worldUpdateFlag = false;
 	void UpdateWorld(); //MUST CALL THIS FUNCTION AFTER CHANGE the Center/S.R.T

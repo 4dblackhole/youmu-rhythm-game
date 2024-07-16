@@ -4,107 +4,42 @@
 using namespace D2D1;
 
 Rectangle2D::Rectangle2D()
-	: Rectangle2D({
-		{ 1.0f, 0.0f },
-		{ -0.5f,  0.86602540378443864676372317075294f},
-		{ -0.5f, -0.86602540378443864676372317075294f} })
+	: Rectangle2D({ -0.5f,-0.5f,0.5f,0.5f })
 {
 }
 
-Rectangle2D::Rectangle2D(const D2D1_TRIANGLE& pts)
+Rectangle2D::Rectangle2D(const D2D1_RECT_F& pts) : Shape2D()
 {
-	ID2D1GeometrySink* pSink = nullptr;
-	mWorld = Matrix3x2F::Identity();
-
 	D2D.GetD2DFactory()->CreatePathGeometry(&geometry);
+	ID2D1GeometrySink* pSink = nullptr;
 	geometry->Open(&pSink);
 
-	pSink->BeginFigure(
-		pts.point1,
-		D2D1_FIGURE_BEGIN_FILLED
-	);
+	const D2D1_POINT_2F ptLT{ pts.left,pts.top };
+	const D2D1_POINT_2F ptRT{ pts.right,pts.top };
+	const D2D1_POINT_2F ptLB{ pts.left,pts.bottom};
+	const D2D1_POINT_2F ptRB{ pts.right,pts.bottom};
 
-	pSink->AddLine(pts.point2);
-	pSink->AddLine(pts.point3);
-	pSink->AddLine(pts.point1);
+	pSink->BeginFigure(ptLT, D2D1_FIGURE_BEGIN_FILLED);
+
+	pSink->AddLine(ptRT);
+	pSink->AddLine(ptRB);
+	pSink->AddLine(ptLB);
+	pSink->AddLine(ptLT);
+
 	pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
 
 	pSink->Close();
 	ReleaseCOM(pSink);
-
-	drawPos = { (float)Position.width,(float)Position.height };
 }
 
 Rectangle2D::~Rectangle2D()
 {
-	ReleaseCOM(geometry);
+
 }
 
 void Rectangle2D::Draw()
 {
-	if (worldUpdateFlag == true)
-	{
-		UpdateWorld();
-		worldUpdateFlag = false;
-	}
-	D2D.GetRenderTarget()->SetTransform(mWorld);
-	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(BorderColor), borderSize);
-	D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(FillColor));
-}
-
-void Rectangle2D::Repositioning(float newW, float newH)
-{
-	const float rateY = newH / (float)StandardHeight;
-	const float centerWidth = newW * 0.5f;
-	switch (alignX)
-	{
-	case AlignModeX::Left:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, Position.width, Position.height);
-		break;
-	case AlignModeX::Mid:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, Position.width, Position.height, centerWidth);
-		break;
-	case AlignModeX::Right:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, Position.width, Position.height, newW - Scale.width * rateY);
-		break;
-	}
-}
-
-void Rectangle2D::Resize(float newW, float newH)
-{
-	drawScale = newH / (float)StandardHeight;;
-
-	Repositioning(newW, newH);
-	worldUpdateFlag = true;
-}
-
-void Rectangle2D::SetCenter(const D2D1_POINT_2F s)
-{
-	memcpy_s(&this->Center, sizeof(D2D1_POINT_2F), &s, sizeof(D2D1_POINT_2F));
-	worldUpdateFlag = true;
-}
-
-void Rectangle2D::SetScale(const D2D1_SIZE_F s)
-{
-	this->Scale = s;
-	worldUpdateFlag = true;
-}
-
-void Rectangle2D::SetRotation(const FLOAT s)
-{
-	this->Rotation = s;
-	worldUpdateFlag = true;
-}
-
-void Rectangle2D::SetPosition(const D2D1_SIZE_F s)
-{
-	this->Position = s;
-	Repositioning((float)App->GetWidth(), (float)App->GetHeight());
-	worldUpdateFlag = true;
-}
-
-void Rectangle2D::UpdateWorld()
-{
-	D2D1_SIZE_F totalScale = { Scale.width * drawScale, Scale.height * drawScale };
-	mWorld = Matrix3x2F::Scale(totalScale, Center) * D2D1::Matrix3x2F::Rotation(Rotation, Center) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
+	__super::Draw();
+	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(BorderColor), BorderSize);
+	//D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(FillColor));
 }

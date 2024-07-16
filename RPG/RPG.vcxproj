@@ -196,6 +196,7 @@
     <ClCompile Include="System\GameScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
+    <ClCompile Include="System\World2D.cpp" />
     <ClCompile Include="Utility\Math.cpp" />
     <ClCompile Include="Utility\RationalNumber.cpp" />
     <ClCompile Include="Utility\ShortCut.cpp" />
@@ -214,7 +215,6 @@
     <ClInclude Include="MusicalObject\Note.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
     <ClInclude Include="Object\DwLayout.h" />
-    <ClInclude Include="Object\Shape2D\AlignMode.h" />
     <ClInclude Include="Object\Shape2D\Rectangle2D.h" />
     <ClInclude Include="Object\Shape2D\Shape2D.h" />
     <ClInclude Include="Object\Shape2D\Triangle2D.h" />
@@ -223,12 +223,14 @@
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
     <ClInclude Include="Singleton\TextureManager.h" />
+    <ClInclude Include="System\AlignMode.h" />
     <ClInclude Include="System\Camera.h" />
     <ClInclude Include="System\D2Ddevice.h" />
     <ClInclude Include="System\FmodSystem.h" />
     <ClInclude Include="System\GameScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />
+    <ClInclude Include="System\World2D.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\RationalNumber.h" />
     <ClInclude Include="Utility\ShortCut.h" />
