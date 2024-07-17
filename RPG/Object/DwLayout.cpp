@@ -46,8 +46,8 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 	DWRITE_TEXT_METRICS mt;
 	GetLayoutMetrics(text, textFormat, &mt);
 
-	float sizeRate = desc.FontSize / textFormat->GetFontSize();
-	desc.Pos.x = desc.Pos.x - (int)(mt.width * sizeRate);
+	float sizeRate = desc.world2d.GetScale().x / textFormat->GetFontSize();
+	desc.world2d.SetPosition({ desc.world2d.GetPosition().x - (int)(mt.width * sizeRate),desc.world2d.GetPosition().y });
 
 	SetLayout(text, textFormat);
 
@@ -56,43 +56,39 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 void DwLayout::Draw() const
 {
 	D2D.GetRenderTarget()->SetTransform(Matrix3x2F::Identity());
-	D2D.DrawTextLayout(desc.DrawPos, layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
+	D2D.DrawTextLayout(desc.world2d.GetDrawPos(), layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 
 void DwLayout::Resize(float w, float h)
 {
-	const float rateY = h / (float)StandardHeight;
-	ChangeSize(this->desc.FontSize * rateY);
-	ChangeClipArea(rateY);
 	desc.Resize(w, h);
+	const float rateY = h / (float)StandardHeight;
+	ChangeSize(this->desc.world2d.GetDrawScale().x);
+	ChangeClipArea(rateY);
 }
 
 LayoutDesc& LayoutDesc::operator=(const LayoutDesc& l)
 {
 	Color = (l.Color);
-	FontSize = l.FontSize;
-	Pos = l.Pos;
-	DrawPos = l.DrawPos;
+	world2d = l.world2d;
 	maxW = l.maxW;
 	maxH = l.maxH;
-	alignX = l.alignX;
 	return *this;
 }
 
 LayoutDesc& LayoutDesc::operator=(LayoutDesc&& l) noexcept
 {
-	Color = (l.Color);
-	FontSize = l.FontSize;
-	Pos = l.Pos;
-	DrawPos = l.DrawPos;
+	Color = (l.Color); 
+	world2d = l.world2d;
 	maxW = l.maxW;
 	maxH = l.maxH;
-	alignX = l.alignX;
 	return *this;
 }
 
 void LayoutDesc::Resize(const float w, const float h)
 {
+	world2d.Resize(w, h);
+	/*
 	switch (alignX)
 	{
 	case AlignModeX::Left:
@@ -111,4 +107,5 @@ void LayoutDesc::Resize(const float w, const float h)
 	}
 	break;
 	}
+	*/
 }

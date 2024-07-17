@@ -14,7 +14,7 @@ MainApp::MainApp(HINSTANCE hInstance)
 	mMainWndCaption = _T("2D Test");
 
 	LayoutDesc tempDesc(20.0f, D2D1::ColorF(1, 1, 1, 1), { -10, StandardHeight - 30 });
-	tempDesc.alignX = AlignModeX::Right;
+	tempDesc.world2d.alignX = AlignModeX::Right;
 	fpsLayout = new DwLayout(tempDesc);
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 

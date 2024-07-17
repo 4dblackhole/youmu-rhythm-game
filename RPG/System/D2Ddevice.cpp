@@ -17,7 +17,12 @@ D2Ddevice::~D2Ddevice()
 
 void D2Ddevice::CreateD2DDWFactory()
 {
-	HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2dFactory.GetAddressOf()));
+	D2D1_FACTORY_OPTIONS options{};
+#if defined(DEBUG) || defined(_DEBUG)  
+	options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+#endif
+
+	HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, options, d2dFactory.GetAddressOf()));
 
 	HR(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
 		__uuidof(IDWriteFactory), (IUnknown**)dwFactory.GetAddressOf()));

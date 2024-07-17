@@ -6,37 +6,38 @@
 #include <dwrite.h>
 
 #include "System/AlignMode.h"
+#include "System/World2D.h"
 
 class LayoutDesc
 {
 public:
 	LayoutDesc() : LayoutDesc(10.0f, D2D1::ColorF::White, {}) {}
-	LayoutDesc(float size, D2D1::ColorF color, POINT pos) : Color(color), FontSize(size), Pos(pos) {}
+	LayoutDesc(float size, D2D1::ColorF color, D2D1_SIZE_F pos) : Color(color), world2d({ size,size }, 0.0f, { pos.width,pos.height }) {}
 
 	LayoutDesc(const LayoutDesc& l)
-		: Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
+		: Color(l.Color), world2d(l.world2d)
 		, maxW(l.maxW), maxH(l.maxH) {}
 
 	LayoutDesc(LayoutDesc&& l) noexcept 
-		: Color(l.Color), FontSize(l.FontSize), Pos(l.Pos), alignX(l.alignX)
+		: Color(l.Color), world2d(l.world2d)
 		, maxW(l.maxW), maxH(l.maxH) {}
 	LayoutDesc& operator=(const LayoutDesc& l);
 	LayoutDesc& operator=(LayoutDesc&& l) noexcept;
 
 	void Resize(const float rateX, const float rateY);
 
-	D2D1::ColorF Color;
-	POINT Pos; //middle align
 	FLOAT maxW = 500.0f, maxH = 54.0f;
+	D2D1::ColorF Color;
 
-	float FontSize;
-	D2D1_POINT_2F DrawPos{};
+	World2D world2d;
+	//POINT Pos; //middle align
+	//float FontSize;
+	//D2D1_POINT_2F DrawPos{};
+	//AlignModeX alignX = AlignModeX::Mid;
 
 private:
 	inline D2D1_POINT_2F PtUintToFloat(POINT pt) { return { (float)pt.x, (float)pt.y }; }
 
-public:
-	AlignModeX alignX = AlignModeX::Mid;
 };
 
 class DwLayout

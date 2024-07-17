@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <D2D1.h>
 #include <D3D11.h>
 #include <iostream>
 #include <tchar.h>
@@ -24,6 +25,8 @@ public:
 	static float GetOrthoWidth(float w, float h);
 
 	static D2D1_POINT_2F Resize2DtoStandardCS(float newW, float newH, float x, float y, float alignPosX = 0.0f);
+
+	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
 	
 };
 

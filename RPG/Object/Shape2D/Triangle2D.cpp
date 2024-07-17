@@ -33,6 +33,7 @@ Triangle2D::Triangle2D(const D2D1_TRIANGLE& pts) : Shape2D()
 
 Triangle2D::~Triangle2D()
 {
+	ReleaseCOM(geometry);
 }
 
 void Triangle2D::Draw()

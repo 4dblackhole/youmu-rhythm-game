@@ -10,4 +10,7 @@ public:
 	virtual ~Triangle2D();
 
 	virtual void Draw();
+
+private:
+	ID2D1PathGeometry* geometry = nullptr;
 };

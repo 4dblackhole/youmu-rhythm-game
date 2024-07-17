@@ -8,34 +8,15 @@ constexpr float MusicScrollHeight = 670.0f;
 
 constexpr float NoMusicTextSize = 40.0f;
 constexpr int NoMusicTextX = MusicScrollX - (int)MusicScrollWidth;
-constexpr int NoMusicTextY = MusicScrollY + 80;
+constexpr int NoMusicTextY = -MusicScrollY + 60; // each Y axis of 3D and 2D is reverse
 
-SelectMusicScene::SelectMusicScene() : box({ MusicScrollX,-0.2f,+MusicScrollWidth,MusicScrollHeight }),
-	background(0, 0, (float)0, (float)StandardHeight, MyColor4::Black, true),
-	musicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
+constexpr int BoxHeight = 60;
+constexpr int BoxOffsetY= -(int)MusicScrollY + 60;
+constexpr int BoxEdgeX = 5;
+constexpr int BoxEdgeY = 5;
+
+SelectMusicScene::SelectMusicScene() :background(0, 0, (float)0, (float)StandardHeight, MyColor4::Black, true)
 {
-	musicScroll.SetAlignX(AlignModeX::Right);
-	musicScroll.SetAlignY(AlignModeY::Top);
-	musicScroll.SetTexture(GETTEXTURE(TextureManager::Name::MusicScroll));
-
-	DWRITE_TEXT_METRICS mt;
-	LPCWSTR tempstr = L"No Music";
-	IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
-
-	DwLayout::GetLayoutMetrics(tempstr, tempFormat, &mt);
-
-	LayoutDesc tempDesc(NoMusicTextSize, MyColorF::GhostGreen,
-		{ NoMusicTextX + (int)(mt.width * NoMusicTextSize / D2Ddevice::DefaultFontSize),NoMusicTextY });
-
-	tempDesc.maxW = MusicScrollWidth;
-	tempDesc.alignX = AlignModeX::Right;
-	musicScrollNoMusicText.reset(new DwLayout(tempDesc));
-	musicScrollNoMusicText->SetLayoutRightAlign(tempstr, tempFormat);
-	musicScrollNoMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-
-	box.BorderSize = 0.1f;
-	box.SetPosition({ 300,300 });
-	box.SetScale({ 30,30 });
 }
 
 SelectMusicScene::~SelectMusicScene()
@@ -49,9 +30,7 @@ void SelectMusicScene::BeginScene()
 void SelectMusicScene::OnResize(float newW, float newH)
 {
 	background.ChangeWidthToCurrentWidth(newW, newH);
-	musicScroll.OnResize();
-	musicScrollNoMusicText->Resize(newW, newH);
-	box.Resize(newW, newH);
+	musicScroll.OnResize(newW, newH);
 }
 
 void SelectMusicScene::Update(float dt)
@@ -66,9 +45,9 @@ void SelectMusicScene::Update(float dt)
 void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	background.Render(deviceContext, cam);
+	//D2D.GetRenderTarget()->PushAxisAlignedClip({ 700,0,1200,300 }, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	musicScroll.Render(deviceContext, cam);
-	if (musicCount == 0) musicScrollNoMusicText->Draw();
-	box.Draw();
+	//D2D.GetRenderTarget()->PopAxisAlignedClip();
 }
 
 void SelectMusicScene::EndScene()

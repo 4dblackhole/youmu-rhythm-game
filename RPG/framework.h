@@ -30,6 +30,7 @@ using namespace DirectX;
 #include <map>
 #include <memory.h>
 #include <mutex>
+#include <set>
 #include <sstream>
 #include <stdlib.h>
 #include <vector>
@@ -43,6 +44,7 @@ using namespace std;
 
 //Fmod
 #include <fmod.hpp>
+#include <fmod_errors.h>
 
 //my headers
 #include "Utility/ShortCut.h"
@@ -53,6 +55,7 @@ using namespace std;
 #include "System/Keyboard.h"
 #include "System/Camera.h"
 #include "System/D2Ddevice.h"
+#include "System/World2D.h"
 
 #include "Effect/Effects.h"
 #include "Effect/RenderStates.h"
@@ -61,6 +64,10 @@ using namespace std;
 #include "Singleton/SceneManager.h"
 
 #include "Object/DwLayout.h"
+
+#include "MusicalObject/Music.h"
+#include "MusicalObject/Note.h"
+#include "MusicalObject/Pattern.h"
 
 
 
@@ -81,9 +88,11 @@ namespace MyColor4
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
 }
 
-extern const wstring SongsDir;
+extern const wstring MusicDir;
+extern const wstring PatternDir;
 extern const wstring TextureDir;
 extern const wstring SystemSoundDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";
+

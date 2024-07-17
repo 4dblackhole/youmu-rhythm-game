@@ -10,4 +10,11 @@ public:
 	virtual ~Rectangle2D();
 
 	virtual void Draw();
+
+	void SetRadius(FLOAT f);
+	void SetRadius(FLOAT f1 , FLOAT f2);
+
+	bool IsRound = false;
+private:
+	D2D1_ROUNDED_RECT rect;
 };

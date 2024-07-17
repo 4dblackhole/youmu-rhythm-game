@@ -45,3 +45,37 @@ D2D1_POINT_2F ShortCut::Resize2DtoStandardCS(const float newW, const float newH,
     const float DrawY = (float)y * rateY;
     return { DrawX, DrawY };
 }
+
+
+void ShortCut::GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories)
+{
+	wstring sTmp = sPath + L"*";
+
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(sTmp.c_str(), &fd);
+	if (hFind == INVALID_HANDLE_VALUE) return;
+
+	do
+	{
+		//incase Directory
+		if (fd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (bAllDirectories && fd.cFileName[0] != L'.') //excludes relative directories(./ and ../)
+			{
+				sTmp = sPath + fd.cFileName + L"/";
+				GetFileList(vList, sTmp, ext, bAllDirectories);
+			}
+		}
+		else
+		{
+			wstring fileName = fd.cFileName;
+			if (fileName.substr(fileName.length() - ext.length()) == ext)
+			{
+				sTmp = sPath + fd.cFileName;
+				vList.push_back(sTmp);
+			}
+		}
+	} while (FindNextFile(hFind, &fd));
+
+	FindClose(hFind);
+}

@@ -138,6 +138,12 @@
     <ClCompile Include="System\World2D.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="Object\MusicScroll.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\Music.cpp">
+      <Filter>MusicalObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -235,6 +241,12 @@
     </ClInclude>
     <ClInclude Include="System\World2D.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\MusicScroll.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\Music.h">
+      <Filter>MusicalObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
