@@ -112,6 +112,10 @@ int D3DApp::Run()
 		}
 	}
 
+	BOOL isFullScreen;
+	mSwapChain->GetFullscreenState(&isFullScreen, nullptr);
+	if (isFullScreen == TRUE) mSwapChain->SetFullscreenState(FALSE, nullptr);
+
 	return (int)msg.wParam;
 }
 
@@ -304,6 +308,10 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
+	case WM_MOUSEWHEEL:
+		OnMouseWheel(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
@@ -317,8 +325,11 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_WINDOWPOSCHANGING:
+	{
+		//WINDOWPOS* wp = (WINDOWPOS*)lParam;
+		//if (wp->cx < 600)wp->cx = 600;
 		GetMonitorFrequency();
-		return 0;
+	}	return 0;
 
 	default: break;
 	}

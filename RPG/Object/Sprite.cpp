@@ -86,17 +86,13 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 	this->ColorMode = colormode;
 
 	XMMATRIX I = ::XMMatrixIdentity();
-	x = _x;
-	y = _y;
-	w = _w;
-	h = _h;
 
 	Diffuse = diffuse;
 
-	Scale = { w,h };
+	Scale = { _w,_h };
 	Rotation = { 0,0,0 };
-	Position = { x,y,0 };
-
+	Position = { _x,_y,0 };
+	DrawPos = Position;
 	UpdateWorld();
 
 	UvScale = { 1.0f,1.0f };
@@ -106,31 +102,48 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 }
 
 //center coordinate system to other system
-XMFLOAT3 Sprite::AdjustDrawPos()
+void Sprite::AdjustDrawPos()
 {
-	XMFLOAT3 DrawPos{};
+	XMFLOAT3 tempPos{};
 	const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
 	switch (alignX)
 	{
 	case AlignModeX::Left:
-		DrawPos.x = (Scale.x - localWidth) * 0.5f;
+		tempPos.x = (Scale.x - localWidth) * 0.5f;
 		break;
 	case AlignModeX::Right:
-		DrawPos.x = (localWidth - Scale.x) * 0.5f;
+		tempPos.x = (localWidth - Scale.x) * 0.5f;
 		break;
 	}
 	switch (alignY)
 	{
 	case AlignModeY::Top:
-		DrawPos.y = ((float)StandardHeight - Scale.y) * 0.5f;
+		tempPos.y = ((float)StandardHeight - Scale.y) * 0.5f;
 		break;
 	case AlignModeY::Bottom:
-		DrawPos.y = (Scale.y - (float)StandardHeight) * 0.5f;
+		tempPos.y = (Scale.y - (float)StandardHeight) * 0.5f;
 		break;
 	}
-	DrawPos.x += Position.x;
-	DrawPos.y += Position.y;
-	return DrawPos;
+	tempPos.x += Position.x;
+	tempPos.y += Position.y;
+
+	DrawPos = tempPos;
+	UpdateDrawArea();
+}
+
+void Sprite::UpdateDrawArea()
+{
+	//screen dimensions
+	const float orthoWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
+	const float centerW = App->GetWidth() * 0.5f;
+	const float centerH = App->GetHeight() * 0.5f;
+	const float rateX = App->GetWidth() / orthoWidth;
+	const float rateY = App->GetHeight() / (float)StandardHeight;
+
+	drawArea = {
+		centerW + (DrawPos.x - Scale.x * 0.5f) * rateX, centerH + (DrawPos.y + Scale.y * 0.5f) * -rateY,
+		centerW + (DrawPos.x + Scale.x * 0.5f) * rateX, centerH + (DrawPos.y - Scale.y * 0.5f) * -rateY };
+
 }
 
 //reflects the align states and updates world matrix
@@ -139,8 +152,8 @@ void Sprite::UpdateWorld()
 	XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&Scale));
 	XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&Rotation));
 
-	XMFLOAT3 drawPos = AdjustDrawPos();
-	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&drawPos));
+	AdjustDrawPos();
+	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&DrawPos));
 	XMStoreFloat4x4(&mWorld, S * R * T);
 }
 

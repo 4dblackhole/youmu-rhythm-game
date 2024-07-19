@@ -18,6 +18,8 @@ public:
 	void SetRotation(const FLOAT);
 	void SetPosition(const D2D1_POINT_2F);
 
+	void SetParentWorld(const D2D1::Matrix3x2F* p = nullptr) { parentWorld = p; }
+
 	const D2D1_POINT_2F& GetScale() const { return this->scale; }
 	const FLOAT& GetRotation() const { return this->rotation; }
 	const D2D1_POINT_2F& GetPosition() const { return this->pos; }
@@ -26,7 +28,9 @@ public:
 	const D2D1_POINT_2F& GetDrawScale() const { return drawScale; }
 
 	const D2D1::Matrix3x2F& GetWorld() const { return mWorld; }
+	const D2D1::Matrix3x2F* GetParentWorld() const { return parentWorld; }
 	void UpdateWorld(); //MUST CALL THIS FUNCTION AFTER CHANGE the Center/S.R.T
+
 
 	AlignModeX alignX = AlignModeX::Mid;
 	AlignModeY alignY = AlignModeY::Mid;
@@ -40,5 +44,6 @@ private:
 	D2D1_POINT_2F drawScale{ 1.0f,1.0f };
 
 	D2D1::Matrix3x2F mWorld{ D2D1::Matrix3x2F::Identity() };
+	const D2D1::Matrix3x2F* parentWorld = nullptr;
 	bool worldUpdateFlag = false;
 };

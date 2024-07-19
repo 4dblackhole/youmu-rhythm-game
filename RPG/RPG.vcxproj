@@ -183,6 +183,7 @@
     <ClCompile Include="MusicalObject\Music.cpp" />
     <ClCompile Include="MusicalObject\Note.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
+    <ClCompile Include="Object\ClipRect.cpp" />
     <ClCompile Include="Object\DwLayout.cpp" />
     <ClCompile Include="Object\MusicScroll.cpp" />
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="MusicalObject\Music.h" />
     <ClInclude Include="MusicalObject\Note.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
+    <ClInclude Include="Object\ClipRect.h" />
     <ClInclude Include="Object\DwLayout.h" />
     <ClInclude Include="Object\MusicScroll.h" />
     <ClInclude Include="Object\Shape2D\Rectangle2D.h" />

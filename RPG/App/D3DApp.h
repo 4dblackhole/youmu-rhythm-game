@@ -30,6 +30,7 @@ public:
 	virtual void OnMouseDown(WPARAM btnState, int x, int y) {}
 	virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
 	virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
+	virtual void OnMouseWheel(WPARAM btnState, int x, int y) {}
 
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) {}
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) {}

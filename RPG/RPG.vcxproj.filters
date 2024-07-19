@@ -132,9 +132,6 @@
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
-    <ClCompile Include="Object\Shape2D\Shape2D.cpp">
-      <Filter>Object\Shape2D</Filter>
-    </ClCompile>
     <ClCompile Include="System\World2D.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -143,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="MusicalObject\Music.cpp">
       <Filter>MusicalObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\ClipRect.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Shape2D\Shape2D.cpp">
+      <Filter>Object\Shape2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -247,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\Music.h">
       <Filter>MusicalObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\ClipRect.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -130,6 +130,11 @@ void MainApp::OnMouseMove(WPARAM btnState, int x, int y)
 	SCENEMANAGER.GetCurrentScene()->OnMouseMove(btnState, x, y);
 }
 
+void MainApp::OnMouseWheel(WPARAM btnState, int x, int y)
+{
+	SCENEMANAGER.GetCurrentScene()->OnMouseWheel(btnState, x, y);
+}
+
 void MainApp::OnKeyDown(WPARAM wParam, LPARAM lParam)
 {
 	SCENEMANAGER.GetCurrentScene()->OnKeyDown(wParam, lParam);

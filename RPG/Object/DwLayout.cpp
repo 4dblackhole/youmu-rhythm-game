@@ -88,24 +88,4 @@ LayoutDesc& LayoutDesc::operator=(LayoutDesc&& l) noexcept
 void LayoutDesc::Resize(const float w, const float h)
 {
 	world2d.Resize(w, h);
-	/*
-	switch (alignX)
-	{
-	case AlignModeX::Left:
-	{
-		DrawPos = ShortCut::Resize2DtoStandardCS(w, h, (float)Pos.x, (float)Pos.y);
-	}	
-	break;
-	case AlignModeX::Mid:
-	{
-		DrawPos = ShortCut::Resize2DtoStandardCS(w, h, (float)Pos.x, (float)Pos.y, (float)App->GetWidth() * 0.5f);
-	}
-	break;
-	case AlignModeX::Right:
-	{
-		DrawPos = ShortCut::Resize2DtoStandardCS(w, h, (float)Pos.x, (float)Pos.y, (float)App->GetWidth());
-	}
-	break;
-	}
-	*/
 }

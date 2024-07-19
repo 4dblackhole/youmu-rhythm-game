@@ -86,7 +86,7 @@ void TitleScene::Update(float dt)
 			SCENEMANAGER.ChangeScene(SceneManager::Name::test);
 			break;
 		case TitleScene::SelectKey::Exit:
-			PostQuitMessage(0);
+			SendMessage(App->MainWnd(), WM_DESTROY, 0, 0);
 			break;
 		}
 	}
