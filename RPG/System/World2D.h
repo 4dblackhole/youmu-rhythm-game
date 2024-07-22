@@ -18,7 +18,6 @@ public:
 	void SetRotation(const FLOAT);
 	void SetPosition(const D2D1_POINT_2F);
 
-	void SetParentWorld(const D2D1::Matrix3x2F* p = nullptr) { parentWorld = p; }
 
 	const D2D1_POINT_2F& GetScale() const { return this->scale; }
 	const FLOAT& GetRotation() const { return this->rotation; }
@@ -28,9 +27,13 @@ public:
 	const D2D1_POINT_2F& GetDrawScale() const { return drawScale; }
 
 	const D2D1::Matrix3x2F& GetWorld() const { return mWorld; }
-	const D2D1::Matrix3x2F* GetParentWorld() const { return parentWorld; }
-	void UpdateWorld(); //MUST CALL THIS FUNCTION AFTER CHANGE the Center/S.R.T
+	const D2D1::Matrix3x2F& GetGlobalWorld() const { return mGlobalWorld; }
+	const D2D1::Matrix3x2F& GetParentWorld() const { return parentWorld; }
 
+	void SetParentWorld(const D2D1::Matrix3x2F& p);
+	void UpdateWorld(); //MUST CALL THIS FUNCTION AFTER CHANGE the Center/S.R.T
+	void UpdateGlobalWorld(); 
+	void UpdateChildWorld();
 
 	AlignModeX alignX = AlignModeX::Mid;
 	AlignModeY alignY = AlignModeY::Mid;
@@ -44,6 +47,10 @@ private:
 	D2D1_POINT_2F drawScale{ 1.0f,1.0f };
 
 	D2D1::Matrix3x2F mWorld{ D2D1::Matrix3x2F::Identity() };
-	const D2D1::Matrix3x2F* parentWorld = nullptr;
+	D2D1::Matrix3x2F mGlobalWorld{ D2D1::Matrix3x2F::Identity() };
+	D2D1::Matrix3x2F parentWorld{ D2D1::Matrix3x2F::Identity() };
 	bool worldUpdateFlag = false;
+	bool globalWorldUpdateFlag = false;
+public:
+	vector<World2D*> childWorlds;
 };

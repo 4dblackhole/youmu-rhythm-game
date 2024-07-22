@@ -11,11 +11,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 #if defined (DEBUG) | defined (_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	FMOD::Debug_Initialize(FMOD_DEBUG_LEVEL_ERROR | FMOD_DEBUG_TYPE_MEMORY);
+	FMOD::Debug_Initialize(0xffff);
 #endif
 
 	MainApp theApp(hInstance);
 
+	FmodSystem::GetInstance().Init(FMOD_OUTPUTTYPE_ASIO, 64);
+	FmodSystem::GetInstance().ChangeDrive(1);
+
 	if (!theApp.Init()) return 0;
 	return theApp.Run();
+
 }

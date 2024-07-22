@@ -25,7 +25,6 @@ TitleScene::TitleScene() :
 {
 	vector<thread>initThreads;
 	initThreads.emplace_back(thread(&TitleScene::InitLayout, this));
-	initThreads.emplace_back(thread(&TitleScene::InitFmod, this));
 	for (thread& it : initThreads) it.join();
 }
 
@@ -43,7 +42,7 @@ void TitleScene::BeginScene()
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
 	ChangeTrianglePos();
-
+	keySelectTriangle->GetWorld2d().UpdateWorld();
 }
 
 void TitleScene::OnResize(float newW, float newH)
@@ -64,6 +63,7 @@ void TitleScene::Update(float dt)
 			int newKey = (int)selectKey - 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
+			keySelectTriangle->GetWorld2d().UpdateWorld();
 		}
 	}
 	if (KEYBOARD.Down(VK_DOWN))
@@ -73,6 +73,7 @@ void TitleScene::Update(float dt)
 			int newKey = (int)selectKey + 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
+			keySelectTriangle->GetWorld2d().UpdateWorld();
 		}
 	}
 	if (KEYBOARD.Down(VK_RETURN))
@@ -100,7 +101,6 @@ void TitleScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 	for (DwLayout& it : layoutList) it.Draw();
 	keySelectTriangle->Draw();
-	D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
 }
 
 void TitleScene::EndScene()
@@ -129,31 +129,27 @@ void TitleScene::InitLayout()
 {
 	layoutList.reserve((size_t)LayoutKey::MAX);
 
-	LayoutDesc tempDesc(40.0f, MyColorF::GhostGreen, { layoutStartPosX, layoutStartPosY });
+	constexpr float selectTextSize = 40.0f / D2Ddevice::DefaultFontSize;
+	IDWriteTextFormat*& currentFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
+	LayoutDesc tempDesc(selectTextSize, MyColorF::GhostGreen, { layoutStartPosX, layoutStartPosY });
 
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"GameStart", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"GameStart", currentFormat);
 
 	tempDesc.world2d.SetPosition({ tempDesc.world2d.GetPosition().x, optionPosY });
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Options].SetLayout(L"Options", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Options].SetLayout(L"Options", currentFormat);
 
 	tempDesc.world2d.SetPosition({ tempDesc.world2d.GetPosition().x, exitPosY });
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Exit].SetLayout(L"Exit", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Exit].SetLayout(L"Exit", currentFormat);
 
+	constexpr float tooltipTextSize = 20.0f / D2Ddevice::DefaultFontSize;
 	tempDesc.Color = D2D1::ColorF({ 1, 1, 1, 1 });
-	tempDesc.world2d.SetScale(20.0f);
+	tempDesc.world2d.SetScale(tooltipTextSize);
 	tempDesc.world2d.SetPosition({ (float)ToolTipOffsetX,(float)StandardHeight - 30 });
 	tempDesc.world2d.alignX = AlignModeX::Left;
 	layoutList.emplace_back(tempDesc);
-	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", currentFormat);
 
-}
-
-void TitleScene::InitFmod()
-{
-	fmodSystem.Init();
-	fmodSystem.Release();
-	fmodSystem.Init();
 }

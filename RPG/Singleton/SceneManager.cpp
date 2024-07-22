@@ -54,4 +54,6 @@ SceneManager::~SceneManager()
 	{
 		delete it.second;
 	}
+
+	TRACE(_T("SceneManager Release\n"));
 }

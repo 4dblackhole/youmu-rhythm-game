@@ -10,8 +10,10 @@ constexpr ClipRect::ClipRect(float x, float y, float w, float h) noexcept :
 
 void ClipRect::Resize()
 {
+	const float newW = (float)App->GetWidth();
+	const float newH = (float)App->GetHeight();
 	D2D1_POINT_2F tempPos{};
-	const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
+	const float localWidth = ShortCut::GetOrthoWidth(newW, newH);
 	switch (alignX)
 	{
 	case AlignModeX::Left:
@@ -35,10 +37,9 @@ void ClipRect::Resize()
 
 	drawPos = tempPos;
 
-	const float orthoWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
 	const float centerW = App->GetWidth() * 0.5f;
 	const float centerH = App->GetHeight() * 0.5f;
-	const float rateX = App->GetWidth() / orthoWidth;
+	const float rateX = App->GetWidth() / localWidth;
 	const float rateY = App->GetHeight() / (float)StandardHeight;
 
 	rc = {

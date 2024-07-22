@@ -7,13 +7,12 @@ public:
 	Music();
 	~Music();
 
-	wstring MusicName;
+	wstring FileName;
 	std::vector<std::wstring> MusicNameList;
 	std::vector<std::wstring> ArtistList;
 	std::set<std::wstring> TagList;
-
-private:
 	FMOD::Sound* music = nullptr;
+	FMOD::Channel* channel = nullptr;
 	size_t musicFileSize = 0;
 	UINT64 crc64 = 0;
 };

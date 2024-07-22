@@ -18,6 +18,7 @@ SelectMusicScene::~SelectMusicScene()
 
 void SelectMusicScene::BeginScene()
 {
+	musicScroll.PlayMusic();
 }
 
 void SelectMusicScene::OnResize(float newW, float newH)
@@ -44,6 +45,7 @@ void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& 
 
 void SelectMusicScene::EndScene()
 {
+	musicScroll.StopMusic();
 }
 
 void SelectMusicScene::OnMouseWheel(WPARAM wState, int x, int y)

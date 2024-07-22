@@ -52,7 +52,5 @@ private:
 	vector<DwLayout> layoutList;
 	void InitLayout();
 
-	FmodSystem fmodSystem;
-	void InitFmod();
 };
 

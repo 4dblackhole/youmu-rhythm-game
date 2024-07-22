@@ -12,6 +12,9 @@ public:
 	MusicScroll(float x, float y, float w, float h);
 	~MusicScroll();
 
+	void PlayMusic();
+	void StopMusic();
+
 	void OnResize(float newW, float newH);
 	void OnMouseWheel(WPARAM wState, int x, int y);
 
@@ -21,12 +24,15 @@ public:
 	void LoadMusic();
 
 private:
+	void World2DResize(float newW,float newH);
+	
 	void InitMusicScroll();
 	void CreateBoxes();
 	void CreateTexts();
 
 	Sprite scrollImg;
 	ClipRect clipArea; //area to draw boxes
+	ClipRect textArea; //area to draw texts
 	
 	unique_ptr<DwLayout> noMusicText;
 
@@ -34,7 +40,12 @@ private:
 	vector<Rectangle2D*> boxList;
 	vector<DwLayout*> textList;
 
-	size_t scrollPos = 0;
+	int scrollPos = 0;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
+	void UpdateScroll();
+
+	size_t currentSelectMusic = 0;
+	size_t prevSelectMusic = 0;
+	void ChangePreviewMusic();
 
 };

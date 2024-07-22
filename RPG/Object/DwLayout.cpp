@@ -40,31 +40,35 @@ void DwLayout::GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* text
 	ReleaseCOM(tempLayout);
 }
 
+// move the base position to the right side of text layout
+// for example, if you put 0 on pos.x and set alignX to right, the leftside of the text is located at the right side of window.
+// so you should move the text left as the length of text to display it
 void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* textFormat)
 {
 	//Get Total Width and Height
 	DWRITE_TEXT_METRICS mt;
 	GetLayoutMetrics(text, textFormat, &mt);
 
-	float sizeRate = desc.world2d.GetScale().x / textFormat->GetFontSize();
+	float sizeRate = desc.world2d.GetScale().x;
 	desc.world2d.SetPosition({ desc.world2d.GetPosition().x - (int)(mt.width * sizeRate),desc.world2d.GetPosition().y });
 
 	SetLayout(text, textFormat);
 
 }
 
-void DwLayout::Draw() const
+void DwLayout::Draw()
 {
-	D2D.GetRenderTarget()->SetTransform(Matrix3x2F::Identity());
-	D2D.DrawTextLayout(desc.world2d.GetDrawPos(), layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
+	World2D& myWorld = desc.world2d;
+	D2D.GetRenderTarget()->SetTransform(myWorld.GetGlobalWorld());
+	D2D.DrawTextLayout({0,0}, layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 
 void DwLayout::Resize(float w, float h)
 {
 	desc.Resize(w, h);
 	const float rateY = h / (float)StandardHeight;
-	ChangeSize(this->desc.world2d.GetDrawScale().x);
-	ChangeClipArea(rateY);
+	//ChangeSize(this->desc.world2d.GetDrawScale().x);
+	//ChangeClipArea(rateY);
 }
 
 LayoutDesc& LayoutDesc::operator=(const LayoutDesc& l)

@@ -51,7 +51,6 @@ using namespace std;
 #include "Utility/Math.h"
 #include "Utility/RationalNumber.h"
 
-#include "System/FmodSystem.h"
 #include "System/Keyboard.h"
 #include "System/Camera.h"
 #include "System/D2Ddevice.h"
@@ -62,6 +61,7 @@ using namespace std;
 
 #include "Singleton/TextureManager.h"
 #include "Singleton/SceneManager.h"
+#include "Singleton/FmodSystem.h"
 
 #include "Object/DwLayout.h"
 
@@ -81,6 +81,7 @@ constexpr UINT StandardHeight = 720;
 namespace MyColorF
 {
 	extern const D2D1::ColorF GhostGreen;
+	extern const D2D1::ColorF CherryPink;
 }
 namespace MyColor4
 {

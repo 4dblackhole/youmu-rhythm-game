@@ -191,11 +191,11 @@
     <ClCompile Include="Object\Shape2D\Triangle2D.cpp" />
     <ClCompile Include="Object\Sprite.cpp" />
     <ClCompile Include="Object\Vertex.cpp" />
+    <ClCompile Include="Singleton\FmodSystem.cpp" />
     <ClCompile Include="Singleton\SceneManager.cpp" />
     <ClCompile Include="Singleton\TextureManager.cpp" />
     <ClCompile Include="System\Camera.cpp" />
     <ClCompile Include="System\D2Ddevice.cpp" />
-    <ClCompile Include="System\FmodSystem.cpp" />
     <ClCompile Include="System\GameScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
@@ -226,13 +226,13 @@
     <ClInclude Include="Object\Shape2D\Triangle2D.h" />
     <ClInclude Include="Object\Sprite.h" />
     <ClInclude Include="Object\Vertex.h" />
+    <ClInclude Include="Singleton\FmodSystem.h" />
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
     <ClInclude Include="Singleton\TextureManager.h" />
     <ClInclude Include="System\AlignMode.h" />
     <ClInclude Include="System\Camera.h" />
     <ClInclude Include="System\D2Ddevice.h" />
-    <ClInclude Include="System\FmodSystem.h" />
     <ClInclude Include="System\GameScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />

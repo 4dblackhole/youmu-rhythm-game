@@ -56,7 +56,7 @@ public:
 	void SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* textFormat);
 	static void GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* textFormat, DWRITE_TEXT_METRICS* out);
 
-	void Draw() const;
+	void Draw();
 	void Resize(float w, float h);
 
 	LayoutDesc desc;

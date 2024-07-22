@@ -7,13 +7,16 @@
 #include "GameScene/TitleScene.h"
 #include "GameScene/SelectMusicScene.h"
 
+const int FPScounterY = StandardHeight - 30;
+
 MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
 	drawFPSCounterFlag(true)
 {
 	mMainWndCaption = _T("2D Test");
 
-	LayoutDesc tempDesc(20.0f, D2D1::ColorF(1, 1, 1, 1), { -10, StandardHeight - 30 });
+	constexpr float fpsFontSize = 20.0f / D2Ddevice::DefaultFontSize;
+	LayoutDesc tempDesc(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { -10 ,(float)FPScounterY });
 	tempDesc.world2d.alignX = AlignModeX::Right;
 	fpsLayout = new DwLayout(tempDesc);
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
@@ -49,7 +52,7 @@ bool MainApp::Init()
 	//2D Graphic Setting (no depth check, alpha blend)
 	md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS.Get(), {}, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDepthDSS.Get(), 0);
-
+	
 	return true;
 }
 
@@ -85,7 +88,6 @@ void MainApp::UpdateFPS()
 		WCHAR fpsStr[20];
 		swprintf_s(fpsStr, L"FPS: %.f", fps);
 		fpsLayout->SetLayout(fpsStr, D2D.GetFont(D2Ddevice::FontName::DefaultFont));
-
 		//frame calculation end
 		frameCnt = 0;
 		timeElapsed += calculateInterval;

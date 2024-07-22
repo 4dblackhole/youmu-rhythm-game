@@ -126,9 +126,6 @@
     <ClCompile Include="Utility\RationalNumber.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="System\FmodSystem.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
@@ -146,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="Object\Shape2D\Shape2D.cpp">
       <Filter>Object\Shape2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton\FmodSystem.cpp">
+      <Filter>Singleton</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -230,9 +230,6 @@
     <ClInclude Include="Utility\RationalNumber.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="System\FmodSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Object\Shape2D\Rectangle2D.h">
       <Filter>Object\Shape2D</Filter>
     </ClInclude>
@@ -253,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="Object\ClipRect.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton\FmodSystem.h">
+      <Filter>Singleton</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
