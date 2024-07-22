@@ -3,6 +3,8 @@
 
 FmodSystem::FmodSystem()
 {
+    Init(FMOD_OUTPUTTYPE_AUTODETECT, 64);
+    InitSounds();
 }
 
 FmodSystem::~FmodSystem()
@@ -47,6 +49,13 @@ FMOD_RESULT FmodSystem::Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferleng
 FMOD_RESULT FmodSystem::Release()
 {
     FMOD_RESULT result = FMOD_OK;
+
+    for (auto& it : defaultSoundList)
+    {
+        it.second.second->stop(); //channel
+        it.second.first->release(); //sound
+    }
+
     result = _system->close();
     result = _system->release();
 
@@ -73,4 +82,43 @@ vector<wstring> FmodSystem::EnumDriverList()
     }
 
     return result;
+}
+
+
+FMOD::Sound* FmodSystem::GetSound(const string& str)
+{
+    // sound search
+    auto it = defaultSoundList.find(str);
+    if (it != defaultSoundList.end()) return it->second.first;
+    else return nullptr;
+}
+
+FMOD::Channel*& FmodSystem::GetChannel(const string& str)
+{
+    // channel search
+    auto it = defaultSoundList.find(str);
+    return it->second.second;
+
+}
+
+void FmodSystem::Play(const string& str)
+{
+    FMODSYSTEM.System()->playSound(FMODSYSTEM.GetSound(str), nullptr, false, &(FMODSYSTEM.GetChannel(str)));
+}
+
+void FmodSystem::Stop(const string& str)
+{
+    FMODSYSTEM.GetChannel(str)->stop();
+}
+
+void FmodSystem::InitSounds()
+{
+    FMOD::Sound* tempSound;
+
+    _system->createStream("../Assets/Hitsounds/System/button01a.mp3", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    defaultSoundList.emplace(make_pair(Name::button01a, make_pair(tempSound, nullptr)));
+
+    _system->createStream("../Assets/Hitsounds/System/select05.mp3", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    defaultSoundList.emplace(make_pair(Name::select05, make_pair(tempSound, nullptr)));
+
 }

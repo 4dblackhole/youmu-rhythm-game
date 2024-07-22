@@ -52,5 +52,8 @@ private:
 	vector<DwLayout> layoutList;
 	void InitLayout();
 
+	FMOD::Sound* bgm{};
+	FMOD::Channel* bgmChannel{};
+
 };
 

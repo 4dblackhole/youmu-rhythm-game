@@ -24,6 +24,7 @@ void TextureManager::InitTextures(ID3D11Device* device)
 const ComPtr<ID3D11ShaderResourceView>& TextureManager::GetTexture(const string& str)
 {
 	// image search
-	if (textureList.find(str) != textureList.end()) return textureList[str];
+	TextureList::iterator it = textureList.find(str);
+	if (it != textureList.end()) return it->second;
 	else return textureList[TextureFindError];
 }

@@ -12,8 +12,8 @@ public:
 	MusicScroll(float x, float y, float w, float h);
 	~MusicScroll();
 
-	void PlayMusic();
-	void StopMusic();
+	void OnBeginScene();
+	void OnEndScene();
 
 	void OnResize(float newW, float newH);
 	void OnMouseWheel(WPARAM wState, int x, int y);
@@ -37,8 +37,10 @@ private:
 	unique_ptr<DwLayout> noMusicText;
 
 	vector<Music*> musicList;
-	vector<Rectangle2D*> boxList;
-	vector<DwLayout*> textList;
+	vector<Rectangle2D*> musicBoxList;
+	vector<DwLayout*> musicTextList;
+	unordered_map<wstring, Music*> musicPatternMap;
+	unordered_map<wstring, size_t> musicIndexMap;
 
 	int scrollPos = 0;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
@@ -47,5 +49,8 @@ private:
 	size_t currentSelectMusic = 0;
 	size_t prevSelectMusic = 0;
 	void ChangePreviewMusic();
+
+	void PlayMusic();
+	void StopMusic();
 
 };

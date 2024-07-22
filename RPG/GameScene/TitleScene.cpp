@@ -26,10 +26,14 @@ TitleScene::TitleScene() :
 	vector<thread>initThreads;
 	initThreads.emplace_back(thread(&TitleScene::InitLayout, this));
 	for (thread& it : initThreads) it.join();
+
+	FMODSYSTEM.System()->createStream("titlebgm.mp3", FMOD_LOOP_NORMAL, nullptr, &bgm);
 }
 
 TitleScene::~TitleScene()
 {
+	bgmChannel->stop();
+	bgm->release();
 }
 
 void TitleScene::BeginScene()
@@ -43,6 +47,7 @@ void TitleScene::BeginScene()
 	keySelectTriangle->BorderSize = 0.5f;
 	ChangeTrianglePos();
 	keySelectTriangle->GetWorld2d().UpdateWorld();
+	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
 void TitleScene::OnResize(float newW, float newH)
@@ -60,6 +65,7 @@ void TitleScene::Update(float dt)
 	{
 		if (selectKey != SelectKey::GameStart)
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			int newKey = (int)selectKey - 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
@@ -70,6 +76,7 @@ void TitleScene::Update(float dt)
 	{
 		if (selectKey != (SelectKey)((int)SelectKey::MAX - 1))
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			int newKey = (int)selectKey + 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
@@ -78,6 +85,7 @@ void TitleScene::Update(float dt)
 	}
 	if (KEYBOARD.Down(VK_RETURN))
 	{
+		FMODSYSTEM.Play(FmodSystem::Name::select05);
 		switch (selectKey)
 		{
 		case TitleScene::SelectKey::GameStart:
@@ -107,6 +115,7 @@ void TitleScene::EndScene()
 {
 	ReleaseCOM(titleSrv);
 	delete keySelectTriangle;
+	bgmChannel->stop();
 }
 
 void TitleScene::ChangeTrianglePos()

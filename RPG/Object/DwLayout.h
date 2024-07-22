@@ -30,10 +30,6 @@ public:
 	D2D1::ColorF Color;
 
 	World2D world2d;
-	//POINT Pos; //middle align
-	//float FontSize;
-	//D2D1_POINT_2F DrawPos{};
-	//AlignModeX alignX = AlignModeX::Mid;
 
 private:
 	inline D2D1_POINT_2F PtUintToFloat(POINT pt) { return { (float)pt.x, (float)pt.y }; }

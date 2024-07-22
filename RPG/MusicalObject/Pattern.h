@@ -3,5 +3,9 @@
 
 class Pattern
 {
+public:
+	Pattern();
+	~Pattern();
+
 
 };

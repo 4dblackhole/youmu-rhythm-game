@@ -1,6 +1,6 @@
 #pragma once
 #include <d2d1.h>
-#include "System/AlignMode.h"
+#include "System/World2D.h"
 
 class Shape2D
 {

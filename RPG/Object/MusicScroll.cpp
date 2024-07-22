@@ -45,8 +45,18 @@ MusicScroll::MusicScroll(float x, float y, float w, float h) :
 MusicScroll::~MusicScroll()
 {
 	for (auto*& it : musicList) delete it;
-	for (auto*& it : boxList) delete it;
-	for (auto*& it : textList) delete it;
+	for (auto*& it : musicBoxList) delete it;
+	for (auto*& it : musicTextList) delete it;
+}
+
+void MusicScroll::OnBeginScene()
+{
+	PlayMusic();
+}
+
+void MusicScroll::OnEndScene()
+{
+	StopMusic();
 }
 
 void MusicScroll::PlayMusic()
@@ -62,7 +72,7 @@ void MusicScroll::StopMusic()
 void MusicScroll::World2DResize(float newW, float newH)
 {
 	noMusicText->Resize(newW, newH);
-	for (auto*& it : boxList) it->Resize(newW, newH);
+	for (auto*& it : musicBoxList) it->Resize(newW, newH);
 }
 
 void MusicScroll::OnResize(float newW, float newH)
@@ -103,9 +113,10 @@ void MusicScroll::Update(float dt)
 	{
 		if (currentSelectMusic > 0)
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			prevSelectMusic = currentSelectMusic--;
-			boxList[prevSelectMusic]->BorderColor = MyColorF::GhostGreen;
-			boxList[currentSelectMusic]->BorderColor = MyColorF::CherryPink;
+			musicBoxList[prevSelectMusic]->BorderColor = MyColorF::GhostGreen;
+			musicBoxList[currentSelectMusic]->BorderColor = MyColorF::CherryPink;
 			ChangePreviewMusic();
 		}
 	}
@@ -113,9 +124,10 @@ void MusicScroll::Update(float dt)
 	{
 		if (currentSelectMusic < musicList.size() - 1)
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			prevSelectMusic = currentSelectMusic++;
-			boxList[prevSelectMusic]->BorderColor = MyColorF::GhostGreen;
-			boxList[currentSelectMusic]->BorderColor = MyColorF::CherryPink;
+			musicBoxList[prevSelectMusic]->BorderColor = MyColorF::GhostGreen;
+			musicBoxList[currentSelectMusic]->BorderColor = MyColorF::CherryPink;
 			ChangePreviewMusic();
 		}
 	}
@@ -125,14 +137,14 @@ void MusicScroll::UpdateScroll()
 {
 	const float rateY = (float)App->GetHeight() / (float)StandardHeight;
 	scrollMatrix = D2D1::Matrix3x2F::Translation(0, (FLOAT)scrollPos * 20 * rateY);
-	for (auto& boxWorld : boxList) boxWorld->GetWorld2d().SetParentWorld(scrollMatrix);
-	for (auto& boxWorld : boxList) boxWorld->GetWorld2d().UpdateChildWorld();
+	for (auto& boxWorld : musicBoxList) boxWorld->GetWorld2d().SetParentWorld(scrollMatrix);
+	for (auto& boxWorld : musicBoxList) boxWorld->GetWorld2d().UpdateChildWorld();
 }
 
 
 void MusicScroll::CreateBoxes()
 {
-	boxList.clear();
+	musicBoxList.clear();
 	for (size_t i = 0; i < musicList.size(); ++i)
 	{
 		const XMFLOAT2& scale = scrollImg.GetScale();
@@ -153,17 +165,17 @@ void MusicScroll::CreateBoxes()
 		tempBox->BorderColor = MyColorF::GhostGreen;
 		tempBox->GetWorld2d().SetParentWorld(scrollMatrix);
 		tempBox->Resize((float)App->GetWidth(), (float)App->GetHeight());
-		boxList.emplace_back(tempBox);
+		musicBoxList.emplace_back(tempBox);
 	}
 	
-	if(!boxList.empty())boxList[0]->BorderColor = MyColorF::CherryPink;
+	if(!musicBoxList.empty())musicBoxList[0]->BorderColor = MyColorF::CherryPink;
 }
 
 void MusicScroll::CreateTexts()
 {
-	textList.clear();
+	musicTextList.clear();
 
-	for (size_t i = 0; i < boxList.size(); ++i)
+	for (size_t i = 0; i < musicBoxList.size(); ++i)
 	{
 		wstring musicDesc = L"Artist: " + musicList[i]->ArtistList[0] + L"\nTitle: " + musicList[i]->MusicNameList[0];
 		IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
@@ -187,9 +199,9 @@ void MusicScroll::CreateTexts()
 		DwLayout* tempLayout = new DwLayout(tempDesc);
 		tempLayout->SetLayout(musicDesc, tempFormat);
 		DWRITE_TRIMMING dwt{ DWRITE_TRIMMING_GRANULARITY_WORD,0,0};
-		tempLayout->desc.world2d.SetParentWorld(boxList[i]->GetWorld2d().GetGlobalWorld());
-		boxList[i]->GetWorld2d().childWorlds.emplace_back(&tempLayout->desc.world2d);
-		textList.emplace_back(tempLayout);
+		tempLayout->desc.world2d.SetParentWorld(musicBoxList[i]->GetWorld2d().GetGlobalWorld());
+		musicBoxList[i]->GetWorld2d().childWorlds.emplace_back(&tempLayout->desc.world2d);
+		musicTextList.emplace_back(tempLayout);
 
 	}
 }
@@ -203,11 +215,11 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	if (musicList.empty()) noMusicText->Draw();
 	else
 	{
-		for (Rectangle2D*& it : boxList) it->Draw();
+		for (Rectangle2D*& it : musicBoxList) it->Draw();
 
 		D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
 		D2D.GetRenderTarget()->PushAxisAlignedClip(textArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-		for (auto*& it : textList) it->Draw();
+		for (auto*& it : musicTextList) it->Draw();
 		D2D.GetRenderTarget()->PopAxisAlignedClip();
 	}
 
@@ -253,6 +265,13 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		const wstring musicDir = fileDir + L'/' + resultMusic->FileName;
 		const string musicDirUTF8 = ShortCut::WstringToUTF8(musicDir);
 		FMOD_RESULT result = FmodSystem::GetInstance().System()->createStream(musicDirUTF8.c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &resultMusic->music);
+		
+		//get audio file size
+		std::ifstream fin(musicDir, std::ios::binary);
+		fin.seekg(0, std::ios_base::end);
+		size_t size = (size_t)fin.tellg();
+		resultMusic->musicFileSize = size;
+		fin.close();
 
 		// pos of "Music Name"
 		size_t musicNamePos = file.find(musicNameIdc, endPos);
@@ -359,8 +378,13 @@ void MusicScroll::LoadMusic()
 		fin.read(&utf8Str[0], size);
 		wstring uniFile = ShortCut::UTF8ToWstring(utf8Str); //ymm file road complete
 
-		Music* music = ParseYmmFile(it.substr(0,it.find_last_of(L'/')), uniFile);
-		if (music != nullptr)musicList.emplace_back(music);
+		Music* music = ParseYmmFile(it.substr(0, it.find_last_of(L'/')), uniFile);
+
+		if (music != nullptr)
+		{
+			music->ymmFileName = it;
+			musicList.emplace_back(music);
+		}
 
 		fin.close();
 	}

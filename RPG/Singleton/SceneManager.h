@@ -21,14 +21,13 @@ public:
 
 	inline GameScene* GetCurrentScene() { return currentScene; }
 
-#define CREATE_SCENEMANAGER_NAME(x) static constexpr LPCSTR x = #x
 	class Name
 	{
 	public:
-		CREATE_SCENEMANAGER_NAME(test);
-		CREATE_SCENEMANAGER_NAME(Intro);
-		CREATE_SCENEMANAGER_NAME(Title);
-		CREATE_SCENEMANAGER_NAME(SelectMusic);
+		DECLARE_VARIABLE_STRING(test)
+		DECLARE_VARIABLE_STRING(Intro)
+		DECLARE_VARIABLE_STRING(Title)
+		DECLARE_VARIABLE_STRING(SelectMusic)
 	};
 
 private:

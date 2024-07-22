@@ -254,6 +254,9 @@
     <ClInclude Include="Singleton\FmodSystem.h">
       <Filter>Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Shader\Sprite.fx">

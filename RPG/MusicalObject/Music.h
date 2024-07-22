@@ -7,6 +7,7 @@ public:
 	Music();
 	~Music();
 
+	wstring ymmFileName;
 	wstring FileName;
 	std::vector<std::wstring> MusicNameList;
 	std::vector<std::wstring> ArtistList;

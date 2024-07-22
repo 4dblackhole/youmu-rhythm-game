@@ -28,6 +28,7 @@ using namespace DirectX;
 #include <functional>
 #include <malloc.h>
 #include <map>
+#include <unordered_map>
 #include <memory.h>
 #include <mutex>
 #include <set>
@@ -45,6 +46,9 @@ using namespace std;
 //Fmod
 #include <fmod.hpp>
 #include <fmod_errors.h>
+
+//defines
+#include "defines.h"
 
 //my headers
 #include "Utility/ShortCut.h"
@@ -89,6 +93,7 @@ namespace MyColor4
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
 }
 
+extern const wstring SongDir;
 extern const wstring MusicDir;
 extern const wstring PatternDir;
 extern const wstring TextureDir;
@@ -96,4 +101,3 @@ extern const wstring SystemSoundDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";
-

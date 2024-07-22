@@ -22,9 +22,9 @@ public:
 
 private:
 	RationalNumber<64> position;
-	UINT keyType;
-	UINT actionType;
-	FMOD::Channel* hitSound;
+	UINT keyType = 0;
+	UINT actionType = 0;
+	FMOD::Channel* hitSound = nullptr;
 	string extraData;
 };
 
