@@ -19,7 +19,7 @@ constexpr int BoxEdgeX = 5;
 constexpr int BoxEdgeY = 5;
 constexpr int BoxWidth = (int)MusicScrollWidth - BoxEdgeX * 2;
 
-constexpr int TextEdgeX = 10;
+constexpr int TextEdgeX = 5;
 constexpr int TextWidth = (int)MusicScrollWidth - TextEdgeX * 2;
 constexpr int TextHeight = 40;
 constexpr int TextAreaHeight = (int)clipAreaHeight;
@@ -30,13 +30,16 @@ MusicScroll::MusicScroll() : MusicScroll(MusicScrollX, MusicScrollY, MusicScroll
 
 MusicScroll::MusicScroll(float x, float y, float w, float h) :
 	scrollImg(x, y, w, h),
-	clipArea(x, y - clipAreaOffset, w, clipAreaHeight),
-	textArea(x - TextEdgeX, y - clipAreaOffset, TextWidth, TextAreaHeight)
+	clipArea(x, y - clipAreaOffset, w, h - clipAreaOffset * 2),
+	textArea(x - (BoxEdgeX + TextEdgeX), y - clipAreaOffset, w - (TextEdgeX+ BoxEdgeX) * 2 , h - clipAreaOffset * 2)
 {
 	InitMusicScroll();
+
+	//area to draw boxes
 	clipArea.alignX = scrollImg.GetAlignX();
 	clipArea.alignY = scrollImg.GetAlignY();
 
+	//area to draw texts
 	textArea.alignX = clipArea.alignX;
 	textArea.alignY = clipArea.alignY;
 
@@ -72,12 +75,15 @@ void MusicScroll::StopMusic()
 void MusicScroll::World2DResize(float newW, float newH)
 {
 	noMusicText->Resize(newW, newH);
+	
+	/*	BoxWorld(Parent) - TextWorld(Child)
+	so once boxworld has changed then the textworld will be changed automatically.	*/
 	for (auto*& it : musicBoxList) it->Resize(newW, newH);
 }
 
 void MusicScroll::OnResize(float newW, float newH)
 {
-	UpdateScroll();
+	UpdateScrollMatrix();
 	scrollImg.OnResize();
 	clipArea.Resize();
 	textArea.Resize();
@@ -93,9 +99,9 @@ void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
 	}
 	else //wheel up
 	{
-		if (scrollPos != 10)++scrollPos;
+		if (scrollPos != 40)++scrollPos;
 	}
-	UpdateScroll();
+	UpdateScrollMatrix();
 }
 
 void MusicScroll::ChangePreviewMusic()
@@ -133,12 +139,11 @@ void MusicScroll::Update(float dt)
 	}
 }
 
-void MusicScroll::UpdateScroll()
+void MusicScroll::UpdateScrollMatrix()
 {
 	const float rateY = (float)App->GetHeight() / (float)StandardHeight;
 	scrollMatrix = D2D1::Matrix3x2F::Translation(0, (FLOAT)scrollPos * 20 * rateY);
 	for (auto& boxWorld : musicBoxList) boxWorld->GetWorld2d().SetParentWorld(scrollMatrix);
-	for (auto& boxWorld : musicBoxList) boxWorld->GetWorld2d().UpdateChildWorld();
 }
 
 
@@ -153,14 +158,24 @@ void MusicScroll::CreateBoxes()
 		//Right-Top based position
 		FLOAT boxLeft = pos.x - scale.x + BoxEdgeX;
 		FLOAT boxRight = pos.x - BoxEdgeX;
+		FLOAT boxTop = -pos.y + BoxOffsetY;
+		FLOAT boxBottom = -pos.y + BoxOffsetY + BoxHeight;
+
+		Math::LTRB2CenterXYWH<FLOAT>(boxLeft, boxTop, boxRight, boxBottom);
+
+		const FLOAT& boxCenterX = boxLeft;
+		const FLOAT& boxCenterY = boxTop;
+		const FLOAT& boxWidth = boxRight;
+		const FLOAT& boxHeight = boxBottom;
+
 		Rectangle2D* tempBox = new Rectangle2D({
-			pos.x - scale.x + BoxEdgeX	,-pos.y + BoxOffsetY ,
-			pos.x - BoxEdgeX			,-pos.y + BoxOffsetY + BoxHeight });
+			-boxWidth*0.5f	 , -boxHeight*0.5f ,
+			boxWidth*0.5f , boxHeight*0.5f });
 		tempBox->GetWorld2d().alignX = scrollImg.GetAlignX();
 		tempBox->GetWorld2d().alignY = scrollImg.GetAlignY();
 		tempBox->IsRound = true;
 		tempBox->SetRadius(10.0f);
-		tempBox->GetWorld2d().SetPosition({0 , (BoxHeight + BoxEdgeY) * i });
+		tempBox->GetWorld2d().SetPosition({ boxCenterX , boxCenterY + (BoxHeight + BoxEdgeY) * i });
 		tempBox->BorderSize = 2.0f;
 		tempBox->BorderColor = MyColorF::GhostGreen;
 		tempBox->GetWorld2d().SetParentWorld(scrollMatrix);
@@ -187,8 +202,8 @@ void MusicScroll::CreateTexts()
 		const float maximumLayoutWidth = TextWidth / defaultSize * 2;
 
 		const float musicTextSize = defaultSize;// mt.width >= maximumLayoutWidth ? defaultSize * sqrtf(maximumLayoutWidth / mt.width) : defaultSize;
-		const float textLeft = -BoxWidth +MusicScrollX;
-		const float textTop = 40;
+		const float textLeft = TextEdgeX -BoxWidth*0.5f;
+		const float textTop = -BoxHeight * 0.5f;
 
 		LayoutDesc tempDesc(musicTextSize, MyColorF::GhostGreen, { textLeft , textTop });
 		tempDesc.world2d.alignX = AlignModeX::Left;
@@ -198,7 +213,7 @@ void MusicScroll::CreateTexts()
 		tempDesc.maxH = TextHeight;
 		DwLayout* tempLayout = new DwLayout(tempDesc);
 		tempLayout->SetLayout(musicDesc, tempFormat);
-		DWRITE_TRIMMING dwt{ DWRITE_TRIMMING_GRANULARITY_WORD,0,0};
+		DWRITE_TRIMMING dwt{ DWRITE_TRIMMING_GRANULARITY_WORD,0,0 };
 		tempLayout->desc.world2d.SetParentWorld(musicBoxList[i]->GetWorld2d().GetGlobalWorld());
 		musicBoxList[i]->GetWorld2d().childWorlds.emplace_back(&tempLayout->desc.world2d);
 		musicTextList.emplace_back(tempLayout);
@@ -226,11 +241,22 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	D2D.GetRenderTarget()->PopAxisAlignedClip();
 }
 
+//ymm
 const wstring musicFileIdc = L"File";
 const wstring musicNameIdc = L"Music Name";
 const wstring artistIdc = L"Artist";
-const wstring tagIdc = L"Tags";
+
+//ymp
+const wstring medatadaIdc = L"[Metadata]";
+const wstring timeSignatureIdc = L"[Time Signature]";
+const wstring pattermIdc = L"[Pattern]";
+const wstring musicMetadataIdc = L"Music metadata";
+const wstring patternMakerIdc = L"Pattern Maker";
+const wstring difficultyNameIdc = L"Difficulty Name";
+
+//Music,Pattern common
 const wstring endLineIdc = L"\r\n";
+const wstring tagIdc = L"Tags";
 
 static bool ColumnSeparate(const wstring& source, wstring* first, wstring* second)
 {
@@ -246,6 +272,32 @@ static bool ColumnSeparate(const wstring& source, wstring* first, wstring* secon
 		*second = source.substr(secondStartPos);
 	}
 	return true;
+}
+
+static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
+{
+	Pattern* resultPattern = new Pattern;
+	try
+	{
+		//indicator check
+		size_t metadataPos = file.find(medatadaIdc);
+		if (metadataPos == wstring::npos) throw nullptr;
+
+		size_t signaturePos = file.find(timeSignatureIdc, metadataPos);
+		if (signaturePos == wstring::npos) throw nullptr;
+
+		size_t patternPos = file.find(timeSignatureIdc, signaturePos);
+		if (patternPos == wstring::npos) throw nullptr;
+
+	}
+	catch (void* p) //ymp file error
+	{
+		p = p;
+		delete resultPattern;
+		return nullptr;
+	}
+
+	return resultPattern;
 }
 
 static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
@@ -356,6 +408,38 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 
 }
 
+void MusicScroll::LoadPattern()
+{
+	vector<wstring> ympList;
+	ympList.reserve(128);
+
+	ShortCut::GetFileList(ympList, PatternDir, ExtPattern);
+
+	for (const wstring& it : ympList)
+	{
+		std::ifstream fin(it, std::ios::binary);
+
+		fin.seekg(0, std::ios_base::end);
+		int size = (int)fin.tellg();
+		fin.seekg(0, std::ios_base::beg);
+		string utf8Str;
+		utf8Str.resize(size);
+		fin.read(&utf8Str[0], size);
+		wstring uniFile = ShortCut::UTF8ToWstring(utf8Str); //ymm file road complete
+
+		Pattern* pattern = ParseYmpFile(it, uniFile);
+		if (pattern != nullptr)
+		{
+			auto musicIdxIter = musicIndexMap.find(pattern->ymmRefFileName);
+			if (musicIdxIter == musicIndexMap.end()) continue; //no Music File
+			size_t musicIdx = musicIdxIter->second;
+			musicList[musicIdx]->patternList.emplace_back(pattern); //add pattern to the corresponding music
+		}
+
+		fin.close();
+	}
+}
+
 void MusicScroll::LoadMusic()
 {
 	vector<wstring> ymmList;
@@ -365,7 +449,7 @@ void MusicScroll::LoadMusic()
 
 	musicList.clear();
 	musicList.reserve(ymmList.size());
-
+	size_t musicIdx = 0;
 	for (const wstring& it : ymmList)
 	{
 		std::ifstream fin(it, std::ios::binary);
@@ -384,6 +468,7 @@ void MusicScroll::LoadMusic()
 		{
 			music->ymmFileName = it;
 			musicList.emplace_back(music);
+			musicIndexMap.emplace(make_pair(it, musicIdx++));
 		}
 
 		fin.close();
@@ -396,6 +481,7 @@ void MusicScroll::InitMusicScroll()
 {
 	scrollImg.SetAlignX(AlignModeX::Right);
 	scrollImg.SetAlignY(AlignModeY::Top);
+	scrollImg.UpdateWorld();
 	scrollImg.SetTexture(GETTEXTURE(TextureManager::Name::MusicScroll));
 
 	DWRITE_TEXT_METRICS mt;
@@ -413,6 +499,7 @@ void MusicScroll::InitMusicScroll()
 	noMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 
 	LoadMusic();
+	LoadPattern();
 	CreateBoxes();
 	CreateTexts();
 }

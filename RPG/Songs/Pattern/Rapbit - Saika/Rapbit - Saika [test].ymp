@@ -11,7 +11,7 @@ Preview Time: 1,0/1
 
 [Time Signature]
 0/1,#bpm 140
-0/1,#measure 1/4
+#measure 1/4
 --
 0/8,#measure 15/8
 1/8,#bpm 180
@@ -23,15 +23,15 @@ Preview Time: 1,0/1
 7/8,#bpm 110
 9/8,#bpm 115
 10/8,#bpm 175
-11/8,#bpm165
-12/8,#bpm120
-13/8,#bpm115
-14/8,#bpm108
+11/8,#bpm 165
+12/8,#bpm 120
+13/8,#bpm 115
+14/8,#bpm 108
 --
-0/1,#measure C
+#measure C
 0/1,#bpm 144
 --
-0/1,#measure 1/2
+#measure 1/2
 --
 0/1,#bpm 145
 

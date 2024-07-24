@@ -27,7 +27,7 @@ public:
 	void SetScale(const XMFLOAT2 s);
 	void SetRotation(const XMFLOAT3 s);
 	void SetPosition(const XMFLOAT3 s);
-	void ChangePosition(float x, float y, float z);
+	void MovePosition(float x, float y, float z);
 
 	void SetUvScale(const XMFLOAT2 s);
 	void SetUvRotation(const XMFLOAT3 s);
@@ -49,7 +49,6 @@ public:
 private:
 	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 
-	bool updateWorldFlag = false;
 	XMFLOAT2 Scale;
 	XMFLOAT3 Rotation;
 	XMFLOAT3 Position;

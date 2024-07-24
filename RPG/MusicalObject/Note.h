@@ -2,6 +2,19 @@
 #include "framework.h"
 
 class Note;
+class Measure;
+class MusicBPM;
+
+class MusicScore
+{
+public:
+	MusicScore() {};
+	~MusicScore() {};
+
+private:
+	vector<Measure*> measures;
+	vector<MusicBPM*> bpms;
+};
 
 class Measure
 {
@@ -14,17 +27,36 @@ private:
 	vector<Note*> notes;
 };
 
-class Note
+class MusicalObject
+{
+public:
+	MusicalObject() {};
+	virtual ~MusicalObject() = 0;
+
+protected:
+	RationalNumber<64> position;
+
+};
+
+class Note : public MusicalObject
 {
 public:
 	Note() {};
-	~Note() {};
+	virtual ~Note() {};
 
 private:
-	RationalNumber<64> position;
 	UINT keyType = 0;
 	UINT actionType = 0;
 	FMOD::Channel* hitSound = nullptr;
 	string extraData;
 };
 
+class MusicBPM : public MusicalObject
+{
+public:
+	MusicBPM(double b = 120.0) :bpm(b) {}
+	~MusicBPM() {};
+
+protected:
+	double bpm;
+};

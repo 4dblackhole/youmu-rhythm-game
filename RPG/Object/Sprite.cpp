@@ -188,11 +188,6 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
-		if (updateWorldFlag)
-		{
-			UpdateWorld();
-			updateWorldFlag = false;
-		}
 		CXMMATRIX world = XMLoadFloat4x4(&mWorld);
 
 		if (updateUvWorldFlag)
@@ -275,26 +270,23 @@ void Sprite::BuildLayout(ID3D11Device* device)
 void Sprite::SetScale(const XMFLOAT2 s)
 {
 	Scale = s;
-	updateWorldFlag = true;
 }
 
 void Sprite::SetRotation(const XMFLOAT3 s)
 {
 	Rotation = s;
-	updateWorldFlag = true;
 }
 
 void Sprite::SetPosition(const XMFLOAT3 s)
 {
 	Position = s;
-	updateWorldFlag = true;
 }
 
-void Sprite::ChangePosition(float x, float y, float z)
+void Sprite::MovePosition(float x, float y, float z)
 {
-	if (x) Position.x += x, updateWorldFlag = true;
-	if (y) Position.y += y, updateWorldFlag = true;
-	if (z) Position.z += z, updateWorldFlag = true;
+	if (x) Position.x += x;
+	if (y) Position.y += y;
+	if (z) Position.z += z;
 }
 
 void Sprite::SetUvScale(const XMFLOAT2 s)
@@ -318,11 +310,9 @@ void Sprite::SetUvPosition(const XMFLOAT2 s)
 void Sprite::SetAlignX(AlignModeX m)
 {
 	alignX = m;
-	updateWorldFlag = true;
 }
 
 void Sprite::SetAlignY(AlignModeY m)
 {
 	alignY = m;
-	updateWorldFlag = true;
 }
