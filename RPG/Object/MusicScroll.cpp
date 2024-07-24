@@ -47,7 +47,14 @@ MusicScroll::MusicScroll(float x, float y, float w, float h) :
 
 MusicScroll::~MusicScroll()
 {
-	for (auto*& it : musicList) delete it;
+	for (auto*& it : musicList)
+	{
+		for (auto*& patternIter : it->patternList)
+		{
+			delete patternIter;
+		}
+		delete it;
+	}
 	for (auto*& it : musicBoxList) delete it;
 	for (auto*& it : musicTextList) delete it;
 }
