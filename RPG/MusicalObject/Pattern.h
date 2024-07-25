@@ -11,7 +11,7 @@ public:
 	wstring ympFileName;
 	wstring ymmRefFileName;
 	std::vector<std::wstring> MakerNameList;
-	std::vector<std::wstring> TagList;
+	std::set<std::wstring> TagList;
 	wstring DifficultyName;
 
 	MusicScore* musicScore = nullptr;

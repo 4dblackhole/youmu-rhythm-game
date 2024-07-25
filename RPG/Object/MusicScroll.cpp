@@ -254,12 +254,12 @@ const wstring musicNameIdc = L"Music Name";
 const wstring artistIdc = L"Artist";
 
 //ymp
-const wstring medatadaIdc = L"[Metadata]";
+const wstring metadataIdc = L"[Metadata]";
 const wstring timeSignatureIdc = L"[Time Signature]";
 const wstring pattermIdc = L"[Pattern]";
 const wstring musicMetadataIdc = L"Music metadata";
 const wstring patternMakerIdc = L"Pattern Maker";
-const wstring difficultyNameIdc = L"Difficulty Name";
+const wstring patternNameIdc = L"Pattern Name";
 
 //Music,Pattern common
 const wstring endLineIdc = L"\r\n";
@@ -287,21 +287,82 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 	try
 	{
 		//indicator check
-		size_t metadataPos = file.find(medatadaIdc);
-		if (metadataPos == wstring::npos) throw nullptr;
+		size_t metadataPos = file.find(metadataIdc);
+		if (metadataPos == wstring::npos) throw 0;
 
 		size_t signaturePos = file.find(timeSignatureIdc, metadataPos);
-		if (signaturePos == wstring::npos) throw nullptr;
+		if (signaturePos == wstring::npos) throw 0;
 
 		size_t patternPos = file.find(timeSignatureIdc, signaturePos);
-		if (patternPos == wstring::npos) throw nullptr;
+		if (patternPos == wstring::npos) throw 0;
+
+		//get ymm file name reference
+		size_t startPos = file.find(musicMetadataIdc, metadataPos);
+		size_t endPos = file.find(endLineIdc, startPos);
+		wstring lineStr = file.substr(startPos, endPos - startPos);
+		wstring ymmRefName;
+		ShortCut::WordSeparateW(lineStr, L":", nullptr, &ymmRefName);
+		resultPattern->ymmRefFileName = SongDir + ymmRefName;
+
+		//patern maker informations
+		startPos = file.find(patternMakerIdc, endPos);
+		endPos = file.find(endLineIdc, startPos);
+		lineStr = file.substr(startPos, endPos - startPos);
+		wstring val;
+		ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
+		wstringstream wss;
+		size_t makerCount;
+		wss << val << endl;
+		wss >> makerCount;
+
+		resultPattern->MakerNameList.reserve(makerCount);
+		for (size_t idx = 0; idx < makerCount; ++idx)
+		{
+			startPos = file.find(patternMakerIdc, endPos);
+			if (startPos == wstring::npos) break;
+			endPos = file.find(endLineIdc, startPos);
+			lineStr = file.substr(startPos, endPos - startPos);
+			wstring tempMakerName;
+			ShortCut::WordSeparateW(lineStr, L":", nullptr, &tempMakerName);
+			resultPattern->MakerNameList.emplace_back(tempMakerName);
+		}
+
+		//Pattern  name
+		startPos = file.find(patternNameIdc, endPos);
+		if (startPos == wstring::npos) throw 0;
+		endPos = file.find(endLineIdc, startPos);
+
+		lineStr = file.substr(startPos, endPos - startPos);
+		ColumnSeparate(lineStr, nullptr, &resultPattern->DifficultyName);
+
+		//pos of "Tags"
+		startPos = file.find(tagIdc, endPos);
+		if (startPos == wstring::npos) throw 0;
+		endPos = file.find(endLineIdc, startPos);
+
+		lineStr = file.substr(startPos, endPos - startPos);
+		wstring tagList;
+		ColumnSeparate(lineStr, nullptr, &tagList); //get whitespace separated wstring
+
+		size_t tagStartPos = 0;
+		while (true)
+		{
+			size_t whitespacePos = tagList.find(L' ', tagStartPos);
+			wstring tag = tagList.substr(tagStartPos, whitespacePos - tagStartPos);
+			if (tag.length() > 0)resultPattern->TagList.emplace(tag);
+			tagStartPos = whitespacePos;
+			if (tagStartPos != wstring::npos) while (tagList[++tagStartPos] == L' ');
+			else break;
+		}
 
 	}
-	catch (void* p) //ymp file error
+	catch (int v) //ymp file contents error
 	{
-		p = p;
-		delete resultPattern;
-		return nullptr;
+		if (v == 0)
+		{
+			delete resultPattern;
+			return nullptr;
+		}
 	}
 
 	return resultPattern;
@@ -314,7 +375,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 	{
 		// pos of "File: xxx;
 		size_t filePos = file.find(musicFileIdc);
-		if (filePos == wstring::npos) throw nullptr;
+		if (filePos == wstring::npos) throw 0;
 
 		size_t endPos = file.find(endLineIdc);
 
@@ -334,7 +395,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 
 		// pos of "Music Name"
 		size_t musicNamePos = file.find(musicNameIdc, endPos);
-		if (musicNamePos == wstring::npos) throw nullptr;
+		if (musicNamePos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, musicNamePos);
 
 		lineStr = file.substr(musicNamePos, endPos - musicNamePos);
@@ -361,7 +422,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 
 		// pos of "Artist"
 		size_t artistPos = file.find(artistIdc, endPos);
-		if (artistPos == wstring::npos) throw nullptr;
+		if (artistPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, artistPos);
 
 		lineStr = file.substr(artistPos, endPos - artistPos);
@@ -385,7 +446,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 
 		// pos of "Tags"
 		size_t tagPos = file.find(tagIdc, endPos);
-		if (tagPos == wstring::npos) throw nullptr;
+		if (tagPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, tagPos);
 
 		lineStr = file.substr(tagPos, endPos - tagPos);
@@ -404,11 +465,13 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		}
 
 	}
-	catch (void* p) //ymm file error
+	catch (int v) //ymm file contents error
 	{
-		p = p;
-		delete resultMusic;
-		return nullptr;
+		if (v == 0)
+		{
+			delete resultMusic;
+			return nullptr;
+		}
 	}
 
 	return resultMusic;
@@ -437,8 +500,14 @@ void MusicScroll::LoadPattern()
 		Pattern* pattern = ParseYmpFile(it, uniFile);
 		if (pattern != nullptr)
 		{
-			auto musicIdxIter = musicIndexMap.find(pattern->ymmRefFileName);
-			if (musicIdxIter == musicIndexMap.end()) continue; //no Music File
+			auto musicIdxIter = musicIndexMap.find(pattern->ymmRefFileName.c_str());
+			if (musicIdxIter == musicIndexMap.end()) //no Music File
+			{
+				delete pattern;
+				continue;
+			}
+
+			pattern->ympFileName = it;
 			size_t musicIdx = musicIdxIter->second;
 			musicList[musicIdx]->patternList.emplace_back(pattern); //add pattern to the corresponding music
 		}

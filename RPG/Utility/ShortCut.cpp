@@ -79,3 +79,34 @@ void ShortCut::GetFileList(vector<wstring>& vList, const wstring& sPath, const w
 
 	FindClose(hFind);
 }
+
+bool ShortCut::WordSeparateA(const string& source, const string& separator, string* first, string* second)
+{
+	size_t columnPos = source.find(separator); // key {separator} filename
+	if (columnPos == string::npos) return false; //not valid desc
+
+	if (first != nullptr)*first = source.substr(0, columnPos);
+
+	if (second != nullptr)
+	{
+		size_t secondStartPos = columnPos + separator.length() - 1;
+		while (source[++secondStartPos] == ' ');
+		*second = source.substr(secondStartPos);
+	}
+	return true;
+}
+bool ShortCut::WordSeparateW(const wstring& source, const wstring& separator, wstring* first, wstring* second)
+{
+	size_t columnPos = source.find(separator); // key {separator} filename
+	if (columnPos == wstring::npos) return false; //not valid desc
+
+	if (first != nullptr)*first = source.substr(0, columnPos);
+
+	if (second != nullptr)
+	{
+		size_t secondStartPos = columnPos + separator.length() - 1;
+		while (source[++secondStartPos] == L' ');
+		*second = source.substr(secondStartPos);
+	}
+	return true;
+}

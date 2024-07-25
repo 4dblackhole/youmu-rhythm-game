@@ -43,8 +43,6 @@ private:
 	vector<Rectangle2D*> musicBoxList;
 	vector<DwLayout*> musicTextList;
 
-	map<Music*, vector<Pattern*>*> PatternList;
-
 	map<wstring, size_t> musicIndexMap;
 
 	int scrollPos = 0;

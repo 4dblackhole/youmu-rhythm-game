@@ -27,7 +27,10 @@ public:
 	static D2D1_POINT_2F Resize2DtoStandardCS(float newW, float newH, float x, float y, float alignPosX = 0.0f);
 
 	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
-	
+
+	static bool WordSeparateA(const string& source, const string& separator, string* first, string* second);
+	static bool WordSeparateW(const wstring& source, const wstring& separator, wstring* first, wstring* second);
+
 };
 
 template <typename T>

@@ -41,4 +41,6 @@ private:
 	};
 	DwLayout *fpsLayout;
 
+	ID2D1Bitmap* bitmap;
+
 };
