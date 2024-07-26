@@ -12,8 +12,6 @@ public:
 	virtual ~Sprite();
 
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
-	void UpdateWorld();
-	void UpdateUvWorld();
 	void Render(ID3D11DeviceContext*, const Camera&);
 	void OnResize();
 
@@ -36,6 +34,9 @@ public:
 	void SetAlignX(AlignModeX m);
 	void SetAlignY(AlignModeY m);
 
+	const XMFLOAT2& GetLocalScale() const { return LocalScale; }
+	const XMFLOAT3& GetLocalPosition() const { return LocalPosition; }
+
 	const XMFLOAT2& GetScale() const { return Scale; }
 	const XMFLOAT3& GetPosition() const { return Position; }
 
@@ -46,14 +47,27 @@ public:
 
 	bool ColorMode = false;
 
+	void UpdateLocalWorld();
+	void UpdateWorld();
+	void UpdateGlobalWorld();
+	void UpdateUvWorld();
+
 private:
 	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
+
+	//variables to describe the shape
+	XMFLOAT2 LocalScale;
+	XMFLOAT3 LocalRotation;
+	XMFLOAT3 LocalPosition;
+	XMFLOAT4X4 mLocalWorld;
 
 	XMFLOAT2 Scale;
 	XMFLOAT3 Rotation;
 	XMFLOAT3 Position;
 	XMFLOAT4X4 mWorld;
 
+	XMFLOAT4X4 mParentWorld;
+	XMFLOAT4X4 mGlobalWorld;
 
 	bool updateUvWorldFlag = false;
 	XMFLOAT2 UvScale;

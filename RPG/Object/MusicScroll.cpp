@@ -30,8 +30,10 @@ MusicScroll::MusicScroll() : MusicScroll(MusicScrollX, MusicScrollY, MusicScroll
 
 MusicScroll::MusicScroll(float x, float y, float w, float h) :
 	scrollImg(x, y, w, h),
-	clipArea(x, y - clipAreaOffset, w, h - clipAreaOffset * 2),
-	textArea(x - (BoxEdgeX + TextEdgeX), y - clipAreaOffset, w - (TextEdgeX+ BoxEdgeX) * 2 , h - clipAreaOffset * 2)
+	clipArea(x + w*0.5f , y - clipAreaOffset + h * 0.5f,
+		w, h - clipAreaOffset * 2),
+	textArea(x - (BoxEdgeX + TextEdgeX) + w*0.5f, y - clipAreaOffset + h * 0.5f,
+		w - (TextEdgeX+ BoxEdgeX) * 2 , h - clipAreaOffset * 2)
 {
 	InitMusicScroll();
 
@@ -102,11 +104,11 @@ void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
 	int zDelta = GET_WHEEL_DELTA_WPARAM(wState);
 	if (zDelta < 0) //wheel down
 	{
-		if (scrollPos != -10)--scrollPos;
+		if (scrollPos != -40)scrollPos -= 1.0f;
 	}
 	else //wheel up
 	{
-		if (scrollPos != 40)++scrollPos;
+		if (scrollPos != 40)scrollPos += 1.0f;
 	}
 	UpdateScrollMatrix();
 }
@@ -149,7 +151,8 @@ void MusicScroll::Update(float dt)
 void MusicScroll::UpdateScrollMatrix()
 {
 	const float rateY = (float)App->GetHeight() / (float)StandardHeight;
-	scrollMatrix = D2D1::Matrix3x2F::Translation(0, (FLOAT)scrollPos * 20 * rateY);
+	const float scrollStartPosOffset = -scrollImg.GetLocalScale().y * 0.5f;
+	scrollMatrix = D2D1::Matrix3x2F::Translation(0, scrollPos * 20.0f * rateY + scrollStartPosOffset);
 	for (auto& boxWorld : musicBoxList) boxWorld->GetWorld2d().SetParentWorld(scrollMatrix);
 }
 
@@ -159,12 +162,12 @@ void MusicScroll::CreateBoxes()
 	musicBoxList.clear();
 	for (size_t i = 0; i < musicList.size(); ++i)
 	{
-		const XMFLOAT2& scale = scrollImg.GetScale();
+		const XMFLOAT2& scale = scrollImg.GetLocalScale();
 		const XMFLOAT3& pos = scrollImg.GetPosition();
 
 		//Right-Top based position
-		FLOAT boxLeft = pos.x - scale.x + BoxEdgeX;
-		FLOAT boxRight = pos.x - BoxEdgeX;
+		FLOAT boxLeft = pos.x - scale.x * 0.5f + BoxEdgeX;
+		FLOAT boxRight = pos.x + scale.x * 0.5f - BoxEdgeX;
 		FLOAT boxTop = -pos.y + BoxOffsetY;
 		FLOAT boxBottom = -pos.y + BoxOffsetY + BoxHeight;
 
@@ -244,7 +247,6 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		for (auto*& it : musicTextList) it->Draw();
 		D2D.GetRenderTarget()->PopAxisAlignedClip();
 	}
-
 	D2D.GetRenderTarget()->PopAxisAlignedClip();
 }
 
@@ -558,6 +560,7 @@ void MusicScroll::InitMusicScroll()
 	scrollImg.SetAlignX(AlignModeX::Right);
 	scrollImg.SetAlignY(AlignModeY::Top);
 	scrollImg.UpdateWorld();
+	scrollImg.UpdateGlobalWorld();
 	scrollImg.SetTexture(GETTEXTURE(TextureManager::Name::MusicScroll));
 
 	DWRITE_TEXT_METRICS mt;

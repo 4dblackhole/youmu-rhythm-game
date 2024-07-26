@@ -87,13 +87,23 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 
 	XMMATRIX I = ::XMMatrixIdentity();
 
+	XMStoreFloat4x4(&mParentWorld, I);
+
 	Diffuse = diffuse;
 
-	Scale = { _w,_h };
-	Rotation = { 0,0,0 };
-	Position = { _x,_y,0 };
+	LocalScale = { _w, _h };
+	LocalRotation = { 0, 0, 0 };
+	LocalPosition = { 0, 0, 0 };
+	UpdateLocalWorld();
+
+	Scale = { 1.0f, 1.0f };
+	Rotation = { 0, 0, 0 };
+	Position = { _x, _y, 0 };
 	DrawPos = Position;
 	UpdateWorld();
+
+
+	UpdateGlobalWorld();
 
 	UvScale = { 1.0f,1.0f };
 	UvRotation = { 0,0,0 };
@@ -146,6 +156,14 @@ void Sprite::UpdateDrawArea()
 
 }
 
+void Sprite::UpdateLocalWorld()
+{
+	XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&LocalScale));
+	XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&LocalRotation));
+	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&LocalPosition));
+	XMStoreFloat4x4(&mLocalWorld, S * R * T);
+}
+
 //reflects the align states and updates world matrix
 void Sprite::UpdateWorld()
 {
@@ -155,6 +173,11 @@ void Sprite::UpdateWorld()
 	AdjustDrawPos();
 	XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&DrawPos));
 	XMStoreFloat4x4(&mWorld, S * R * T);
+}
+
+void Sprite::UpdateGlobalWorld()
+{
+	XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mLocalWorld) * XMLoadFloat4x4(&mWorld) * XMLoadFloat4x4(&mParentWorld));
 }
 
 void Sprite::UpdateUvWorld()
@@ -188,7 +211,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
-		CXMMATRIX world = XMLoadFloat4x4(&mWorld);
+		CXMMATRIX world = XMLoadFloat4x4(&mGlobalWorld);
 
 		if (updateUvWorldFlag)
 		{
@@ -213,12 +236,14 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 void Sprite::OnResize()
 {
 	UpdateWorld();
+	UpdateGlobalWorld();
 }
 
 void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
-	Scale.x = ShortCut::GetOrthoWidth(w, h);
+	Scale.x = ShortCut::GetOrthoWidth(w,h)/ (float)LocalScale.x;
 	UpdateWorld();
+	UpdateGlobalWorld();
 }
 
 void Sprite::BulidBuffer(ID3D11Device* device)

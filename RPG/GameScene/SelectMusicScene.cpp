@@ -7,8 +7,8 @@ constexpr float MusicScrollWidth = 450.0f;
 constexpr float MusicScrollHeight = 670.0f;
 
 SelectMusicScene::SelectMusicScene() :
-	background(0, 0, (float)0, (float)StandardHeight, MyColor4::Black, true),
-	musicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
+	background(0, 0, (float)StandardWidth, (float)StandardHeight, MyColor4::Black, true),
+	musicScroll(MusicScrollX - MusicScrollWidth*0.5f, MusicScrollY - MusicScrollHeight*0.5f, MusicScrollWidth, MusicScrollHeight)
 {
 }
 

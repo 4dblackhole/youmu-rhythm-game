@@ -35,11 +35,13 @@ void TestScene::Update(float dt)
 	{
 		sq2.MovePosition(-400.0f * dt, 0.0f, 0.0f);
 		sq2.UpdateWorld();
+		sq2.UpdateGlobalWorld();
 	}
 	if (KEYBOARD.Press('X'))
 	{
 		sq2.MovePosition(400.0f * dt, 0.0f, 0.0f);
 		sq2.UpdateWorld();
+		sq2.UpdateGlobalWorld();
 	}
 }
 

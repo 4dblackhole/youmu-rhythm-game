@@ -45,7 +45,7 @@ private:
 
 	map<wstring, size_t> musicIndexMap;
 
-	int scrollPos = 0;
+	float scrollPos = 0.0f;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
 	void UpdateScrollMatrix();
 
