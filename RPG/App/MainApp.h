@@ -14,6 +14,8 @@ public:
 	void UpdateScene(float dt) final;
 	void DrawScene() final;
 
+	const float RateY() const { return rateY; }
+
 	virtual void OnMouseDown(WPARAM btnState, int x, int y) final;
 	virtual void OnMouseUp(WPARAM btnState, int x, int y) final;
 	virtual void OnMouseMove(WPARAM btnState, int x, int y) final;
@@ -42,5 +44,7 @@ private:
 	DwLayout *fpsLayout;
 
 	ID2D1Bitmap* bitmap;
+
+	float rateY = 1.0f;
 
 };

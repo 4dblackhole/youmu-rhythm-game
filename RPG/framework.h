@@ -75,8 +75,8 @@ using namespace std;
 
 
 
-#include "App/D3DApp.h"
-extern const D3DApp* App;
+#include "App/MainApp.h"
+extern const MainApp* App;
 
 //all coordinates are based on these numbers.
 constexpr UINT StandardWidth = 1280;

@@ -147,6 +147,9 @@
     <ClCompile Include="Singleton\FmodSystem.cpp">
       <Filter>Singleton</Filter>
     </ClCompile>
+    <ClCompile Include="Object\Shape2D\DwLayout2D.cpp">
+      <Filter>Object\Shape2D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -256,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="defines.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Shape2D\DwLayout2D.h">
+      <Filter>Object\Shape2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

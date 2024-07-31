@@ -13,7 +13,7 @@ Shape2D::~Shape2D()
 
 void Shape2D::Draw()
 {
-	D2D.GetRenderTarget()->SetTransform(world2d.GetGlobalWorld());
+	D2D.GetRenderTarget()->SetTransform(world2d.GetDrawWorld());
 }
 
 void Shape2D::Reposition(float newW, float newH)

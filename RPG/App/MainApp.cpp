@@ -13,11 +13,15 @@ MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
 	drawFPSCounterFlag(true)
 {
+	App = this;
 	mMainWndCaption = _T("2D Test");
 
 	constexpr float fpsFontSize = 20.0f / D2Ddevice::DefaultFontSize;
-	LayoutDesc tempDesc(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { -10 ,(float)FPScounterY });
+	LayoutDesc tempDesc(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { 0 ,0 });
 	tempDesc.world2d.alignX = AlignModeX::Right;
+	tempDesc.world2d.SetRelativePosition({ -10 ,(float)FPScounterY });
+	tempDesc.world2d.UpdateLocalWorld();
+	tempDesc.world2d.UpdateRelativeWorld();
 	fpsLayout = new DwLayout(tempDesc);
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
@@ -60,9 +64,11 @@ void MainApp::OnResize()
 {
 	__super::OnResize();
 	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight / (float)mClientHeight), (float)StandardHeight);
+	rateY = (float)GetHeight() / (float)StandardHeight;
 	SCENEMANAGER.GetCurrentScene()->OnResize((float)mClientWidth, (float)mClientHeight);
 	
 	fpsLayout->Resize((float)mClientWidth, (float)mClientHeight);
+	int asdf = 3;
 }
 
 void MainApp::UpdateScene(float dt)

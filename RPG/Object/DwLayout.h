@@ -40,7 +40,7 @@ class DwLayout
 {
 public:
 	DwLayout() : DwLayout(LayoutDesc()) {}
-	DwLayout(float size, D2D1::ColorF color, POINT pos) : DwLayout(LayoutDesc()) {}
+	DwLayout(float size, D2D1::ColorF color, D2D1_SIZE_F pos) : DwLayout(LayoutDesc(size, color, pos)) {}
 	DwLayout(const LayoutDesc& l) : layout(nullptr), desc(l) {}
 	DwLayout(LayoutDesc&& l) : layout(nullptr), desc(l) {}
 

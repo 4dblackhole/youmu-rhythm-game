@@ -42,12 +42,14 @@ void TitleScene::BeginScene()
 		(TextureDir+L"/Title/TitleLogo_ghost.png").c_str(), 0, 0, &titleSrv, 0));
 	titleLogoImg.SetTexture(titleSrv);
 	keySelectTriangle = new Triangle2D;
-	keySelectTriangle->GetWorld2d().SetScale({12.0f,12.0f});
+	keySelectTriangle->GetWorld2d().SetLocalScale(12.0f);
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
 	ChangeTrianglePos();
-	keySelectTriangle->GetWorld2d().UpdateWorld();
+	keySelectTriangle->GetWorld2d().UpdateRelativeWorld();
+	keySelectTriangle->GetWorld2d().UpdateLocalWorld();
 	keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
+	keySelectTriangle->GetWorld2d().UpdateDrawWorld();
 	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
@@ -57,6 +59,8 @@ void TitleScene::OnResize(float newW, float newH)
 	tooltipBG.ChangeWidthToCurrentWidth(newW, newH);
 	for (DwLayout& it : layoutList) it.Resize(newW, newH);
 	keySelectTriangle->Resize(newW, newH);
+
+	int asdf = 3;
 }
 
 void TitleScene::Update(float dt)
@@ -70,7 +74,7 @@ void TitleScene::Update(float dt)
 			int newKey = (int)selectKey - 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
-			keySelectTriangle->GetWorld2d().UpdateWorld();
+			keySelectTriangle->GetWorld2d().UpdateRelativeWorld();
 			keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 		}
 	}
@@ -82,7 +86,7 @@ void TitleScene::Update(float dt)
 			int newKey = (int)selectKey + 1;
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
-			keySelectTriangle->GetWorld2d().UpdateWorld();
+			keySelectTriangle->GetWorld2d().UpdateRelativeWorld();
 			keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 		}
 	}
@@ -126,13 +130,13 @@ void TitleScene::ChangeTrianglePos()
 	switch (selectKey)
 	{
 	case TitleScene::SelectKey::GameStart:
-		keySelectTriangle->GetWorld2d().SetPosition({ selectKeyPosX , gamestartPosY + selectKeyOffsetY });
+		keySelectTriangle->GetWorld2d().SetRelativePosition({ selectKeyPosX , gamestartPosY + selectKeyOffsetY });
 		break;
 	case TitleScene::SelectKey::Options:
-		keySelectTriangle->GetWorld2d().SetPosition({ selectKeyPosX , optionPosY + selectKeyOffsetY });
+		keySelectTriangle->GetWorld2d().SetRelativePosition({ selectKeyPosX , optionPosY + selectKeyOffsetY });
 		break;
 	case TitleScene::SelectKey::Exit:
-		keySelectTriangle->GetWorld2d().SetPosition({ selectKeyPosX , exitPosY + selectKeyOffsetY });
+		keySelectTriangle->GetWorld2d().SetRelativePosition({ selectKeyPosX , exitPosY + selectKeyOffsetY });
 		break;
 	}
 }
@@ -143,24 +147,29 @@ void TitleScene::InitLayout()
 
 	constexpr float selectTextSize = 40.0f / D2Ddevice::DefaultFontSize;
 	IDWriteTextFormat*& currentFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
-	LayoutDesc tempDesc(selectTextSize, MyColorF::GhostGreen, { layoutStartPosX, layoutStartPosY });
+	LayoutDesc tempDesc(selectTextSize, MyColorF::GhostGreen, { 0,0 });
+	tempDesc.world2d.SetRelativePosition({ layoutStartPosX, layoutStartPosY });
+	tempDesc.world2d.UpdateLocalWorld();
+	tempDesc.world2d.UpdateRelativeWorld();
 
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"GameStart", currentFormat);
 
-	tempDesc.world2d.SetPosition({ tempDesc.world2d.GetPosition().x, optionPosY });
+	tempDesc.world2d.SetRelativePosition({ tempDesc.world2d.GetPosition().x, optionPosY });
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::Options].SetLayout(L"Options", currentFormat);
 
-	tempDesc.world2d.SetPosition({ tempDesc.world2d.GetPosition().x, exitPosY });
+	tempDesc.world2d.SetRelativePosition({ tempDesc.world2d.GetPosition().x, exitPosY });
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::Exit].SetLayout(L"Exit", currentFormat);
 
 	constexpr float tooltipTextSize = 20.0f / D2Ddevice::DefaultFontSize;
 	tempDesc.Color = D2D1::ColorF({ 1, 1, 1, 1 });
-	tempDesc.world2d.SetScale(tooltipTextSize);
-	tempDesc.world2d.SetPosition({ (float)ToolTipOffsetX,(float)StandardHeight - 30 });
+	tempDesc.world2d.SetLocalScale(tooltipTextSize);
+	tempDesc.world2d.SetRelativePosition({ (float)ToolTipOffsetX,(float)StandardHeight - 30 });
 	tempDesc.world2d.alignX = AlignModeX::Left;
+	tempDesc.world2d.UpdateLocalWorld();
+	tempDesc.world2d.UpdateRelativeWorld();
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", currentFormat);
 

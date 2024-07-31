@@ -49,8 +49,8 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 	DWRITE_TEXT_METRICS mt;
 	GetLayoutMetrics(text, textFormat, &mt);
 
-	float sizeRate = desc.world2d.GetScale().x;
-	desc.world2d.SetPosition({ desc.world2d.GetPosition().x - (int)(mt.width * sizeRate),desc.world2d.GetPosition().y });
+	float sizeRate = desc.world2d.GetLocalScale().x;
+	desc.world2d.SetRelativePosition({ desc.world2d.GetPosition().x - (int)(mt.width * sizeRate),desc.world2d.GetPosition().y });
 
 	SetLayout(text, textFormat);
 
@@ -59,7 +59,7 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 void DwLayout::Draw()
 {
 	World2D& myWorld = desc.world2d;
-	D2D.GetRenderTarget()->SetTransform(myWorld.GetGlobalWorld());
+	D2D.GetRenderTarget()->SetTransform(myWorld.GetDrawWorld());
 	D2D.DrawTextLayout({0,0}, layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 

@@ -38,7 +38,6 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mScreenViewport({}),
 	dwMonitorFrequency(60u)
 {
-	App = this;
 	gd3dApp = this;
 }
 
@@ -357,7 +356,7 @@ bool D3DApp::InitMainWindow()
 	}
 
 	//compute window rectangle dimensions based on requested cliend area dimensions
-	RECT R = { 0, 0, mClientWidth, mClientHeight };
+	RECT R = { 0, 0, mClientWidth, mClientHeight -300 };
 	constexpr DWORD dwStyle = (WS_OVERLAPPEDWINDOW /* & (~WS_THICKFRAME) */ );
 	AdjustWindowRect(&R, dwStyle, false);
 	int w = R.right - R.left;

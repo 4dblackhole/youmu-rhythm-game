@@ -52,12 +52,15 @@ private:
 	Rectangle2D patternBox;
 
 	float scrollPos = 0.0f;
-	float totalPatternBoxHeight = 0.0f;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
-	D2D1::Matrix3x2F scrollWithPatternHeightMatrix{ D2D1::Matrix3x2F::Identity() };
+	D2D1::Matrix3x2F patternHeightMatrix{ D2D1::Matrix3x2F::Identity() };
+	D2D1::Matrix3x2F scrollWithPatternMatrix{ D2D1::Matrix3x2F::Identity() };
 
 	void UpdateScrollMatrix();
+	void UpdatePatternHeightMatrix(size_t musicIdx);
 	void ChangeTargetScrollMatrix();
+
+	void InitBoxListParentWorld();
 
 	size_t previousSelectMusic = 0;
 	size_t currentSelectMusic = 0;
@@ -67,5 +70,4 @@ private:
 	void StopMusic(size_t idx);
 
 	void ChangeSelectMusic(size_t newIdx);
-
 };

@@ -1,7 +1,7 @@
 ﻿#include "framework.h"
 #include "App/MainApp.h"
 
-const D3DApp* App;
+const MainApp* App;
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
