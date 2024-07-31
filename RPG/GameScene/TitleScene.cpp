@@ -47,6 +47,7 @@ void TitleScene::BeginScene()
 	keySelectTriangle->BorderSize = 0.5f;
 	ChangeTrianglePos();
 	keySelectTriangle->GetWorld2d().UpdateWorld();
+	keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
@@ -70,6 +71,7 @@ void TitleScene::Update(float dt)
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
 			keySelectTriangle->GetWorld2d().UpdateWorld();
+			keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 		}
 	}
 	if (KEYBOARD.Down(VK_DOWN))
@@ -81,6 +83,7 @@ void TitleScene::Update(float dt)
 			selectKey = (SelectKey)newKey;
 			ChangeTrianglePos();
 			keySelectTriangle->GetWorld2d().UpdateWorld();
+			keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 		}
 	}
 	if (KEYBOARD.Down(VK_RETURN))

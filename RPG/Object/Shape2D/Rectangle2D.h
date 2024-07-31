@@ -12,7 +12,7 @@ public:
 	virtual void Draw();
 
 	const D2D1_RECT_F& GetArea() const { return rect.rect; }
-	const D2D1_ROUNDED_RECT& GetRect() const { return rect; }
+	D2D1_ROUNDED_RECT& GetRect() { return rect; }
 
 	void SetRadius(FLOAT f);
 	void SetRadius(FLOAT f1 , FLOAT f2);

@@ -27,8 +27,9 @@ private:
 	void World2DResize(float newW,float newH);
 	
 	void InitMusicScroll();
-	void CreateBoxes();
-	void CreateTexts();
+	void CreateMusicBoxes();
+
+	void CreatePatternBoxes();
 
 	void LoadMusic();
 	void LoadPattern();
@@ -45,15 +46,26 @@ private:
 
 	map<wstring, size_t> musicIndexMap;
 
+	vector<Rectangle2D*> patternBoxList;
+	vector<DwLayout*> patternTextList;
+
+	Rectangle2D patternBox;
+
 	float scrollPos = 0.0f;
+	float totalPatternBoxHeight = 0.0f;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
+	D2D1::Matrix3x2F scrollWithPatternHeightMatrix{ D2D1::Matrix3x2F::Identity() };
+
 	void UpdateScrollMatrix();
+	void ChangeTargetScrollMatrix();
 
+	size_t previousSelectMusic = 0;
 	size_t currentSelectMusic = 0;
-	size_t prevSelectMusic = 0;
-	void ChangePreviewMusic();
+	size_t currentSelectPattern = 0;
 
-	void PlayMusic();
-	void StopMusic();
+	void PlayMusic(size_t idx);
+	void StopMusic(size_t idx);
+
+	void ChangeSelectMusic(size_t newIdx);
 
 };

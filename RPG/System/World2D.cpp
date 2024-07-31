@@ -19,6 +19,7 @@ void World2D::Resize(float newW, float newH)
 
 	Reposition(newW, newH);
 	UpdateWorld();
+	UpdateGlobalWorld();
 }
 
 void World2D::Reposition(float newW, float newH)
@@ -58,34 +59,29 @@ void World2D::SetPosition(const D2D1_POINT_2F s)
 	Reposition((float)App->GetWidth(), (float)App->GetHeight());
 }
 
-void World2D::SetParentWorld(const D2D1::Matrix3x2F& p)
-{
-	parentWorld = p;
-	UpdateGlobalWorld();
-}
-
 /*
 
-Update World 式式式式成式式式式> UpdateGlobalWorld -> UpdateChildWorld
-				 弛
-SetParentWorld 式式戎
+Update World 式式式成式> UpdateGlobalWorld
+				弛
+SetParentWorld 式戎
 
 */
 
-void World2D::UpdateWorld()
+void World2D::SetParentWorld(const D2D1::Matrix3x2F* p) // MUST CALL UpdateGlobalWorld
+{
+	parentWorld = p;
+}
+
+void World2D::UpdateWorld() // MUST CALL UpdateGlobalWorld
 {
 	mWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Rotation(rotation) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
-	UpdateGlobalWorld();
 }
 
 void World2D::UpdateGlobalWorld()
 {
-	mGlobalWorld = mWorld * parentWorld;
-	UpdateChildWorld();
-}
+	mGlobalWorld = 
+		(parentWorld == nullptr) ? 
+		mWorld					 : 
+		mWorld * (*parentWorld);
 
-void World2D::UpdateChildWorld()
-{
-	for (auto& childWorld : childWorlds) childWorld->SetParentWorld(mGlobalWorld);
-	
 }
