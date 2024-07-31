@@ -2,14 +2,18 @@
 #include "World2D.h"
 
 World2D::World2D(D2D1_POINT_2F size, FLOAT rot, D2D1_POINT_2F position) 
-	: localScale(size), localRotation(rot), localPos(position)
+	: scale(size), rotation(rot), pos(position)
 {
-	UpdateLocalWorld();
-	Resize((float)App->GetWidth(), (float)App->GetHeight());
+	Init();
 }
 
 World2D::~World2D()
 {
+}
+
+void World2D::Init()
+{
+	Resize((float)App->GetWidth(), (float)App->GetHeight());
 }
 
 void World2D::Resize(float newW, float newH)
@@ -17,15 +21,14 @@ void World2D::Resize(float newW, float newH)
 	Rescale(newW, newH);
 	Reposition(newW, newH);
 
-	UpdateRelativeWorld();
+	UpdateWorld();
 	UpdateGlobalWorld();
-	UpdateDrawWorld();
 }
 
 void World2D::Rescale(float newW, float newH)
 {
-	drawScale.x = relativeScale.x * App->RateY();
-	drawScale.y = relativeScale.y * App->RateY();
+	drawScale.x = scale.x*App->RateY();
+	drawScale.y = scale.y*App->RateY();
 }
 
 void World2D::Reposition(float newW, float newH)
@@ -33,55 +36,35 @@ void World2D::Reposition(float newW, float newH)
 	switch (alignX)
 	{
 	case AlignModeX::Left:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, relativePos.x, relativePos.y);
+		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y);
 		break;
 	case AlignModeX::Mid:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, relativePos.x, relativePos.y, newW * 0.5f);
+		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y, newW * 0.5f);
 		break;
 	case AlignModeX::Right:
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, relativePos.x, relativePos.y, newW);
+		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y, newW);
 		break;
 	}
 }
 
-void World2D::SetLocalScale(const D2D1_POINT_2F s)
+void World2D::SetScale(const D2D1_POINT_2F s)
 {
-	this->localScale = s;
+	this->scale	 = s;
 }
 
-void World2D::SetLocalScale(const FLOAT f)
+void World2D::SetScale(const FLOAT f)
 {
-	SetLocalScale({ f,f });
+	SetScale({ f,f });
 }
 
-void World2D::SetLocalRotation(const FLOAT s)
+void World2D::SetRotation(const FLOAT s)
 {
-	this->localRotation = s;
+	this->rotation = s;
 }
 
-void World2D::SetLocalPosition(const D2D1_POINT_2F s)
+void World2D::SetPosition(const D2D1_POINT_2F s)
 {
-	this->localPos = s;
-}
-
-void World2D::SetRelativeScale(const D2D1_POINT_2F s)
-{
-	this->relativeScale = s;
-}
-
-void World2D::SetRelativeScale(const FLOAT f)
-{
-	SetRelativeScale({ f,f });
-}
-
-void World2D::SetRelativeRotation(const FLOAT s)
-{
-	this->relativeRotation = s;
-}
-
-void World2D::SetRelativePosition(const D2D1_POINT_2F s)
-{
-	this->relativePos = s;
+	this->pos = s;
 	Reposition((float)App->GetWidth(), (float)App->GetHeight());
 }
 
@@ -98,26 +81,16 @@ void World2D::SetParentWorld(const D2D1::Matrix3x2F* p) // MUST CALL UpdateGloba
 	parentWorld = p;
 }
 
-void World2D::UpdateRelativeWorld() // MUST CALL UpdateGlobalWorld
+void World2D::UpdateWorld() // MUST CALL UpdateGlobalWorld
 {
-	mRelativeWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Rotation(relativeRotation) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
-}
-
-void World2D::UpdateLocalWorld()
-{
-	mLocalWorld = D2D1::Matrix3x2F::Scale({ localScale.x,localScale.y }) * D2D1::Matrix3x2F::Rotation(localRotation) * D2D1::Matrix3x2F::Translation({ localPos.x,localPos.y });
+	mLocalWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Rotation(rotation) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
 }
 
 void World2D::UpdateGlobalWorld()
 {
 	mGlobalWorld = 
 		(parentWorld == nullptr) ? 
-		mRelativeWorld : 
-		mRelativeWorld * (*parentWorld);
+		mLocalWorld :
+		mLocalWorld * (*parentWorld);
 
-}
-
-void World2D::UpdateDrawWorld()
-{
-	mDrawWorld = mLocalWorld * mGlobalWorld;
 }

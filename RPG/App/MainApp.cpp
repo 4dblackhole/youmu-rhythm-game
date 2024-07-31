@@ -19,9 +19,8 @@ MainApp::MainApp(HINSTANCE hInstance)
 	constexpr float fpsFontSize = 20.0f / D2Ddevice::DefaultFontSize;
 	LayoutDesc tempDesc(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { 0 ,0 });
 	tempDesc.world2d.alignX = AlignModeX::Right;
-	tempDesc.world2d.SetRelativePosition({ -10 ,(float)FPScounterY });
-	tempDesc.world2d.UpdateLocalWorld();
-	tempDesc.world2d.UpdateRelativeWorld();
+	tempDesc.world2d.SetPosition({ -10 ,(float)FPScounterY });
+	tempDesc.world2d.UpdateWorld();
 	fpsLayout = new DwLayout(tempDesc);
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 

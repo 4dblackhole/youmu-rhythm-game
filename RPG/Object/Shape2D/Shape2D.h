@@ -5,14 +5,14 @@
 class Shape2D
 {
 public:
-	Shape2D();
+	Shape2D(bool isChild = false);
 	virtual ~Shape2D();
 
 	virtual void Draw();
 	void Resize(float newW, float newH);
 
-	const World2D& GetWorld2dConst() const { return world2d; }
-	World2D& GetWorld2d() { return world2d; }
+	World2D* const& GetWorld2dConst() const { return world2d; }
+	World2D*& GetWorld2d() { return world2d; }
 
 	D2D1::ColorF FillColor = { 1,1,1,1 };
 	D2D1::ColorF BorderColor = { 1,1,1,1 };
@@ -20,6 +20,6 @@ public:
 
 protected:
 	void Reposition(float newW, float newH);
-	World2D world2d;
+	World2D* world2d;
 
 };
