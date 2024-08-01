@@ -59,7 +59,7 @@ void DwLayout::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* t
 void DwLayout::Draw()
 {
 	World2D& myWorld = desc.world2d;
-	D2D.GetRenderTarget()->SetTransform(myWorld.GetGlobalWorld());
+	D2D.GetRenderTarget()->SetTransform(myWorld.GetGlobalWorld()*myWorld.GetDrawWorld());
 	D2D.DrawTextLayout({0,0}, layout, D2D.GetSolidBrush(desc.Color), D2D1_DRAW_TEXT_OPTIONS_CLIP);
 }
 

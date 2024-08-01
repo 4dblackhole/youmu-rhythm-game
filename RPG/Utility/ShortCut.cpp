@@ -38,6 +38,10 @@ float ShortCut::GetOrthoWidth(float w, float h)
     return (float)w * ((float)StandardHeight / (float)h);
 }
 
+/*
+pos to the pos to be drawed
+ex) pt(0,300) RightAlign, 1200x360 => pt(1200,120) 
+*/
 D2D1_POINT_2F ShortCut::Resize2DtoStandardCS(const float newW, const float newH, float x, float y, const float alignPosX)
 {
     const float rateY = newH / (float)StandardHeight;

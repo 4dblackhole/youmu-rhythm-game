@@ -43,11 +43,10 @@ void TitleScene::BeginScene()
 	titleLogoImg.SetTexture(titleSrv);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->GetWorld2d().SetScale(12.0f);
+	keySelectTriangle->GetWorld2d().alignX = AlignModeX::Mid;
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
 	ChangeTrianglePos();
-	keySelectTriangle->GetWorld2d().UpdateWorld();
-	keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
 	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
@@ -146,6 +145,7 @@ void TitleScene::InitLayout()
 	constexpr float selectTextSize = 40.0f / D2Ddevice::DefaultFontSize;
 	IDWriteTextFormat*& currentFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
 	LayoutDesc tempDesc(selectTextSize, MyColorF::GhostGreen, { 0,0 });
+	tempDesc.world2d.alignX = AlignModeX::Mid;
 	tempDesc.world2d.SetPosition({ layoutStartPosX, layoutStartPosY });
 	tempDesc.world2d.UpdateWorld();
 
