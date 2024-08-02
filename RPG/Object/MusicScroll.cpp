@@ -117,17 +117,8 @@ void MusicScroll::UpdateScrollMatrix()
 		UpdatePatternHeightMatrix(currentSelectMusic);
 	}
 	else scrollWithPatternMatrix = scrollMatrix;
-
-	for (auto& it : musicBoxList)
-	{
-		it->GetWorld2d().UpdateGlobalWorld();
-
-	}
-	for (auto& it : musicTextList)
-	{
-		it->desc.world2d.UpdateGlobalWorld();
-	}
-	patternBox.GetWorld2d().UpdateGlobalWorld();
+	
+	NotifyScrollMatrixUpdate();
 }
 
 void MusicScroll::OnResize(float newW, float newH)
@@ -244,14 +235,15 @@ void MusicScroll::ChangeTargetScrollMatrix()
 		}
 	}
 
-	for (auto& it : musicBoxList)
-	{
-		it->GetWorld2d().UpdateGlobalWorld();
-	}
-	for (auto& it : musicTextList)
-	{
-		it->desc.world2d.UpdateGlobalWorld();
-	}
+	NotifyScrollMatrixUpdate();
+}
+
+void MusicScroll::NotifyScrollMatrixUpdate()
+{
+	for (auto& it : musicBoxList) it->GetWorld2d().ParentWorldUpdated();
+	for (auto& it : musicTextList) it->desc.world2d.ParentWorldUpdated();
+
+	patternBox.GetWorld2d().ParentWorldUpdated();
 }
 
 void MusicScroll::InitBoxListParentWorld()
@@ -292,8 +284,7 @@ void MusicScroll::CreateMusicBoxes()
 		Rectangle2D* tempBox = new Rectangle2D({
 			-boxWidth * 0.5f	 , -boxHeight * 0.5f ,
 			boxWidth * 0.5f , boxHeight * 0.5f });
-		tempBox->GetWorld2d().alignX = scrollImg.GetAlignX();
-		tempBox->GetWorld2d().alignY = scrollImg.GetAlignY();
+		tempBox->GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
 		tempBox->IsRound = true;
 		tempBox->SetRadius(10.0f);
 		tempBox->GetWorld2d().SetPosition({ boxCenterX , boxCenterY + (BoxHeight + BoxEdgeY) * i });
@@ -318,8 +309,7 @@ void MusicScroll::CreateMusicBoxes()
 			const float textTop = -BoxHeight * 0.5f;
 
 			LayoutDesc tempDesc(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
-			tempDesc.world2d.alignX = tempBox->GetWorld2d().alignX;
-			tempDesc.world2d.alignY = tempBox->GetWorld2d().alignY;
+			tempDesc.world2d.SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
 			tempDesc.maxW = maximumLayoutWidth;
 			tempDesc.maxH = TextHeight;
 			tempDesc.world2d.SetPosition({ textLeft,textTop });
@@ -341,8 +331,7 @@ void MusicScroll::CreateMusicBoxes()
 
 void MusicScroll::CreatePatternBoxes()
 {
-	patternBox.GetWorld2d().alignX = scrollImg.GetAlignX();
-	patternBox.GetWorld2d().alignY = scrollImg.GetAlignY();
+	patternBox.GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
 	patternBox.GetWorld2d().SetPosition({ PBoxOffsetX,(BoxHeight + PBoxHeight )*0.5f + BoxEdgeY });
 	patternBox.GetWorld2d().SetParentWorld( &musicBoxList[0]->GetWorld2d().GetGlobalWorld());
 	patternBox.IsRound = true;
@@ -693,7 +682,7 @@ void MusicScroll::InitMusicScroll()
 	LayoutDesc tempDesc(NoMusicTextSize, MyColorF::GhostGreen, { (float)NoMusicTextX + (mt.width * NoMusicTextSize / D2Ddevice::DefaultFontSize),NoMusicTextY });
 
 	tempDesc.maxW = MusicScrollWidth;
-	tempDesc.world2d.alignX = AlignModeX::Right;
+	tempDesc.world2d.SetAlignX(AlignModeX::Right);
 	noMusicText.reset(new DwLayout(tempDesc));
 	noMusicText->SetLayoutRightAlign(tempstr, tempFormat);
 	noMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);

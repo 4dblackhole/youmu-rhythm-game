@@ -15,15 +15,15 @@ void World2D::Resize(float newW, float newH)
 	Rescale(newW, newH);
 	Reposition(newW, newH);
 
-	UpdateWorld();
-	UpdateGlobalWorld();
+	//UpdateWorld();
+	//UpdateGlobalWorld();
 }
 
 void World2D::Rescale(float newW, float newH)
 {
 	drawScale.x = App->RateY();
 	drawScale.y = App->RateY();
-	UpdateDrawWorld();
+	mDrawWorldUpdateFlag = true;
 }
 
 void World2D::Reposition(float newW, float newH)
@@ -43,13 +43,13 @@ void World2D::Reposition(float newW, float newH)
 		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, 0, 0, newW);
 		break;
 	}
-	UpdateDrawWorld();
-	int asdf = 3;
+	mDrawWorldUpdateFlag = true;
 }
 
 void World2D::SetScale(const D2D1_POINT_2F s)
 {
 	this->scale	 = s;
+	mLocalWorldUpdateFlag = true;
 }
 
 void World2D::SetScale(const FLOAT f)
@@ -60,42 +60,111 @@ void World2D::SetScale(const FLOAT f)
 void World2D::SetRotation(const FLOAT s)
 {
 	this->rotation = s;
+	mLocalWorldUpdateFlag = true;
 }
 
 void World2D::SetPosition(const D2D1_POINT_2F s)
 {
 	this->pos = s;
-	//Reposition((float)App->GetWidth(), (float)App->GetHeight());
+	mLocalWorldUpdateFlag = true;
 }
 
-void World2D::SetParentWorld(const D2D1::Matrix3x2F* p) // MUST CALL UpdateGlobalWorld
+const D2D1::Matrix3x2F& World2D::GetGlobalWorld()
+{
+	UpdateGlobalWorld();
+	return mGlobalWorld;
+}
+
+const D2D1::Matrix3x2F& World2D::GetLocalWorld()
+{
+	UpdateLocalWorld();
+	return mLocalWorld;
+}
+
+const D2D1::Matrix3x2F& World2D::GetDrawWorld()
+{
+	UpdateDrawWorld();
+	return mDrawWorld;
+}
+
+const D2D1::Matrix3x2F& World2D::GetTotalDrawWorld()
+{
+	UpdateTotalDrawWorld();
+	return mTotalDrawWorld;
+}
+
+void World2D::SetParentWorld(const D2D1::Matrix3x2F* p)
 {
 	parentWorld = p;
+	mGlobalWorldUpdateFlag = true;
 }
 
-void World2D::UpdateWorld() // MUST CALL UpdateGlobalWorld
+void World2D::ParentWorldUpdated()
 {
-	mLocalWorld = D2D1::Matrix3x2F::Scale({ scale.x,scale.y }) * D2D1::Matrix3x2F::Rotation(rotation) * D2D1::Matrix3x2F::Translation({ pos.x,pos.y });
+	mGlobalWorldUpdateFlag = true;
+}
+
+void World2D::UpdateLocalWorld()
+{
+	if (mLocalWorldUpdateFlag)
+	{
+		mLocalWorld = D2D1::Matrix3x2F::Scale({ scale.x,scale.y }) * D2D1::Matrix3x2F::Rotation(rotation) * D2D1::Matrix3x2F::Translation({ pos.x,pos.y });
+		mGlobalWorldUpdateFlag = true;
+
+		mLocalWorldUpdateFlag = false;
+	}
 }
 
 void World2D::UpdateDrawWorld()
 {
-	mDrawWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
-	UpdateTotalDrawWorld();
+	if (mDrawWorldUpdateFlag)
+	{
+		mDrawWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
+		mTotalDrawWorldUpdateFlag = true;
+
+		mDrawWorldUpdateFlag = false;
+	}
 }
 
 void World2D::UpdateGlobalWorld()
 {
-	mGlobalWorld = 
-		(parentWorld == nullptr) ? 
-		mLocalWorld :
-		mLocalWorld * (*parentWorld);
-
-	UpdateTotalDrawWorld();
-
+	UpdateLocalWorld();
+	if (mGlobalWorldUpdateFlag)
+	{
+		mGlobalWorld =
+			(parentWorld == nullptr) ?
+			mLocalWorld :
+			mLocalWorld * (*parentWorld);
+		mTotalDrawWorldUpdateFlag = true;
+		mGlobalWorldUpdateFlag = false;
+	}
 }
 
 void World2D::UpdateTotalDrawWorld()
 {
-	mTotalDrawWorld = mGlobalWorld * mDrawWorld;
+	UpdateGlobalWorld();
+	UpdateDrawWorld();
+	if (mTotalDrawWorldUpdateFlag)
+	{
+		mTotalDrawWorld = mGlobalWorld * mDrawWorld;
+		mTotalDrawWorldUpdateFlag = false;
+	}
+}
+
+void World2D::SetAlignMode(AlignModeX x, AlignModeY y)
+{
+	SetAlignX(x);
+	SetAlignY(y);
+}
+
+void World2D::SetAlignX(AlignModeX x)
+{
+	alignX = x;
+	mDrawWorldUpdateFlag = true;
+}
+
+void World2D::SetAlignY(AlignModeY y)
+{
+	alignY = y;
+	mDrawWorldUpdateFlag = true;
 }

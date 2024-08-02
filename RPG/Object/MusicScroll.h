@@ -59,6 +59,7 @@ private:
 	void UpdateScrollMatrix();
 	void UpdatePatternHeightMatrix(size_t musicIdx);
 	void ChangeTargetScrollMatrix();
+	void NotifyScrollMatrixUpdate();
 
 	void InitBoxListParentWorld();
 

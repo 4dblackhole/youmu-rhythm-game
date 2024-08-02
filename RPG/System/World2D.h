@@ -19,28 +19,38 @@ public:
 	void SetRotation(const FLOAT);
 	void SetPosition(const D2D1_POINT_2F);
 
-	const D2D1_POINT_2F& GetScale() const { return this->scale; }
-	const FLOAT& GetRotation() const { return this->rotation; }
-	const D2D1_POINT_2F& GetPosition() const { return this->pos; }
+	const D2D1_POINT_2F& GetScale() { return this->scale; }
+	const FLOAT& GetRotation() { return this->rotation; }
+	const D2D1_POINT_2F& GetPosition() { return this->pos; }
 
-	const D2D1_POINT_2F& GetDrawPos() const { return drawPos; }
-	const D2D1_POINT_2F& GetDrawScale() const { return drawScale; }
+	const D2D1_POINT_2F& GetDrawPos() { return drawPos; }
+	const D2D1_POINT_2F& GetDrawScale() { return drawScale; }
 
-	const D2D1::Matrix3x2F& GetGlobalWorld() const { return mGlobalWorld; }
-	const D2D1::Matrix3x2F& GetDrawWorld() const { return mDrawWorld; }
-	const D2D1::Matrix3x2F& GetTotalDrawWorld() const { return mTotalDrawWorld; }
-	const D2D1::Matrix3x2F* GetParentWorld() const { return parentWorld; }
+	const D2D1::Matrix3x2F& GetLocalWorld();
+	const D2D1::Matrix3x2F& GetDrawWorld();
+	const D2D1::Matrix3x2F& GetGlobalWorld();
+	const D2D1::Matrix3x2F& GetTotalDrawWorld();
+	
+	inline const D2D1::Matrix3x2F* GetParentWorld() const { return parentWorld; }
 
 	void SetParentWorld(const D2D1::Matrix3x2F* p);
-	void UpdateWorld(); //MUST CALL THIS FUNCTION AFTER CHANGE the Center/S.R.T
+	void ParentWorldUpdated();
+
+	void SetAlignMode(AlignModeX, AlignModeY);
+	void SetAlignX(AlignModeX);
+	void SetAlignY(AlignModeY);
+	const AlignModeX& GetAlignX() const { return alignX; }
+	const AlignModeY& GetAlignY() const { return alignY; }
+
+private:
+	void UpdateLocalWorld();
 	void UpdateDrawWorld();
-	void UpdateGlobalWorld(); 
+	void UpdateGlobalWorld();
 	void UpdateTotalDrawWorld();
 
 	AlignModeX alignX = AlignModeX::Left;
 	AlignModeY alignY = AlignModeY::Top;
 
-private:
 	D2D1_POINT_2F scale;
 	FLOAT rotation;
 	D2D1_POINT_2F pos;
@@ -54,7 +64,12 @@ private:
 	D2D1::Matrix3x2F mTotalDrawWorld{ D2D1::Matrix3x2F::Identity() };
 
 	const D2D1::Matrix3x2F* parentWorld = nullptr;
-	bool worldUpdateFlag = false;
-	bool globalWorldUpdateFlag = false;
+
+	bool parentWorldUpdateFlag = true;
+
+	bool mLocalWorldUpdateFlag = true;
+	bool mDrawWorldUpdateFlag = true;
+	bool mGlobalWorldUpdateFlag = true;
+	bool mTotalDrawWorldUpdateFlag = true;
 
 };
