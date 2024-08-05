@@ -26,9 +26,11 @@ constexpr int PBoxHeight = 40;
 constexpr int PBoxEdgeY = BoxEdgeY;
 
 constexpr int TextEdgeX = 5;
-constexpr int TextWidth = MusicScrollWidth - TextEdgeX * 2;
+constexpr int TextWidth = BoxWidth;
 constexpr int TextHeight = 40;
 constexpr int TextAreaHeight = clipAreaHeight;
+
+constexpr int PTextWidth = PBoxWidth;
 
 MusicScroll::MusicScroll() : MusicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
 {
@@ -39,8 +41,7 @@ MusicScroll::MusicScroll(float x, float y, float w, float h) :
 	clipArea(x + w * 0.5f, y - clipAreaOffset + h * 0.5f,
 		w, h - clipAreaOffset * 2),
 	textArea(x - (BoxEdgeX + TextEdgeX) + w * 0.5f, y - clipAreaOffset + h * 0.5f,
-		w - (TextEdgeX + BoxEdgeX) * 2, h - clipAreaOffset * 2),
-	patternBox({ -PBoxWidth / 2,-PBoxHeight / 2,PBoxWidth / 2,PBoxHeight / 2 })
+		w - (TextEdgeX + BoxEdgeX) * 2, h - clipAreaOffset * 2)
 {
 	InitMusicScroll();
 
@@ -66,6 +67,8 @@ MusicScroll::~MusicScroll()
 	}
 	for (auto*& it : musicBoxList) delete it;
 	for (auto*& it : musicTextList) delete it;
+
+	ReleasePatternBox();
 }
 
 void MusicScroll::OnBeginScene()
@@ -92,14 +95,16 @@ void MusicScroll::World2DResize(float newW, float newH)
 {
 	noMusicText->Resize(newW, newH);
 
-	/*	BoxWorld(Parent) 成式 TextWorld(Child)
-	*					 戌式 PatternBox(Child)
-	* 
-	so once boxworld has changed then the child worlds will be changed automatically.	*/
-	for (auto*& it : musicBoxList) it->Resize(newW, newH);
-	for (auto*& it : musicTextList) it->Resize(newW, newH); // it->desc.world2d.UpdateGlobalWorld();
+	/*****************************************************************************
+	* BoxWorld(Parent) 成式 TextWorld(Child)										 *
+	*					 戌式 PatternBox(Child) 式 PatternBoxText(GrandChild)		 *
+	******************************************************************************/
 
-	patternBox.GetWorld2d().Resize(newW,newH);
+	for (auto*& it : musicBoxList) it->Resize(newW, newH);
+	for (auto*& it : musicTextList) it->Resize(newW, newH);
+
+	for (auto*& it : patternBoxList)  it->Resize(newW, newH);
+	for (auto*& it : patternTextList)  it->Resize(newW, newH);
 
 	int asdf = 3;
 }
@@ -145,10 +150,10 @@ void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
 	UpdateScrollMatrix();
 }
 
-void MusicScroll::ChangeSelectMusic(size_t newIdx)
+void MusicScroll::ChangeSelectMusic(size_t musicIdx)
 {
 	previousSelectMusic = currentSelectMusic;
-	currentSelectMusic = newIdx;
+	currentSelectMusic = musicIdx;
 
 	//bordercolor Change
 	musicBoxList[previousSelectMusic]->BorderColor = MyColorF::GhostGreen;
@@ -162,8 +167,28 @@ void MusicScroll::ChangeSelectMusic(size_t newIdx)
 	UpdatePatternHeightMatrix(currentSelectMusic);
 	ChangeTargetScrollMatrix();
 
-	//default select pattern
-	currentSelectPattern = 0;
+	ChangePatternBox(musicIdx);
+
+	if (!musicList[currentSelectMusic]->patternList.empty())
+	{
+		size_t patternIdx = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		previousSelectPattern = 0;
+		patternBoxList[patternIdx]->BorderColor = MyColorF::CherryPink;
+		patternTextList[patternIdx]->desc.Color = MyColorF::CherryPink;
+	}
+}
+
+void MusicScroll::ChangeSelectPattern(size_t idx)
+{
+	previousSelectPattern = currentSelectPattern;
+	currentSelectPattern = idx;
+
+	//bordercolor Change
+	patternBoxList[previousSelectPattern]->BorderColor = MyColorF::GhostGreen;
+	patternTextList[previousSelectPattern]->desc.Color = MyColorF::GhostGreen;
+
+	patternBoxList[currentSelectPattern]->BorderColor = MyColorF::CherryPink;
+	patternTextList[currentSelectPattern]->desc.Color = MyColorF::CherryPink;
 }
 
 void MusicScroll::Update(float dt)
@@ -189,14 +214,21 @@ void MusicScroll::Update(float dt)
 	if (KEYBOARD.Down(VK_UP))
 	{
 		FMODSYSTEM.Play(FmodSystem::Name::button01a);
-		ChangeSelectMusic(0);
+		currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		if (currentSelectPattern > 0)
+		{
+			ChangeSelectPattern(currentSelectPattern - 1);
+		}
 	}
 
 	if (KEYBOARD.Down(VK_DOWN))
 	{
-
 		FMODSYSTEM.Play(FmodSystem::Name::button01a);
-		ChangeSelectMusic(2);
+		currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		if (currentSelectPattern < musicList[currentSelectMusic]->patternList.size() - 1)
+		{
+			ChangeSelectPattern(currentSelectPattern + 1);
+		}
 	}
 
 }
@@ -240,10 +272,13 @@ void MusicScroll::ChangeTargetScrollMatrix()
 
 void MusicScroll::NotifyScrollMatrixUpdate()
 {
-	for (auto& it : musicBoxList) it->GetWorld2d().ParentWorldUpdated();
-	for (auto& it : musicTextList) it->desc.world2d.ParentWorldUpdated();
+	// music boxes' root world is scrollMatrix
+	// and all of boxes and texts are referencing the music boxes' world
+	for (auto& it : musicBoxList) it->GetWorld2d().ParentWorldUpdate();
+	for (auto& it : musicTextList) it->desc.world2d.ParentWorldUpdate();
 
-	patternBox.GetWorld2d().ParentWorldUpdated();
+	for (auto& it : patternBoxList) it->GetWorld2d().ParentWorldUpdate();
+	for (auto& it : patternTextList) it->desc.world2d.ParentWorldUpdate();
 }
 
 void MusicScroll::InitBoxListParentWorld()
@@ -259,7 +294,7 @@ void MusicScroll::InitBoxListParentWorld()
 	}
 }
 
-void MusicScroll::CreateMusicBoxes()
+void MusicScroll::CreateMusicBox()
 {
 	musicBoxList.clear();
 	for (size_t i = 0; i < musicList.size(); ++i)
@@ -329,16 +364,59 @@ void MusicScroll::CreateMusicBoxes()
 	}
 }
 
-void MusicScroll::CreatePatternBoxes()
+void MusicScroll::ReleasePatternBox()
 {
-	patternBox.GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
-	patternBox.GetWorld2d().SetPosition({ PBoxOffsetX,(BoxHeight + PBoxHeight )*0.5f + BoxEdgeY });
-	patternBox.GetWorld2d().SetParentWorld( &musicBoxList[0]->GetWorld2d().GetGlobalWorld());
-	patternBox.IsRound = true;
-	patternBox.SetRadius(5.0f);
-	patternBox.BorderSize = 1.5f;
-	patternBox.BorderColor = MyColorF::GhostGreen;
-	int asdf = 3;
+	for (auto& it : patternBoxList) delete it;
+	for (auto& it : patternTextList) delete it;
+
+	patternBoxList.clear();
+	patternTextList.clear();
+}
+
+void MusicScroll::ChangePatternBox(size_t musicIdx)
+{
+	ReleasePatternBox();
+
+	for (size_t i = 0; i < musicList[musicIdx]->patternList.size(); ++i)
+	{
+		Rectangle2D* tempBox = new Rectangle2D({ -PBoxWidth / 2,-PBoxHeight / 2,PBoxWidth / 2,PBoxHeight / 2 });
+
+		tempBox->GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
+		tempBox->GetWorld2d().SetPosition({ PBoxOffsetX, (BoxHeight + PBoxHeight) * 0.5f + BoxEdgeY + (PBoxHeight+PBoxEdgeY) * i });
+		tempBox->GetWorld2d().SetParentWorld(&musicBoxList[musicIdx]->GetWorld2d().GetGlobalWorld());
+		tempBox->IsRound = true;
+		tempBox->SetRadius(5.0f);
+		tempBox->BorderSize = 1.5f;
+		tempBox->BorderColor = MyColorF::GhostGreen;
+		tempBox->Resize((float)App->GetWidth(),(float)App->GetHeight());
+		patternBoxList.emplace_back(tempBox);
+
+		wstring patternDesc = L"[" + musicList[musicIdx]->patternList[i]->DifficultyName + L"]";
+		IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
+
+		DWRITE_TEXT_METRICS mt;
+		DwLayout::GetLayoutMetrics(patternDesc, tempFormat, &mt);
+
+		constexpr float defaultSize = 1.5f;
+		constexpr float maximumLayoutWidth = TextWidth / defaultSize * 2;
+
+		constexpr float musicTextSize = defaultSize;
+		constexpr float textLeft = TextEdgeX - PBoxWidth * 0.5f;
+		constexpr float textTop = -(PBoxHeight - PBoxEdgeY) * 0.5f;
+
+		LayoutDesc tempDesc(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
+		tempDesc.world2d.SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
+		tempDesc.world2d.SetParentWorld(&tempBox->GetWorld2d().GetGlobalWorld());
+		tempDesc.maxW = maximumLayoutWidth;
+		tempDesc.maxH = (float)PBoxHeight;
+		tempDesc.world2d.SetPosition({ textLeft,textTop });
+		tempDesc.world2d.SetScale(defaultSize);
+		DwLayout* tempLayout = new DwLayout(tempDesc);
+		tempLayout->SetLayout(patternDesc, tempFormat);
+		tempLayout->Resize((float)App->GetWidth(), (float)App->GetHeight());
+		patternTextList.emplace_back(tempLayout);
+
+	}
 }
 
 void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
@@ -359,7 +437,8 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	}
 	//D2D.GetRenderTarget()->PopAxisAlignedClip();
 
-	patternBox.Draw();
+	for (auto*& it : patternBoxList) it->Draw();
+	for (auto*& it : patternTextList) it->Draw();
 }
 
 //ymm
@@ -689,7 +768,6 @@ void MusicScroll::InitMusicScroll()
 
 	LoadMusic();
 	LoadPattern();
-	CreateMusicBoxes();
-	CreatePatternBoxes();
-
+	CreateMusicBox();
+	if (!musicList.empty()) ChangeSelectMusic(currentSelectMusic);
 }

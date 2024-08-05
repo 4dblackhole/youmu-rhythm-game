@@ -34,7 +34,7 @@ public:
 	inline const D2D1::Matrix3x2F* GetParentWorld() const { return parentWorld; }
 
 	void SetParentWorld(const D2D1::Matrix3x2F* p);
-	void ParentWorldUpdated();
+	void ParentWorldUpdate();
 
 	void SetAlignMode(AlignModeX, AlignModeY);
 	void SetAlignX(AlignModeX);

@@ -14,9 +14,6 @@ void World2D::Resize(float newW, float newH)
 {
 	Rescale(newW, newH);
 	Reposition(newW, newH);
-
-	//UpdateWorld();
-	//UpdateGlobalWorld();
 }
 
 void World2D::Rescale(float newW, float newH)
@@ -99,7 +96,7 @@ void World2D::SetParentWorld(const D2D1::Matrix3x2F* p)
 	mGlobalWorldUpdateFlag = true;
 }
 
-void World2D::ParentWorldUpdated()
+void World2D::ParentWorldUpdate()
 {
 	mGlobalWorldUpdateFlag = true;
 }
