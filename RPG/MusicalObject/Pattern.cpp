@@ -7,5 +7,4 @@ Pattern::Pattern()
 
 Pattern::~Pattern()
 {
-	//delete musicScore;
 }

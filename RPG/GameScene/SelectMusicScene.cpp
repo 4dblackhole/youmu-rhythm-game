@@ -35,6 +35,11 @@ void SelectMusicScene::Update(float dt)
 		SceneManager::GetInstance().ChangeScene(tempStr);
 	}
 	musicScroll.Update(dt);
+
+	if (KEYBOARD.Down(VK_RETURN))
+	{
+		const Pattern* p = musicScroll.GetCurrentPattern();
+	}
 }
 
 void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
@@ -46,6 +51,20 @@ void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& 
 void SelectMusicScene::EndScene()
 {
 	musicScroll.OnEndScene();
+}
+
+void SelectMusicScene::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	musicScroll.OnMouseDown(btnState, x, y);
+}
+
+void SelectMusicScene::OnMouseUp(WPARAM btnState, int x, int y)
+
+{
+}
+
+void SelectMusicScene::OnMouseMove(WPARAM btnState, int x, int y)
+{
 }
 
 void SelectMusicScene::OnMouseWheel(WPARAM wState, int x, int y)

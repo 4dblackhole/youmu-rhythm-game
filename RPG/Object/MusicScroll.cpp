@@ -73,7 +73,7 @@ MusicScroll::~MusicScroll()
 
 void MusicScroll::OnBeginScene()
 {
-	PlayMusic(currentSelectMusic);
+	if (!musicList.empty()) ChangeSelectMusic(currentSelectMusic);
 }
 
 void MusicScroll::OnEndScene()
@@ -134,6 +134,11 @@ void MusicScroll::OnResize(float newW, float newH)
 	textArea.Resize();
 
 	World2DResize(newW, newH);
+}
+
+void MusicScroll::OnMouseDown(WPARAM btnState, int x, int y)
+{
+
 }
 
 void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
@@ -213,20 +218,24 @@ void MusicScroll::Update(float dt)
 
 	if (KEYBOARD.Down(VK_UP))
 	{
-		FMODSYSTEM.Play(FmodSystem::Name::button01a);
-		currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		if (musicList[currentSelectMusic]->patternList.empty()) currentSelectPattern = 0;
+		else currentSelectPattern = min((int)currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+
 		if (currentSelectPattern > 0)
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			ChangeSelectPattern(currentSelectPattern - 1);
 		}
 	}
 
 	if (KEYBOARD.Down(VK_DOWN))
 	{
-		FMODSYSTEM.Play(FmodSystem::Name::button01a);
-		currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
-		if (currentSelectPattern < musicList[currentSelectMusic]->patternList.size() - 1)
+		if (musicList[currentSelectMusic]->patternList.empty()) currentSelectPattern = 0;
+		else currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+
+		if (currentSelectPattern < (int)musicList[currentSelectMusic]->patternList.size() - 1)
 		{
+			FMODSYSTEM.Play(FmodSystem::Name::button01a);
 			ChangeSelectPattern(currentSelectPattern + 1);
 		}
 	}
@@ -424,21 +433,35 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	scrollImg.Render(deviceContext, cam);
 
 	D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
-	//D2D.GetRenderTarget()->PushAxisAlignedClip(clipArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	D2D.GetRenderTarget()->PushAxisAlignedClip(clipArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	if (musicList.empty()) noMusicText->Draw();
 	else
 	{
 		for (auto& it : musicBoxList) it->Draw();
+		for (auto*& it : patternBoxList) it->Draw();
 
 		D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
-	//	D2D.GetRenderTarget()->PushAxisAlignedClip(textArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+		D2D.GetRenderTarget()->PushAxisAlignedClip(textArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 		for (auto*& it : musicTextList) it->Draw();
-		//D2D.GetRenderTarget()->PopAxisAlignedClip();
+		for (auto*& it : patternTextList) it->Draw();
+		D2D.GetRenderTarget()->PopAxisAlignedClip();
 	}
-	//D2D.GetRenderTarget()->PopAxisAlignedClip();
+	D2D.GetRenderTarget()->PopAxisAlignedClip();
 
-	for (auto*& it : patternBoxList) it->Draw();
-	for (auto*& it : patternTextList) it->Draw();
+}
+
+const Music* MusicScroll::GetCurrentMusic() const
+{
+	if (musicList.empty()) return nullptr;
+	else return musicList[currentSelectMusic];
+}
+
+const Pattern* MusicScroll::GetCurrentPattern() const
+{
+	if (GetCurrentMusic() == nullptr) return nullptr;
+	
+	if (GetCurrentMusic()->patternList.empty()) return nullptr;
+	else return GetCurrentMusic()->patternList[currentSelectPattern];
 }
 
 //ymm
@@ -569,7 +592,6 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		// pos of "File: xxx;
 		size_t filePos = file.find(musicFileIdc);
 		if (filePos == wstring::npos) throw 0;
-
 		size_t endPos = file.find(endLineIdc);
 
 		wstring lineStr = file.substr(filePos, endPos - filePos);
@@ -579,6 +601,8 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		const string musicDirUTF8 = ShortCut::WstringToUTF8(musicDir);
 		FMOD_RESULT result = FmodSystem::GetInstance().System()->createStream(musicDirUTF8.c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &resultMusic->music);
 		
+		if (result != FMOD_OK) throw 0; //no file detected
+
 		//get audio file size
 		std::ifstream fin(musicDir, std::ios::binary);
 		fin.seekg(0, std::ios_base::end);
@@ -769,5 +793,4 @@ void MusicScroll::InitMusicScroll()
 	LoadMusic();
 	LoadPattern();
 	CreateMusicBox();
-	if (!musicList.empty()) ChangeSelectMusic(currentSelectMusic);
 }

@@ -17,11 +17,15 @@ public:
 	void OnEndScene();
 
 	void OnResize(float newW, float newH);
+
+	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseWheel(WPARAM wState, int x, int y);
 
 	void Update(float dt);
 	void Render(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
+	const Music* GetCurrentMusic() const;
+	const Pattern* GetCurrentPattern() const;
 
 private:
 	void World2DResize(float newW,float newH);
@@ -62,10 +66,10 @@ private:
 
 	void InitBoxListParentWorld();
 
-	size_t previousSelectMusic = 0;
-	size_t currentSelectMusic = 0;
-	size_t previousSelectPattern = 0;
-	size_t currentSelectPattern = 0;
+	int previousSelectMusic = 0;
+	int currentSelectMusic = 0;
+	int previousSelectPattern = 0;
+	int currentSelectPattern = 0;
 
 	void PlayMusic(size_t idx);
 	void StopMusic(size_t idx);

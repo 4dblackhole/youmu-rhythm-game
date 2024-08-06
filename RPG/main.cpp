@@ -17,7 +17,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	MainApp theApp(hInstance);
 
 	//FmodSystem::GetInstance().Init(FMOD_OUTPUTTYPE_ASIO, 64);
-	FMODSYSTEM;
 	FMODSYSTEM.ChangeDrive(0);
 
 	if (!theApp.Init()) return 0;

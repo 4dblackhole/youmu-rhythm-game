@@ -14,6 +14,4 @@ public:
 	std::set<std::wstring> TagList;
 	wstring DifficultyName;
 
-	MusicScore* musicScore = nullptr;
-
 };

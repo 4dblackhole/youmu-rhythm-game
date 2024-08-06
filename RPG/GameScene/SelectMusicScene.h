@@ -18,9 +18,9 @@ public:
 	virtual void Render(ID3D11DeviceContext* deviceContext, const Camera& cam) final;
 	virtual void EndScene() final;
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y) final {}
-	virtual void OnMouseUp(WPARAM btnState, int x, int y) final {}
-	virtual void OnMouseMove(WPARAM btnState, int x, int y) final {}
+	virtual void OnMouseDown(WPARAM btnState, int x, int y) final;
+	virtual void OnMouseUp(WPARAM btnState, int x, int y) final;
+	virtual void OnMouseMove(WPARAM btnState, int x, int y) final;
 	virtual void OnMouseWheel(WPARAM wState, int x, int y) final;
 
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) final {}
