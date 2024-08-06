@@ -43,8 +43,15 @@ private:
 	};
 	DwLayout2D *fpsLayout;
 
-	ID2D1Bitmap* bitmap;
-
 	float rateY = 1.0f;
 
+	//DrawWorld, UpdateFlag
+	pair<D2D1::Matrix3x2F, bool> mDrawWorldArr[(int)AlignModeX::MAX];
+	void InitDrawWorld();
+	void UpdateDrawWorld(AlignModeX x);
+	void NotifyDrawWorldResize();
+public:
+	const D2D1::Matrix3x2F& GetDrawWorld(const AlignModeX x = AlignModeX::Left);
+
+private:
 };

@@ -4,12 +4,14 @@ enum class AlignModeX
 {
 	Left,
 	Mid,
-	Right
+	Right,
+	MAX
 };
 
 enum class AlignModeY
 {
 	Top,
 	Mid,
-	Bottom
+	Bottom,
+	MAX
 };

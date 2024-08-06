@@ -29,8 +29,6 @@ public:
 	const Pattern* GetCurrentPattern() const;
 
 private:
-	void World2DResize(float newW,float newH);
-	
 	void InitMusicScroll();
 	void CreateMusicBox();
 

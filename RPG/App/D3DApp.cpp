@@ -181,7 +181,7 @@ void D3DApp::OnResize()
 	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
 	//Bind the Render Target View and Depth/Stencil View to the pipeline
-	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	//md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	//Set the Viewport transform
 	mScreenViewport.TopLeftX = 0;

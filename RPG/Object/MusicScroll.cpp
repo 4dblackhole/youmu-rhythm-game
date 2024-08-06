@@ -73,7 +73,11 @@ MusicScroll::~MusicScroll()
 
 void MusicScroll::OnBeginScene()
 {
-	if (!musicList.empty()) ChangeSelectMusic(currentSelectMusic);
+	if (!musicList.empty()) 
+	{
+		UpdateScrollMatrix();
+		ChangeSelectMusic(currentSelectMusic);
+	}
 }
 
 void MusicScroll::OnEndScene()
@@ -89,24 +93,6 @@ void MusicScroll::PlayMusic(size_t idx)
 void MusicScroll::StopMusic(size_t idx)
 {
 	if (!musicList.empty()) FmodSystem::GetInstance().System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
-}
-
-void MusicScroll::World2DResize(float newW, float newH)
-{
-	noMusicText->Resize(newW, newH);
-
-	/*****************************************************************************
-	* BoxWorld(Parent) 成式 TextWorld(Child)										 *
-	*					 戌式 PatternBox(Child) 式 PatternBoxText(GrandChild)		 *
-	******************************************************************************/
-
-	for (auto*& it : musicBoxList) it->Resize(newW, newH);
-	for (auto*& it : musicTextList) it->Resize(newW, newH);
-
-	for (auto*& it : patternBoxList)  it->Resize(newW, newH);
-	for (auto*& it : patternTextList)  it->Resize(newW, newH);
-
-	int asdf = 3;
 }
 
 void MusicScroll::UpdateScrollMatrix()
@@ -128,12 +114,10 @@ void MusicScroll::UpdateScrollMatrix()
 
 void MusicScroll::OnResize(float newW, float newH)
 {
-	UpdateScrollMatrix();
 	scrollImg.OnResize();
 	clipArea.Resize();
 	textArea.Resize();
 
-	World2DResize(newW, newH);
 }
 
 void MusicScroll::OnMouseDown(WPARAM btnState, int x, int y)
@@ -332,7 +316,7 @@ void MusicScroll::CreateMusicBox()
 		Rectangle2D* tempBox = new Rectangle2D({
 			-boxWidth * 0.5f	 , -boxHeight * 0.5f ,
 			boxWidth * 0.5f , boxHeight * 0.5f });
-		tempBox->GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
+		tempBox->GetWorld2d().SetAlignX(scrollImg.GetAlignX());
 		tempBox->IsRound = true;
 		tempBox->SetRadius(10.0f);
 		tempBox->GetWorld2d().SetPosition({ boxCenterX , boxCenterY + (BoxHeight + BoxEdgeY) * i });
@@ -357,7 +341,7 @@ void MusicScroll::CreateMusicBox()
 			const float textTop = -BoxHeight * 0.5f;
 
 			DwLayout2D* tempLayout = new DwLayout2D(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
-			tempLayout->GetWorld2d().SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
+			tempLayout->GetWorld2d().SetAlignX(tempBox->GetWorld2d().GetAlignX());
 			tempLayout->maxW = maximumLayoutWidth;
 			tempLayout->maxH = TextHeight;
 			tempLayout->GetWorld2d().SetPosition({ textLeft,textTop });
@@ -393,14 +377,13 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 	{
 		Rectangle2D* tempBox = new Rectangle2D({ -PBoxWidth / 2,-PBoxHeight / 2,PBoxWidth / 2,PBoxHeight / 2 });
 
-		tempBox->GetWorld2d().SetAlignMode(scrollImg.GetAlignX(), scrollImg.GetAlignY());
+		tempBox->GetWorld2d().SetAlignX(scrollImg.GetAlignX());
 		tempBox->GetWorld2d().SetPosition({ PBoxOffsetX, (BoxHeight + PBoxHeight) * 0.5f + BoxEdgeY + (PBoxHeight+PBoxEdgeY) * i });
 		tempBox->GetWorld2d().SetParentWorld(&musicBoxList[musicIdx]->GetWorld2d().GetGlobalWorld());
 		tempBox->IsRound = true;
 		tempBox->SetRadius(5.0f);
 		tempBox->BorderSize = 1.5f;
 		tempBox->BorderColor = MyColorF::GhostGreen;
-		tempBox->Resize((float)App->GetWidth(),(float)App->GetHeight());
 		patternBoxList.emplace_back(tempBox);
 
 		wstring patternDesc = L"[" + musicList[musicIdx]->patternList[i]->DifficultyName + L"]";
@@ -417,14 +400,13 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 		constexpr float textTop = -(PBoxHeight - PBoxEdgeY) * 0.5f;
 
 		DwLayout2D* tempLayout = new DwLayout2D(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
-		tempLayout->GetWorld2d().SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
+		tempLayout->GetWorld2d().SetAlignX(tempBox->GetWorld2d().GetAlignX());
 		tempLayout->GetWorld2d().SetParentWorld(&tempBox->GetWorld2d().GetGlobalWorld());
 		tempLayout->maxW = maximumLayoutWidth;
 		tempLayout->maxH = (float)PBoxHeight;
 		tempLayout->GetWorld2d().SetPosition({ textLeft,textTop });
 		tempLayout->GetWorld2d().SetScale(defaultSize);
 		tempLayout->SetLayout(patternDesc, tempFormat);
-		tempLayout->Resize((float)App->GetWidth(), (float)App->GetHeight());
 		patternTextList.emplace_back(tempLayout);
 
 	}

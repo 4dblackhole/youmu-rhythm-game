@@ -9,6 +9,8 @@
 
 const int FPScounterY = StandardHeight - 30;
 
+MainApp* App;
+
 MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
 	drawFPSCounterFlag(true)
@@ -23,6 +25,8 @@ MainApp::MainApp(HINSTANCE hInstance)
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	fpsTimer.Reset();
+
+	InitDrawWorld();
 }
 
 MainApp::~MainApp()
@@ -57,14 +61,20 @@ bool MainApp::Init()
 	return true;
 }
 
+void MainApp::NotifyDrawWorldResize()
+{
+	for (int idx = (int)AlignModeX::Mid; idx < (int)AlignModeX::MAX; ++idx) mDrawWorldArr[idx].second = true;
+}
+
 void MainApp::OnResize()
 {
 	__super::OnResize();
+	NotifyDrawWorldResize();
 	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight / (float)mClientHeight), (float)StandardHeight);
 	rateY = (float)GetHeight() / (float)StandardHeight;
 	SCENEMANAGER.GetCurrentScene()->OnResize((float)mClientWidth, (float)mClientHeight);
 	
-	fpsLayout->Resize((float)mClientWidth, (float)mClientHeight);
+	//fpsLayout->Resize((float)mClientWidth, (float)mClientHeight);
 	int asdf = 3;
 }
 
@@ -96,6 +106,54 @@ void MainApp::UpdateFPS()
 		timeElapsed += calculateInterval;
 	}
 
+}
+
+void MainApp::InitDrawWorld()
+{
+	//always I matrix
+	mDrawWorldArr[(int)AlignModeX::Left].first = D2D1::Matrix3x2F::Identity();
+	mDrawWorldArr[(int)AlignModeX::Left].second = false;
+
+	for (int x = (int)AlignModeX::Mid; x < (int)AlignModeX::MAX; ++x)
+	{
+		//mDrawWorldArr[x].first = D2D1::Matrix3x2F::Identity();
+		mDrawWorldArr[x].second = true;
+	}
+}
+
+void MainApp::UpdateDrawWorld(AlignModeX x)
+{
+	const int xIdx = (int)x;
+	if (mDrawWorldArr[xIdx].second)
+	{
+		D2D1_POINT_2F drawPos;
+		float w = (float)mClientWidth;
+		float h = (float)mClientHeight;
+		switch (x)
+		{
+		case AlignModeX::Left:
+			drawPos = { 0, 0 };
+			break;
+		case AlignModeX::Mid:
+			drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w * 0.5f);
+			break;
+		case AlignModeX::Right:
+			drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w);
+			break;
+		default:
+			drawPos = { 0, 0 };
+			break;
+		}
+		mDrawWorldArr[xIdx].first = D2D1::Matrix3x2F::Scale({ rateY, rateY }) * D2D1::Matrix3x2F::Translation({ drawPos.x, drawPos.y });
+		mDrawWorldArr[xIdx].second = false;
+		TRACE(_T("DrawWorld Updated\n"));
+	}
+}
+
+const D2D1::Matrix3x2F& MainApp::GetDrawWorld(const AlignModeX x)
+{
+	UpdateDrawWorld(x);
+	return mDrawWorldArr[(int)x].first;
 }
 
 void MainApp::DrawScene()

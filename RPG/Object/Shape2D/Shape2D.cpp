@@ -13,15 +13,5 @@ Shape2D::~Shape2D()
 
 void Shape2D::Draw()
 {
-	D2D.GetRenderTarget()->SetTransform(world2d.GetTotalDrawWorld());
-}
-
-void Shape2D::Reposition(float newW, float newH)
-{
-	world2d.Reposition(newW, newH);
-}
-
-void Shape2D::Resize(float newW, float newH)
-{
-	world2d.Resize(newW, newH);
+	D2D.GetRenderTarget()->SetTransform(world2d.GetGlobalWorld() * App->GetDrawWorld(world2d.GetAlignX()));
 }

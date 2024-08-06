@@ -9,7 +9,6 @@ public:
 	virtual ~Shape2D();
 
 	virtual void Draw();
-	void Resize(float newW, float newH);
 
 	const World2D& GetWorld2dConst() const { return world2d; }
 	World2D& GetWorld2d() { return world2d; }
@@ -19,7 +18,6 @@ public:
 	float BorderSize = 1.0f;
 
 protected:
-	void Reposition(float newW, float newH);
 	World2D world2d;
 
 };

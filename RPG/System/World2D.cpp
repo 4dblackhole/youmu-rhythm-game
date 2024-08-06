@@ -10,39 +10,6 @@ World2D::~World2D()
 {
 }
 
-void World2D::Resize(float newW, float newH)
-{
-	Rescale(newW, newH);
-	Reposition(newW, newH);
-}
-
-void World2D::Rescale(float newW, float newH)
-{
-	drawScale.x = App->RateY();
-	drawScale.y = App->RateY();
-	mDrawWorldUpdateFlag = true;
-}
-
-void World2D::Reposition(float newW, float newH)
-{
-	switch (alignX)
-	{
-	case AlignModeX::Left:
-		//drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y);
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, 0, 0);
-		break;
-	case AlignModeX::Mid:
-		//drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y, newW * 0.5f);
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, 0, 0, newW * 0.5f);
-		break;
-	case AlignModeX::Right:
-		//drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, pos.x, pos.y, newW);
-		drawPos = ShortCut::Resize2DtoStandardCS(newW, newH, 0, 0, newW);
-		break;
-	}
-	mDrawWorldUpdateFlag = true;
-}
-
 void World2D::SetScale(const D2D1_POINT_2F s)
 {
 	this->scale	 = s;
@@ -78,18 +45,6 @@ const D2D1::Matrix3x2F& World2D::GetLocalWorld()
 	return mLocalWorld;
 }
 
-const D2D1::Matrix3x2F& World2D::GetDrawWorld()
-{
-	UpdateDrawWorld();
-	return mDrawWorld;
-}
-
-const D2D1::Matrix3x2F& World2D::GetTotalDrawWorld()
-{
-	UpdateTotalDrawWorld();
-	return mTotalDrawWorld;
-}
-
 void World2D::SetParentWorld(const D2D1::Matrix3x2F* p)
 {
 	parentWorld = p;
@@ -112,17 +67,6 @@ void World2D::UpdateLocalWorld()
 	}
 }
 
-void World2D::UpdateDrawWorld()
-{
-	if (mDrawWorldUpdateFlag)
-	{
-		mDrawWorld = D2D1::Matrix3x2F::Scale({ drawScale.x,drawScale.y }) * D2D1::Matrix3x2F::Translation({ drawPos.x,drawPos.y });
-		mTotalDrawWorldUpdateFlag = true;
-
-		mDrawWorldUpdateFlag = false;
-	}
-}
-
 void World2D::UpdateGlobalWorld()
 {
 	UpdateLocalWorld();
@@ -132,36 +76,12 @@ void World2D::UpdateGlobalWorld()
 			(parentWorld == nullptr) ?
 			mLocalWorld :
 			mLocalWorld * (*parentWorld);
-		mTotalDrawWorldUpdateFlag = true;
 		mGlobalWorldUpdateFlag = false;
 	}
-}
-
-void World2D::UpdateTotalDrawWorld()
-{
-	UpdateGlobalWorld();
-	UpdateDrawWorld();
-	if (mTotalDrawWorldUpdateFlag)
-	{
-		mTotalDrawWorld = mGlobalWorld * mDrawWorld;
-		mTotalDrawWorldUpdateFlag = false;
-	}
-}
-
-void World2D::SetAlignMode(AlignModeX x, AlignModeY y)
-{
-	SetAlignX(x);
-	SetAlignY(y);
 }
 
 void World2D::SetAlignX(AlignModeX x)
 {
 	alignX = x;
-	mDrawWorldUpdateFlag = true;
-}
-
-void World2D::SetAlignY(AlignModeY y)
-{
-	alignY = y;
-	mDrawWorldUpdateFlag = true;
+	//mDrawWorldUpdateFlag = true;
 }

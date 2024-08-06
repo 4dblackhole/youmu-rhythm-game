@@ -54,8 +54,6 @@ void TitleScene::OnResize(float newW, float newH)
 {
 	background.ChangeWidthToCurrentWidth(newW, newH);
 	tooltipBG.ChangeWidthToCurrentWidth(newW, newH);
-	for (auto& it : layoutList) it.Resize(newW, newH);
-	keySelectTriangle->Resize(newW, newH);
 
 	int asdf = 3;
 }
