@@ -14,15 +14,14 @@
 class DwLayout2D : public Shape2D
 {
 public:
-	DwLayout2D();
+	DwLayout2D(float size = 1.0f, D2D1::ColorF color = D2D1::ColorF::White, D2D1_SIZE_F pos = {});
 	virtual ~DwLayout2D();
 
 	void SetLayout(const std::wstring text, IDWriteTextFormat* textFormat);
 	void SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat* textFormat);
 	static void GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* textFormat, DWRITE_TEXT_METRICS* out);
 
-	void Draw();
-	void Resize(float w, float h);
+	virtual void Draw();
 
 	FLOAT maxW = 500.0f, maxH = 54.0f;
 	D2D1::ColorF Color;

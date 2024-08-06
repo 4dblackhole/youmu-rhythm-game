@@ -31,8 +31,8 @@ public:
 	class Name
 	{
 	public:
-		DECLARE_VARIABLE_STRING(button01a)
-		DECLARE_VARIABLE_STRING(select05)
+		DECLARE_VARIABLE_STRING(button01a);
+		DECLARE_VARIABLE_STRING(select05);
 	};
 
 private:

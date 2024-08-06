@@ -158,7 +158,7 @@ void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
 void MusicScroll::ChangeSelectMusic(size_t musicIdx)
 {
 	previousSelectMusic = currentSelectMusic;
-	currentSelectMusic = musicIdx;
+	currentSelectMusic = (int)musicIdx;
 
 	//bordercolor Change
 	musicBoxList[previousSelectMusic]->BorderColor = MyColorF::GhostGreen;
@@ -179,21 +179,27 @@ void MusicScroll::ChangeSelectMusic(size_t musicIdx)
 		size_t patternIdx = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
 		previousSelectPattern = 0;
 		patternBoxList[patternIdx]->BorderColor = MyColorF::CherryPink;
-		patternTextList[patternIdx]->desc.Color = MyColorF::CherryPink;
+		patternTextList[patternIdx]->Color = MyColorF::CherryPink;
 	}
 }
 
 void MusicScroll::ChangeSelectPattern(size_t idx)
 {
 	previousSelectPattern = currentSelectPattern;
-	currentSelectPattern = idx;
+	currentSelectPattern = (int)idx;
 
 	//bordercolor Change
 	patternBoxList[previousSelectPattern]->BorderColor = MyColorF::GhostGreen;
-	patternTextList[previousSelectPattern]->desc.Color = MyColorF::GhostGreen;
+	patternTextList[previousSelectPattern]->Color = MyColorF::GhostGreen;
 
 	patternBoxList[currentSelectPattern]->BorderColor = MyColorF::CherryPink;
-	patternTextList[currentSelectPattern]->desc.Color = MyColorF::CherryPink;
+	patternTextList[currentSelectPattern]->Color = MyColorF::CherryPink;
+}
+
+int MusicScroll::GetAdjustedCurrentPatternIdx() const
+{
+	if (musicList[currentSelectMusic]->patternList.empty()) return 0;
+	return min(currentSelectPattern, ((int)musicList[currentSelectMusic]->patternList.size() - 1));
 }
 
 void MusicScroll::Update(float dt)
@@ -218,8 +224,7 @@ void MusicScroll::Update(float dt)
 
 	if (KEYBOARD.Down(VK_UP))
 	{
-		if (musicList[currentSelectMusic]->patternList.empty()) currentSelectPattern = 0;
-		else currentSelectPattern = min((int)currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		currentSelectPattern = GetAdjustedCurrentPatternIdx();
 
 		if (currentSelectPattern > 0)
 		{
@@ -230,8 +235,7 @@ void MusicScroll::Update(float dt)
 
 	if (KEYBOARD.Down(VK_DOWN))
 	{
-		if (musicList[currentSelectMusic]->patternList.empty()) currentSelectPattern = 0;
-		else currentSelectPattern = min(currentSelectPattern, musicList[currentSelectMusic]->patternList.size() - 1);
+		currentSelectPattern = GetAdjustedCurrentPatternIdx();
 
 		if (currentSelectPattern < (int)musicList[currentSelectMusic]->patternList.size() - 1)
 		{
@@ -284,10 +288,10 @@ void MusicScroll::NotifyScrollMatrixUpdate()
 	// music boxes' root world is scrollMatrix
 	// and all of boxes and texts are referencing the music boxes' world
 	for (auto& it : musicBoxList) it->GetWorld2d().ParentWorldUpdate();
-	for (auto& it : musicTextList) it->desc.world2d.ParentWorldUpdate();
+	for (auto& it : musicTextList) it->GetWorld2d().ParentWorldUpdate();
 
 	for (auto& it : patternBoxList) it->GetWorld2d().ParentWorldUpdate();
-	for (auto& it : patternTextList) it->desc.world2d.ParentWorldUpdate();
+	for (auto& it : patternTextList) it->GetWorld2d().ParentWorldUpdate();
 }
 
 void MusicScroll::InitBoxListParentWorld()
@@ -299,7 +303,7 @@ void MusicScroll::InitBoxListParentWorld()
 	}
 	for (size_t textIdx = 0; textIdx < musicTextList.size(); ++textIdx)
 	{
-		musicTextList[textIdx]->desc.world2d.SetParentWorld(&musicBoxList[textIdx]->GetWorld2d().GetGlobalWorld());
+		musicTextList[textIdx]->GetWorld2d().SetParentWorld(&musicBoxList[textIdx]->GetWorld2d().GetGlobalWorld());
 	}
 }
 
@@ -343,7 +347,7 @@ void MusicScroll::CreateMusicBox()
 			IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
 
 			DWRITE_TEXT_METRICS mt;
-			DwLayout::GetLayoutMetrics(musicDesc, tempFormat, &mt);
+			DwLayout2D::GetLayoutMetrics(musicDesc, tempFormat, &mt);
 
 			const float defaultSize = 1.5f;
 			const float maximumLayoutWidth = TextWidth / defaultSize * 2;
@@ -352,13 +356,12 @@ void MusicScroll::CreateMusicBox()
 			const float textLeft = TextEdgeX - BoxWidth * 0.5f;
 			const float textTop = -BoxHeight * 0.5f;
 
-			LayoutDesc tempDesc(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
-			tempDesc.world2d.SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
-			tempDesc.maxW = maximumLayoutWidth;
-			tempDesc.maxH = TextHeight;
-			tempDesc.world2d.SetPosition({ textLeft,textTop });
-			tempDesc.world2d.SetScale(defaultSize);
-			DwLayout* tempLayout = new DwLayout(tempDesc);
+			DwLayout2D* tempLayout = new DwLayout2D(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
+			tempLayout->GetWorld2d().SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
+			tempLayout->maxW = maximumLayoutWidth;
+			tempLayout->maxH = TextHeight;
+			tempLayout->GetWorld2d().SetPosition({ textLeft,textTop });
+			tempLayout->GetWorld2d().SetScale(defaultSize);
 			tempLayout->SetLayout(musicDesc, tempFormat);
 			musicTextList.emplace_back(tempLayout);
 			
@@ -404,7 +407,7 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 		IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
 
 		DWRITE_TEXT_METRICS mt;
-		DwLayout::GetLayoutMetrics(patternDesc, tempFormat, &mt);
+		DwLayout2D::GetLayoutMetrics(patternDesc, tempFormat, &mt);
 
 		constexpr float defaultSize = 1.5f;
 		constexpr float maximumLayoutWidth = TextWidth / defaultSize * 2;
@@ -413,14 +416,13 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 		constexpr float textLeft = TextEdgeX - PBoxWidth * 0.5f;
 		constexpr float textTop = -(PBoxHeight - PBoxEdgeY) * 0.5f;
 
-		LayoutDesc tempDesc(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
-		tempDesc.world2d.SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
-		tempDesc.world2d.SetParentWorld(&tempBox->GetWorld2d().GetGlobalWorld());
-		tempDesc.maxW = maximumLayoutWidth;
-		tempDesc.maxH = (float)PBoxHeight;
-		tempDesc.world2d.SetPosition({ textLeft,textTop });
-		tempDesc.world2d.SetScale(defaultSize);
-		DwLayout* tempLayout = new DwLayout(tempDesc);
+		DwLayout2D* tempLayout = new DwLayout2D(musicTextSize, MyColorF::GhostGreen, { 0, 0 });
+		tempLayout->GetWorld2d().SetAlignMode(tempBox->GetWorld2d().GetAlignX(), tempBox->GetWorld2d().GetAlignY());
+		tempLayout->GetWorld2d().SetParentWorld(&tempBox->GetWorld2d().GetGlobalWorld());
+		tempLayout->maxW = maximumLayoutWidth;
+		tempLayout->maxH = (float)PBoxHeight;
+		tempLayout->GetWorld2d().SetPosition({ textLeft,textTop });
+		tempLayout->GetWorld2d().SetScale(defaultSize);
 		tempLayout->SetLayout(patternDesc, tempFormat);
 		tempLayout->Resize((float)App->GetWidth(), (float)App->GetHeight());
 		patternTextList.emplace_back(tempLayout);
@@ -459,9 +461,10 @@ const Music* MusicScroll::GetCurrentMusic() const
 const Pattern* MusicScroll::GetCurrentPattern() const
 {
 	if (GetCurrentMusic() == nullptr) return nullptr;
-	
+
 	if (GetCurrentMusic()->patternList.empty()) return nullptr;
-	else return GetCurrentMusic()->patternList[currentSelectPattern];
+	else return GetCurrentMusic()->patternList[(size_t)GetAdjustedCurrentPatternIdx()];
+
 }
 
 //ymm
@@ -780,13 +783,12 @@ void MusicScroll::InitMusicScroll()
 	LPCWSTR tempstr = L"No Music";
 	IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
 
-	DwLayout::GetLayoutMetrics(tempstr, tempFormat, &mt);
+	DwLayout2D::GetLayoutMetrics(tempstr, tempFormat, &mt);
 
-	LayoutDesc tempDesc(NoMusicTextSize, MyColorF::GhostGreen, { (float)NoMusicTextX + (mt.width * NoMusicTextSize / D2Ddevice::DefaultFontSize),NoMusicTextY });
 
-	tempDesc.maxW = MusicScrollWidth;
-	tempDesc.world2d.SetAlignX(AlignModeX::Right);
-	noMusicText.reset(new DwLayout(tempDesc));
+	noMusicText.reset(new DwLayout2D(NoMusicTextSize, MyColorF::GhostGreen, { (float)NoMusicTextX + (mt.width * NoMusicTextSize / D2Ddevice::DefaultFontSize),NoMusicTextY }));
+	noMusicText->maxW= MusicScrollWidth;
+	noMusicText->GetWorld2d().SetAlignX(AlignModeX::Right);
 	noMusicText->SetLayoutRightAlign(tempstr, tempFormat);
 	noMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 

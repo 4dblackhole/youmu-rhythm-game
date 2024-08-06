@@ -67,7 +67,8 @@ using namespace std;
 #include "Singleton/SceneManager.h"
 #include "Singleton/FmodSystem.h"
 
-#include "Object/DwLayout.h"
+#include "Object/Shape2D/DwLayout2D.h"
+
 
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Note.h"

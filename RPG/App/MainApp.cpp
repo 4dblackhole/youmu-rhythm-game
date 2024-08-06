@@ -17,11 +17,9 @@ MainApp::MainApp(HINSTANCE hInstance)
 	mMainWndCaption = _T("2D Test");
 
 	constexpr float fpsFontSize = 20.0f / D2Ddevice::DefaultFontSize;
-	LayoutDesc tempDesc(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { 0 ,0 });
-	tempDesc.world2d.SetAlignX(AlignModeX::Right);
-	tempDesc.world2d.SetPosition({ -10 ,(float)FPScounterY });
-	//tempDesc.world2d.UpdateWorld();
-	fpsLayout = new DwLayout(tempDesc);
+	fpsLayout = new DwLayout2D(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { 0 ,0 });
+	fpsLayout->GetWorld2d().SetAlignX(AlignModeX::Right);
+	fpsLayout->GetWorld2d().SetPosition({ -10 ,(float)FPScounterY });
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	fpsTimer.Reset();

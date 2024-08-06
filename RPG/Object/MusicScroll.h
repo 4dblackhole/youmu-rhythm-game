@@ -2,6 +2,7 @@
 #include "framework.h"
 #include "Object/Sprite.h"
 #include "Object/Shape2D/Rectangle2D.h"
+#include "Object/Shape2D/DwLayout2D.h"
 #include "Object/ClipRect.h"
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
@@ -42,17 +43,17 @@ private:
 	ClipRect clipArea; //area to draw boxes
 	ClipRect textArea; //area to draw texts
 	
-	unique_ptr<DwLayout> noMusicText;
+	unique_ptr<DwLayout2D> noMusicText;
 
 	vector<Music*> musicList;
 	vector<Rectangle2D*> musicBoxList;
-	vector<DwLayout*> musicTextList;
+	vector<DwLayout2D*> musicTextList;
 
 	map<wstring, size_t> musicIndexMap;
 
 	void ReleasePatternBox();
 	vector<Rectangle2D*> patternBoxList;
-	vector<DwLayout*> patternTextList;
+	vector<DwLayout2D*> patternTextList;
 
 	float scrollPos = 0.0f;
 	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
@@ -76,4 +77,5 @@ private:
 
 	void ChangeSelectMusic(size_t musicIdx);
 	void ChangeSelectPattern(size_t idx);
+	int GetAdjustedCurrentPatternIdx() const;
 };

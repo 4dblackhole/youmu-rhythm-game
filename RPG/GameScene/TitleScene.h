@@ -1,8 +1,8 @@
 #pragma once
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
-#include "Object/DwLayout.h"
 #include "Object/Shape2D/Triangle2D.h"
+#include "Object/Shape2D/DwLayout2D.h"
 
 class TitleScene : public GameScene
 {
@@ -49,7 +49,7 @@ private:
 		Tooltip,
 		MAX
 	};
-	vector<DwLayout> layoutList;
+	vector<DwLayout2D> layoutList;
 	void InitLayout();
 
 	FMOD::Sound* bgm{};

@@ -31,14 +31,17 @@ void SelectMusicScene::Update(float dt)
 {
 	if (KEYBOARD.Down(VK_ESCAPE))
 	{
-		string tempStr(SceneManager::Name::Title);
-		SceneManager::GetInstance().ChangeScene(tempStr);
+		SceneManager::GetInstance().ChangeScene(SceneManager::Name::Title);
 	}
 	musicScroll.Update(dt);
 
 	if (KEYBOARD.Down(VK_RETURN))
 	{
-		const Pattern* p = musicScroll.GetCurrentPattern();
+		if (musicScroll.GetCurrentPattern() != nullptr)
+		{
+			FMODSYSTEM.Play(FmodSystem::Name::select05);
+			//SceneManager::GetInstance().ChangeScene(SceneManager::Name::PlayScene);
+		}
 	}
 }
 

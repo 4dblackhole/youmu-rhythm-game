@@ -105,9 +105,6 @@
     <ClCompile Include="System\D2Ddevice.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Object\DwLayout.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="framework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -212,9 +209,6 @@
     <ClInclude Include="System\D2Ddevice.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Object\DwLayout.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Object\Shape2D\Triangle2D.h">
       <Filter>Object\Shape2D</Filter>
     </ClInclude>
@@ -268,5 +262,8 @@
     <CustomBuild Include="Shader\Sprite.fx">
       <Filter>Shader</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

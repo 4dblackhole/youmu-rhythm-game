@@ -1,7 +1,7 @@
 #pragma once
 #include "D3DApp.h"
 #include "Object/Sprite.h"
-#include "Object/DwLayout.h"
+#include "Object/Shape2D/DwLayout2D.h"
 
 class MainApp : public D3DApp
 {
@@ -41,7 +41,7 @@ private:
 		Frame,
 		MAX
 	};
-	DwLayout *fpsLayout;
+	DwLayout2D *fpsLayout;
 
 	ID2D1Bitmap* bitmap;
 
