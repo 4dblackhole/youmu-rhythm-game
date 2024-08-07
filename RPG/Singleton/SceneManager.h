@@ -17,6 +17,7 @@ public:
 	void InitScene(const mapSceneList::key_type& sceneName, const mapSceneList::mapped_type& scene);
 
 	bool AddScene(const mapSceneList::key_type& sceneName, const mapSceneList::mapped_type& scene);
+	bool RemoveScene(const mapSceneList::key_type& sceneName);
 	void ChangeScene(const mapSceneList::key_type& sceneName);
 
 	inline GameScene* GetCurrentScene() { return currentScene; }

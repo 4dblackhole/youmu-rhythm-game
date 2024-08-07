@@ -3,11 +3,11 @@
 
 TestScene::TestScene() : sq(0.0f, 0.0f, 1280.0f, 720.0f), sq2(300, 100, 259, 224)
 {
-	sq.SetTexture(GETTEXTURE("test"));
+	sq.SetTexture(GETTEXTURE(TextureManager::Name::test));
 	constexpr float rate = (640.0 / 480.0) / (1280.0 / 720.0);
 	sq.SetUvScale({ 1.0f, rate });
 	sq.SetUvPosition({ 1.0f, rate });
-	sq2.SetTexture(GETTEXTURE("myon"));
+	sq2.SetTexture(GETTEXTURE(TextureManager::Name::myon));
 }
 
 TestScene::~TestScene()

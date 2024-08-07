@@ -147,6 +147,9 @@
     <ClCompile Include="Object\Shape2D\DwLayout2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
+    <ClCompile Include="GameScene\PlayScene.cpp">
+      <Filter>GameScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -256,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="Object\Shape2D\DwLayout2D.h">
       <Filter>Object\Shape2D</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene\PlayScene.h">
+      <Filter>GameScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

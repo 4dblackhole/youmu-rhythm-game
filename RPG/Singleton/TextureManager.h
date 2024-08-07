@@ -14,9 +14,13 @@ public:
 	class Name
 	{
 	public:
-		static constexpr LPCSTR fmodLogo = "fmod Logo";
-		static constexpr LPCSTR Title = "Title";
-		static constexpr LPCSTR MusicScroll = "MusicScroll";
+		DECLARE_VARIABLE_STRING(NullImg);
+		DECLARE_VARIABLE_STRING(test);
+		DECLARE_VARIABLE_STRING(myon);
+
+		DECLARE_VARIABLE_STRING(fmodLogo);
+		DECLARE_VARIABLE_STRING(Title);
+		DECLARE_VARIABLE_STRING(MusicScroll);
 	};
 
 private:

@@ -26,6 +26,19 @@ bool SceneManager::AddScene(const mapSceneList::key_type& sceneName, const mapSc
 	return true;
 }
 
+bool SceneManager::RemoveScene(const mapSceneList::key_type& sceneName)
+{
+	mapSceneIter it = sceneList.find(sceneName);
+	if (it != sceneList.end())
+	{
+		delete it->second;
+		sceneList.erase(it);
+		return true;
+	}
+	//sceneName not found
+	return false;
+}
+
 void SceneManager::ChangeScene(const mapSceneList::key_type& sceneName)
 {
 	mapSceneIter it = sceneList.find(sceneName);

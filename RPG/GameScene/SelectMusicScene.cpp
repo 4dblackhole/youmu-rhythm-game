@@ -1,4 +1,5 @@
 #include "framework.h"
+#include "GameScene/PlayScene.h"
 #include "SelectMusicScene.h"
 
 constexpr int MusicScrollX = -10;
@@ -40,7 +41,9 @@ void SelectMusicScene::Update(float dt)
 		if (musicScroll.GetCurrentPattern() != nullptr)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::select05);
-			//SceneManager::GetInstance().ChangeScene(SceneManager::Name::PlayScene);
+			GameScene* playScene = new PlayScene;
+			SCENEMANAGER.AddScene(SceneManager::Name::PlayScene, playScene);
+			SCENEMANAGER.ChangeScene(SceneManager::Name::PlayScene);
 		}
 	}
 }
