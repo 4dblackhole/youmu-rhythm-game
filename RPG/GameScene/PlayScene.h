@@ -24,6 +24,51 @@ public:
 
 private:
 
+	enum class Status
+	{
+		Ready,
+		Start,
+		Resume,
+		Pause,
+		End
+	};
+
+	Status sceneStatus = Status::Ready;
+	
+	void ChangeStatusReady();
+	void ChangeStatusStart();
+	void ChangeStatusResume();
+	void ChangeStatusPause();
+	void ChangeStatusEnd();
+
+	void UpdateOnReady(float dt);
+	void UpdateOnStart(float dt);
+	void UpdateOnResume(float dt);
+	void UpdateOnPause(float dt);
+	void UpdateOnEnd(float dt);
+
+	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
+
+	enum class PauseOption
+	{
+		Resume,
+		Restart,
+		Quit,
+		MAX
+	};
+	int pauseOptionKey = (int)PauseOption::Resume;
+	void ChangePauseOptionKey(int val);
+	void InitPauseOptionLayoutList();
+
+	DwLayout2D PauseOptLayoutList[(int)PauseOption::MAX];
+	static constexpr LPCWSTR pauseOptTxtMap[(int)PauseOption::MAX]
+	{ L"Resume",L"Restart",L"Quit" };
+
+	Triangle2D pauseOptSelectTriangle{};
+
+	GameTimer resumeTimer;
+
+	Sprite transparentBlackBG;
 	Sprite youmu;
 
 };

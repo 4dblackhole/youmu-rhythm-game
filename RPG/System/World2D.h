@@ -47,6 +47,5 @@ private:
 	bool mGlobalWorldUpdateFlag = true;
 
 	const D2D1::Matrix3x2F* parentWorld = nullptr;
-	bool parentWorldUpdateFlag = true;
 
 };

@@ -97,7 +97,7 @@ void MusicScroll::StopMusic(size_t idx)
 
 void MusicScroll::UpdateScrollMatrix()
 {
-	const float scrollStartPosOffset = -scrollImg.GetLocalScale().y * 0.5f;
+	const float scrollStartPosOffset = -scrollImg.GetObjectScale().y * 0.5f;
 	const float scrollYpos = scrollStartPosOffset + scrollPos * 20.0f;
 
 	scrollMatrix = D2D1::Matrix3x2F::Translation(0, scrollYpos);
@@ -297,7 +297,7 @@ void MusicScroll::CreateMusicBox()
 	for (size_t i = 0; i < musicList.size(); ++i)
 	{
 		// Box =======================================================================
-		const XMFLOAT2& scale = scrollImg.GetLocalScale();
+		const XMFLOAT2& scale = scrollImg.GetObjectScale();
 		const XMFLOAT3& pos = scrollImg.GetPosition();
 
 		//Right-Top based position

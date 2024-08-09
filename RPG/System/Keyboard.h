@@ -11,7 +11,7 @@ public:
 
 	bool Down(DWORD key) const { return keyMap[key] == KEY_INPUT_STATUS_DOWN; }
 	bool Up(DWORD key) const { return keyMap[key] == KEY_INPUT_STATUS_UP; }
-	bool Press(DWORD key) const { return keyMap[key] == KEY_INPUT_STATUS_PRESS; }
+	bool Hold(DWORD key) const { return keyMap[key] == KEY_INPUT_STATUS_PRESS; }
 
 	Keyboard();
 	~Keyboard();

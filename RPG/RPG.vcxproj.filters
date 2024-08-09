@@ -150,6 +150,9 @@
     <ClCompile Include="GameScene\PlayScene.cpp">
       <Filter>GameScene</Filter>
     </ClCompile>
+    <ClCompile Include="System\World3D.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="GameScene\PlayScene.h">
       <Filter>GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="System\World3D.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

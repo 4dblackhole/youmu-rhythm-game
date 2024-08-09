@@ -1,4 +1,5 @@
 #pragma once
+#include "framework.h"
 #include "D3DApp.h"
 #include "Object/Sprite.h"
 #include "Object/Shape2D/DwLayout2D.h"
@@ -15,6 +16,7 @@ public:
 	void DrawScene() final;
 
 	const float RateY() const { return rateY; }
+	void ChangeBgColor(const XMFLOAT4 c) { bgColor = c; }
 
 	virtual void OnMouseDown(WPARAM btnState, int x, int y) final;
 	virtual void OnMouseUp(WPARAM btnState, int x, int y) final;
@@ -45,11 +47,16 @@ private:
 
 	float rateY = 1.0f;
 
+	XMFLOAT4 bgColor;
+
 	//DrawWorld, UpdateFlag
-	pair<D2D1::Matrix3x2F, bool> mDrawWorldArr[(int)AlignModeX::MAX];
+	pair<D2D1::Matrix3x2F, bool> mDrawWorld2DArr[(int)AlignModeX::MAX];
+	pair<XMFLOAT4X4, bool> mDrawWorld3DArr[(int)AlignModeY::MAX][(int)AlignModeX::MAX];
 	void InitDrawWorld();
+
 	void UpdateDrawWorld(AlignModeX x);
 	void NotifyDrawWorldResize();
+
 public:
 	const D2D1::Matrix3x2F& GetDrawWorld(const AlignModeX x = AlignModeX::Left);
 

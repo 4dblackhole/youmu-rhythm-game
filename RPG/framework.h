@@ -68,6 +68,8 @@ using namespace std;
 #include "Singleton/FmodSystem.h"
 
 #include "Object/Shape2D/DwLayout2D.h"
+#include "Object/Shape2D/Triangle2D.h"
+#include "Object/Shape2D/Rectangle2D.h"
 
 
 #include "MusicalObject/Music.h"
@@ -102,3 +104,11 @@ extern const wstring SystemSoundDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";
+
+constexpr XMFLOAT4X4 XmFloatT4X4Identity
+{
+	1,0,0,0,
+	0,1,0,0,
+	0,0,1,0,
+	0,0,0,1
+};

@@ -13,7 +13,8 @@ MainApp* App;
 
 MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
-	drawFPSCounterFlag(true)
+	drawFPSCounterFlag(true),
+	bgColor(MyColor4::Black)
 {
 	App = this;
 	mMainWndCaption = _T("2D Test");
@@ -63,7 +64,8 @@ bool MainApp::Init()
 
 void MainApp::NotifyDrawWorldResize()
 {
-	for (int idx = (int)AlignModeX::Mid; idx < (int)AlignModeX::MAX; ++idx) mDrawWorldArr[idx].second = true;
+	for (auto& it : mDrawWorld2DArr) it.second = true;
+	for (auto& yit : mDrawWorld3DArr) for (auto& xit : yit) xit.second = true;
 }
 
 void MainApp::OnResize()
@@ -81,7 +83,7 @@ void MainApp::OnResize()
 void MainApp::UpdateScene(float dt)
 {
 	SCENEMANAGER.GetCurrentScene()->Update(dt);
-	if (KEYBOARD.Press(VK_CONTROL) && KEYBOARD.Down(VK_F7)) drawFPSCounterFlag = !drawFPSCounterFlag;
+	if (KEYBOARD.Hold(VK_CONTROL) && KEYBOARD.Down(VK_F7)) drawFPSCounterFlag = !drawFPSCounterFlag;
 }
 
 void MainApp::UpdateFPS()
@@ -110,21 +112,24 @@ void MainApp::UpdateFPS()
 
 void MainApp::InitDrawWorld()
 {
-	//always I matrix
-	mDrawWorldArr[(int)AlignModeX::Left].first = D2D1::Matrix3x2F::Identity();
-	mDrawWorldArr[(int)AlignModeX::Left].second = false;
-
 	for (int x = (int)AlignModeX::Mid; x < (int)AlignModeX::MAX; ++x)
 	{
-		//mDrawWorldArr[x].first = D2D1::Matrix3x2F::Identity();
-		mDrawWorldArr[x].second = true;
+		mDrawWorld2DArr[x].second = true;
+	}
+
+	for (int y = (int)AlignModeY::Top; y < (int)AlignModeY::MAX; ++y)
+	{
+		for (int x = (int)AlignModeX::Mid; x < (int)AlignModeX::MAX; ++x)
+		{
+			mDrawWorld3DArr[y][x].second = true;
+		}
 	}
 }
 
 void MainApp::UpdateDrawWorld(AlignModeX x)
 {
 	const int xIdx = (int)x;
-	if (mDrawWorldArr[xIdx].second)
+	if (mDrawWorld2DArr[xIdx].second)
 	{
 		D2D1_POINT_2F drawPos;
 		float w = (float)mClientWidth;
@@ -144,8 +149,8 @@ void MainApp::UpdateDrawWorld(AlignModeX x)
 			drawPos = { 0, 0 };
 			break;
 		}
-		mDrawWorldArr[xIdx].first = D2D1::Matrix3x2F::Scale({ rateY, rateY }) * D2D1::Matrix3x2F::Translation({ drawPos.x, drawPos.y });
-		mDrawWorldArr[xIdx].second = false;
+		mDrawWorld2DArr[xIdx].first = D2D1::Matrix3x2F::Scale({ rateY, rateY }) * D2D1::Matrix3x2F::Translation({ drawPos.x, drawPos.y });
+		mDrawWorld2DArr[xIdx].second = false;
 		TRACE(_T("DrawWorld Updated\n"));
 	}
 }
@@ -153,14 +158,14 @@ void MainApp::UpdateDrawWorld(AlignModeX x)
 const D2D1::Matrix3x2F& MainApp::GetDrawWorld(const AlignModeX x)
 {
 	UpdateDrawWorld(x);
-	return mDrawWorldArr[(int)x].first;
+	return mDrawWorld2DArr[(int)x].first;
 }
 
 void MainApp::DrawScene()
 {
 	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, (const float*)Colors::LightSteelBlue);
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, (const float*)&bgColor);
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	D2D.BeginDraw();
