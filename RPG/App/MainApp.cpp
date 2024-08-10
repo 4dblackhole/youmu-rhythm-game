@@ -126,7 +126,7 @@ void MainApp::InitDrawWorld()
 	}
 }
 
-void MainApp::UpdateDrawWorld(AlignModeX x)
+void MainApp::UpdateDrawWorld2D(AlignModeX x)
 {
 	const int xIdx = (int)x;
 	if (mDrawWorld2DArr[xIdx].second)
@@ -151,14 +151,52 @@ void MainApp::UpdateDrawWorld(AlignModeX x)
 		}
 		mDrawWorld2DArr[xIdx].first = D2D1::Matrix3x2F::Scale({ rateY, rateY }) * D2D1::Matrix3x2F::Translation({ drawPos.x, drawPos.y });
 		mDrawWorld2DArr[xIdx].second = false;
-		TRACE(_T("DrawWorld Updated\n"));
+		TRACE(_T("DrawWorld2D Updated\n"));
 	}
 }
 
-const D2D1::Matrix3x2F& MainApp::GetDrawWorld(const AlignModeX x)
+void MainApp::UpdateDrawWorld3D(AlignModeX x, AlignModeY y)
 {
-	UpdateDrawWorld(x);
+	const int xIdx = (int)x;
+	const int yIdx = (int)y;
+	if (mDrawWorld3DArr[yIdx][xIdx].second)
+	{
+		XMFLOAT3 resultPos{};
+		const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
+		switch (x)
+		{
+		case AlignModeX::Left:
+			resultPos.x = -localWidth * 0.5f;
+			break;
+		case AlignModeX::Right:
+			resultPos.x = localWidth * 0.5f;
+			break;
+		}
+		switch (y)
+		{
+		case AlignModeY::Top:
+			resultPos.y = (float)StandardHeight * 0.5f;
+			break;
+		case AlignModeY::Bottom:
+			resultPos.y = -(float)StandardHeight * 0.5f;
+			break;
+		}
+		XMStoreFloat4x4(&mDrawWorld3DArr[yIdx][xIdx].first, XMMatrixTranslation(resultPos.x, resultPos.y, resultPos.z));
+		mDrawWorld3DArr[yIdx][xIdx].second = false;
+		TRACE(_T("DrawWorld3D Updated\n"));
+	}
+}
+
+const D2D1::Matrix3x2F& MainApp::GetDrawWorld2D(const AlignModeX x)
+{
+	UpdateDrawWorld2D(x);
 	return mDrawWorld2DArr[(int)x].first;
+}
+
+const XMFLOAT4X4& MainApp::GetDrawWorld3D(const AlignModeX x, const AlignModeY y)
+{
+	UpdateDrawWorld3D(x, y);
+	return mDrawWorld3DArr[(int)y][(int)x].first;
 }
 
 void MainApp::DrawScene()

@@ -34,14 +34,10 @@ void TestScene::Update(float dt)
 	if (KEYBOARD.Hold('Z'))
 	{
 		sq2.MoveLocalPosition(-400.0f * dt, 0.0f, 0.0f);
-		sq2.UpdateLocalWorld();
-		sq2.UpdateGlobalWorld();
 	}
 	if (KEYBOARD.Hold('X'))
 	{
 		sq2.MoveLocalPosition(400.0f * dt, 0.0f, 0.0f);
-		sq2.UpdateLocalWorld();
-		sq2.UpdateGlobalWorld();
 	}
 }
 

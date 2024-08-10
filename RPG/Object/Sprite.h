@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
 #include "System/AlignMode.h"
+//#include "System/World3D.h"
 
 class Sprite
 {
@@ -19,8 +20,6 @@ public:
 
 	static void BulidBuffer(ID3D11Device*);
 	static void BuildLayout(ID3D11Device*);
-
-	inline const D2D1_RECT_F& GetDrawArea() const { return drawArea; }
 
 	void SetLocalScale(const XMFLOAT2 s);
 	void SetLocalRotation(const XMFLOAT3 s);
@@ -51,11 +50,6 @@ public:
 	const XMFLOAT4X4& GetGlobalWorld();
 	const XMFLOAT4X4& GetUvWorld();
 
-	void UpdateObjectWorld();
-	void UpdateLocalWorld();
-	void UpdateGlobalWorld();
-	void UpdateUvWorld();
-
 private:
 	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 
@@ -65,11 +59,13 @@ private:
 	XMFLOAT3 ObjectPosition;
 	XMFLOAT4X4 mObjectWorld;
 
+	//relative world to the parent world
 	XMFLOAT2 LocalScale;
 	XMFLOAT3 LocalRotation;
 	XMFLOAT3 LocalPosition;
 	XMFLOAT4X4 mLocalWorld;
 
+	//total world
 	XMFLOAT4X4 mGlobalWorld;
 
 	XMFLOAT2 UvScale;
@@ -77,22 +73,22 @@ private:
 	XMFLOAT2 UvPosition;
 	XMFLOAT4X4 mUvWorld;
 
+	void UpdateObjectWorld();
+	void UpdateLocalWorld();
+	void UpdateGlobalWorld();
+	void UpdateUvWorld();
+
 	bool mObjectWorldUpdateFlag = true;
 	bool mLocalWorldUpdateFlag = true;
 	bool mGlobalWorldUpdateFlag = true;
 	bool mUvWorldUpdateFlag = true;
 
-	XMFLOAT4X4* mParentWorld=nullptr;
+	const XMFLOAT4X4* mParentWorld = nullptr;
 
-	ID3D11ShaderResourceView* textureSRV; //weak reference, never delete this pointer
-
-	void AdjustDrawPos();
-	XMFLOAT3 DrawPos;
 	AlignModeX alignX = AlignModeX::Mid;
 	AlignModeY alignY = AlignModeY::Mid;
 
-	void UpdateDrawArea();
-	D2D1_RECT_F drawArea{};
+	ID3D11ShaderResourceView* textureSRV; //weak reference, never delete this pointer
 
 	static ComPtr<ID3D11Buffer> mVB;
 	static ComPtr<ID3D11Buffer> mIB;

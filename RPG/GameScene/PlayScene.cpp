@@ -191,9 +191,6 @@ void PlayScene::Update(float dt)
 	else
 		youmu.SetLocalPosition({ resultX, youmu.GetPosition().y, 0 });
 
-	youmu.UpdateObjectWorld();
-	youmu.UpdateLocalWorld();
-	youmu.UpdateGlobalWorld();
 		
 	switch (sceneStatus)
 	{

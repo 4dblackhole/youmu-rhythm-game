@@ -94,66 +94,14 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 	ObjectScale = { _w, _h };
 	ObjectRotation = { 0, 0, 0 };
 	ObjectPosition = { 0, 0, 0 };
-	UpdateObjectWorld();
 
 	LocalScale = { 1.0f, 1.0f };
 	LocalRotation = { 0, 0, 0 };
 	LocalPosition = { _x, _y, 0 };
-	DrawPos = LocalPosition;
-	UpdateLocalWorld();
-
-
-	UpdateGlobalWorld();
 
 	UvScale = { 1.0f,1.0f };
 	UvRotation = { 0,0,0 };
 	UvPosition = { 0,0 };
-	XMStoreFloat4x4(&mUvWorld, I);
-}
-
-//center coordinate system to other system
-void Sprite::AdjustDrawPos()
-{
-	XMFLOAT3 tempPos{};
-	const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
-	switch (alignX)
-	{
-	case AlignModeX::Left:
-		tempPos.x = (LocalScale.x - localWidth) * 0.5f;
-		break;
-	case AlignModeX::Right:
-		tempPos.x = (localWidth - LocalScale.x) * 0.5f;
-		break;
-	}
-	switch (alignY)
-	{
-	case AlignModeY::Top:
-		tempPos.y = ((float)StandardHeight - LocalScale.y) * 0.5f;
-		break;
-	case AlignModeY::Bottom:
-		tempPos.y = (LocalScale.y - (float)StandardHeight) * 0.5f;
-		break;
-	}
-	tempPos.x += LocalPosition.x;
-	tempPos.y += LocalPosition.y;
-
-	DrawPos = tempPos;
-	UpdateDrawArea();
-}
-
-void Sprite::UpdateDrawArea()
-{
-	//screen dimensions
-	const float orthoWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
-	const float centerW = App->GetWidth() * 0.5f;
-	const float centerH = App->GetHeight() * 0.5f;
-	const float rateX = App->GetWidth() / orthoWidth;
-	const float rateY = App->GetHeight() / (float)StandardHeight;
-
-	drawArea = {
-		centerW + (DrawPos.x - LocalScale.x * 0.5f) * rateX, centerH + (DrawPos.y + LocalScale.y * 0.5f) * -rateY,
-		centerW + (DrawPos.x + LocalScale.x * 0.5f) * rateX, centerH + (DrawPos.y - LocalScale.y * 0.5f) * -rateY };
-
 }
 
 const XMFLOAT4X4& Sprite::GetObjectWorld()
@@ -188,7 +136,6 @@ void Sprite::UpdateObjectWorld()
 		XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&ObjectRotation));
 		XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&ObjectPosition));
 		XMStoreFloat4x4(&mObjectWorld, S * R * T);
-		mGlobalWorldUpdateFlag = true;
 
 		mObjectWorldUpdateFlag = false;
 	}
@@ -201,9 +148,8 @@ void Sprite::UpdateLocalWorld()
 	{
 		XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&LocalScale));
 		XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&LocalRotation));
+		XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&LocalPosition));
 
-		AdjustDrawPos();
-		XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&DrawPos));
 		XMStoreFloat4x4(&mLocalWorld, S * R * T);
 		mGlobalWorldUpdateFlag = true;
 
@@ -213,12 +159,11 @@ void Sprite::UpdateLocalWorld()
 
 void Sprite::UpdateGlobalWorld()
 {
-	UpdateObjectWorld();
 	UpdateLocalWorld();
 	if (mGlobalWorldUpdateFlag)
 	{
-		if (mParentWorld == nullptr) XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mObjectWorld) * XMLoadFloat4x4(&mLocalWorld));
-		else XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mObjectWorld) * XMLoadFloat4x4(&mLocalWorld) * XMLoadFloat4x4(mParentWorld));
+		if (mParentWorld == nullptr) XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mLocalWorld));
+		else XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mLocalWorld) * XMLoadFloat4x4(mParentWorld));
 		mGlobalWorldUpdateFlag = false;
 	}
 }
@@ -251,15 +196,12 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	currentTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
-		//
-		// Draw the hills.
-		//
+		//buffer setting
 		deviceContext->IASetVertexBuffers(0, 1, mVB.GetAddressOf(), &stride, &offset);
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
-		CXMMATRIX world = XMLoadFloat4x4(&GetGlobalWorld());
-
+		CXMMATRIX world = XMLoadFloat4x4(&GetObjectWorld()) * XMLoadFloat4x4(&GetGlobalWorld()) * XMLoadFloat4x4(&App->GetDrawWorld3D(alignX, alignY));
 		CXMMATRIX uvWorld = XMLoadFloat4x4(&GetUvWorld());
 		CXMMATRIX WVP = world * cam.View() * cam.Proj();
 
@@ -277,13 +219,11 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 void Sprite::OnResize()
 {
-	mLocalWorldUpdateFlag = true;
 }
 
 void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
-	LocalScale.x = ShortCut::GetOrthoWidth(w,h)/ (float)ObjectScale.x;
-	mLocalWorldUpdateFlag = true;
+	SetLocalScale({ ShortCut::GetOrthoWidth(w,h) / (float)ObjectScale.x , LocalScale.y });
 }
 
 void Sprite::BulidBuffer(ID3D11Device* device)
@@ -376,12 +316,12 @@ void Sprite::SetUvPosition(const XMFLOAT2 s)
 	mUvWorldUpdateFlag = true;
 }
 
-void Sprite::SetAlignX(AlignModeX m)
+void Sprite::SetAlignX(AlignModeX x)
 {
-	alignX = m;
+	alignX = x;
 }
 
-void Sprite::SetAlignY(AlignModeY m)
+void Sprite::SetAlignY(AlignModeY y)
 {
-	alignY = m;
+	alignY = y;
 }

@@ -54,11 +54,13 @@ private:
 	pair<XMFLOAT4X4, bool> mDrawWorld3DArr[(int)AlignModeY::MAX][(int)AlignModeX::MAX];
 	void InitDrawWorld();
 
-	void UpdateDrawWorld(AlignModeX x);
+	void UpdateDrawWorld2D(AlignModeX x);
+	void UpdateDrawWorld3D(AlignModeX x, AlignModeY y);
 	void NotifyDrawWorldResize();
 
 public:
-	const D2D1::Matrix3x2F& GetDrawWorld(const AlignModeX x = AlignModeX::Left);
+	const D2D1::Matrix3x2F& GetDrawWorld2D(const AlignModeX x = AlignModeX::Left);
+	const XMFLOAT4X4& GetDrawWorld3D(const AlignModeX x = AlignModeX::Mid, const AlignModeY y = AlignModeY::Mid);
 
 private:
 };

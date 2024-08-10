@@ -1,5 +1,4 @@
 #include "framework.h"
-#include "World2D.h"
 #include "World3D.h"
 
 World3D::World3D(XMFLOAT3 size, XMFLOAT3 rot, XMFLOAT3 position)

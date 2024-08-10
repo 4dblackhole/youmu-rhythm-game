@@ -59,6 +59,7 @@ using namespace std;
 #include "System/Camera.h"
 #include "System/D2Ddevice.h"
 #include "System/World2D.h"
+//#include "System/World3D.h"
 
 #include "Effect/Effects.h"
 #include "Effect/RenderStates.h"
