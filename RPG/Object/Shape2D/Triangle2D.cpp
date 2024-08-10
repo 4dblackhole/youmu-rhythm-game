@@ -4,10 +4,7 @@
 using namespace D2D1;
 
 Triangle2D::Triangle2D() 
-	: Triangle2D({
-		{ 1.0f, 0.0f },
-		{ -0.5f,  0.86602540378443864676372317075294f},
-		{ -0.5f, -0.86602540378443864676372317075294f} })
+	: Triangle2D(DefaultTriangle)
 {
 }
 

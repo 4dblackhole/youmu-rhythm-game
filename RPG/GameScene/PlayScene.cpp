@@ -25,10 +25,11 @@ void PlayScene::InitPauseOptionLayoutList()
 		PauseOptLayoutList[i].GetWorld2d().SetScale(LayoutSize);
 		PauseOptLayoutList[i].GetWorld2d().SetPosition({ (float)LayoutBaseX,(float)(LayoutBaseY + (i * LayoutDistanceY)) });
 		PauseOptLayoutList[i].SetLayout(pauseOptTxtMap[i], defaultFont);
+		PauseOptLayoutList[i].GetWorld2d().SetParentDrawWorld();
 	}
 
 	pauseOptSelectTriangle.GetWorld2d().SetScale(3.0f);
-	pauseOptSelectTriangle.GetWorld2d().SetParentWorld(&PauseOptLayoutList[pauseOptionKey].GetWorld2d().GetGlobalWorld());
+	pauseOptSelectTriangle.GetWorld2d().SetParentWorld(&PauseOptLayoutList[pauseOptionKey].GetWorld2d());
 	pauseOptSelectTriangle.GetWorld2d().SetAlignX(PauseOptLayoutList[pauseOptionKey].GetWorld2d().GetAlignX());
 	pauseOptSelectTriangle.FillColor = MyColorF::GhostGreen;
 	pauseOptSelectTriangle.BorderSize = 0.5f;
@@ -96,7 +97,7 @@ void PlayScene::ChangePauseOptionKey(int val)
 {
 	FMODSYSTEM.Play(FmodSystem::Name::button01a);
 	pauseOptionKey = val;
-	pauseOptSelectTriangle.GetWorld2d().SetParentWorld(&PauseOptLayoutList[pauseOptionKey].GetWorld2d().GetGlobalWorld());
+	pauseOptSelectTriangle.GetWorld2d().SetParentWorld(&PauseOptLayoutList[pauseOptionKey].GetWorld2d());
 }
 
 void PlayScene::UpdateOnPause(float dt)
@@ -168,7 +169,7 @@ void PlayScene::Update(float dt)
 {
 	
 	static bool directionRight = false;
-	float resultX = youmu.GetPosition().x;
+	float resultX = youmu.GetWorld3d().GetLocalPosition().x;
 	constexpr float speed = 2000.0f;
 	if (directionRight) resultX += dt * speed;
 	else				resultX -= dt * speed;
@@ -187,9 +188,9 @@ void PlayScene::Update(float dt)
 	}
 
 	if (directionRight)
-		youmu.SetLocalPosition({ resultX, youmu.GetPosition().y, 0 });
+		youmu.GetWorld3d().SetLocalPosition({ resultX, youmu.GetWorld3d().GetLocalPosition().y, 0 });
 	else
-		youmu.SetLocalPosition({ resultX, youmu.GetPosition().y, 0 });
+		youmu.GetWorld3d().SetLocalPosition({ resultX, youmu.GetWorld3d().GetLocalPosition().y, 0 });
 
 		
 	switch (sceneStatus)

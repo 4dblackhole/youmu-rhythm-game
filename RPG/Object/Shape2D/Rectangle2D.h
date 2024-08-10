@@ -5,6 +5,8 @@
 class Rectangle2D : public Shape2D
 {
 public:
+	static constexpr D2D1_RECT_F DefaultRect{ -0.5,-0.5f,0.5f,0.5f };
+
 	Rectangle2D();
 	Rectangle2D(const D2D1_RECT_F& pts);
 	virtual ~Rectangle2D();

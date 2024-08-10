@@ -54,9 +54,8 @@ private:
 	vector<DwLayout2D*> patternTextList;
 
 	float scrollPos = 0.0f;
-	D2D1::Matrix3x2F scrollMatrix{ D2D1::Matrix3x2F::Identity() };
-	D2D1::Matrix3x2F patternHeightMatrix{ D2D1::Matrix3x2F::Identity() };
-	D2D1::Matrix3x2F scrollWithPatternMatrix{ D2D1::Matrix3x2F::Identity() };
+	World2D scrollMatrix;
+	World2D patternHeightMatrix;
 
 	void UpdateScrollMatrix();
 	void UpdatePatternHeightMatrix(size_t musicIdx);

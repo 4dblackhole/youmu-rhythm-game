@@ -58,8 +58,9 @@ using namespace std;
 #include "System/Keyboard.h"
 #include "System/Camera.h"
 #include "System/D2Ddevice.h"
-#include "System/World2D.h"
-//#include "System/World3D.h"
+
+#include "System/World/World2D.h"
+#include "System/World/World3D.h"
 
 #include "Effect/Effects.h"
 #include "Effect/RenderStates.h"
@@ -76,8 +77,6 @@ using namespace std;
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Note.h"
 #include "MusicalObject/Pattern.h"
-
-
 
 #include "App/MainApp.h"
 extern MainApp* App;
@@ -96,6 +95,8 @@ namespace MyColor4
 	constexpr DirectX::XMFLOAT4 Black(0, 0, 0, 1);
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
 }
+
+constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;
 
 extern const wstring SongDir;
 extern const wstring MusicDir;

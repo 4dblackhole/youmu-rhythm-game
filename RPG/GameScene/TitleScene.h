@@ -24,7 +24,6 @@ public:
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {}
 
 private:
-	Sprite background;
 	Sprite tooltipBG;
 	Sprite titleLogoImg;
 	ID3D11ShaderResourceView* titleSrv = nullptr;

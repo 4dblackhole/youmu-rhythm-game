@@ -1,6 +1,7 @@
 #include "framework.h"
-
 #include "LogoScene.h"
+
+constexpr DirectX::XMFLOAT4 LogoBgColor = MyColor4::Black;
 
 LogoScene::LogoScene() : 
 	fmodLogo(0.0f, 0.0f, 728.0f, 192.0f), 
@@ -94,7 +95,7 @@ void LogoScene::BeginScene()
 {
 	//Key input state reset
 	ZeroMemory(keyState, sizeof(keyState));
-
+	App->ChangeBgColor(LogoBgColor);
 	//Logo state machine reset
 	bgTimer.Reset();
 	logoState = LogoScene::Normal;
@@ -120,4 +121,5 @@ void LogoScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 void LogoScene::EndScene()
 {
+	App->ChangeBgColor(DefaultBgColor);
 }

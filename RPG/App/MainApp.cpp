@@ -23,11 +23,10 @@ MainApp::MainApp(HINSTANCE hInstance)
 	fpsLayout = new DwLayout2D(fpsFontSize, D2D1::ColorF(1, 1, 1, 1), { 0 ,0 });
 	fpsLayout->GetWorld2d().SetAlignX(AlignModeX::Right);
 	fpsLayout->GetWorld2d().SetPosition({ -10 ,(float)FPScounterY });
+	fpsLayout->GetWorld2d().SetParentDrawWorld();
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	fpsTimer.Reset();
-
-	InitDrawWorld();
 }
 
 MainApp::~MainApp()
@@ -64,20 +63,24 @@ bool MainApp::Init()
 
 void MainApp::NotifyDrawWorldResize()
 {
-	for (auto& it : mDrawWorld2DArr) it.second = true;
-	for (auto& yit : mDrawWorld3DArr) for (auto& xit : yit) xit.second = true;
+	for (int ax = 0; ax < (int)AlignModeX::MAX; ++ax) UpdateDrawWorld2D(AlignModeX(ax));
+
+	for (int ay = 0; ay < (int)AlignModeY::MAX; ++ay)
+		for (int ax = 0; ax < (int)AlignModeX::MAX; ++ax)
+			UpdateDrawWorld3D((AlignModeX)ax, AlignModeY(ay));
+
 }
 
 void MainApp::OnResize()
 {
 	__super::OnResize();
-	NotifyDrawWorldResize();
 	mCamera.UpdateProj((float)mClientWidth * ((float)StandardHeight / (float)mClientHeight), (float)StandardHeight);
 	rateY = (float)GetHeight() / (float)StandardHeight;
+
+	NotifyDrawWorldResize();
 	SCENEMANAGER.GetCurrentScene()->OnResize((float)mClientWidth, (float)mClientHeight);
 	
-	//fpsLayout->Resize((float)mClientWidth, (float)mClientHeight);
-	int asdf = 3;
+	fpsLayout->GetWorld2d().OnParentWorldUpdate();
 }
 
 void MainApp::UpdateScene(float dt)
@@ -110,22 +113,25 @@ void MainApp::UpdateFPS()
 
 }
 
-void MainApp::InitDrawWorld()
+void MainApp::UpdateDrawWorld2D(AlignModeX x)
 {
-	for (int x = (int)AlignModeX::Mid; x < (int)AlignModeX::MAX; ++x)
+	D2D1_POINT_2F drawPos{};
+	const float w = (float)mClientWidth;
+	const float h = (float)mClientHeight;
+	switch (x)
 	{
-		mDrawWorld2DArr[x].second = true;
+	case AlignModeX::Mid:
+		drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w * 0.5f);
+		break;
+	case AlignModeX::Right:
+		drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w);
+		break;
 	}
-
-	for (int y = (int)AlignModeY::Top; y < (int)AlignModeY::MAX; ++y)
-	{
-		for (int x = (int)AlignModeX::Mid; x < (int)AlignModeX::MAX; ++x)
-		{
-			mDrawWorld3DArr[y][x].second = true;
-		}
-	}
+	mDrawWorld2DArr[(int)x].SetPosition(drawPos);
+	mDrawWorld2DArr[(int)x].SetScale(RateY());
 }
 
+/*
 void MainApp::UpdateDrawWorld2D(AlignModeX x)
 {
 	const int xIdx = (int)x;
@@ -154,49 +160,44 @@ void MainApp::UpdateDrawWorld2D(AlignModeX x)
 		TRACE(_T("DrawWorld2D Updated\n"));
 	}
 }
+*/
 
 void MainApp::UpdateDrawWorld3D(AlignModeX x, AlignModeY y)
 {
 	const int xIdx = (int)x;
 	const int yIdx = (int)y;
-	if (mDrawWorld3DArr[yIdx][xIdx].second)
+
+	XMFLOAT3 resultPos{};
+	const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
+	switch (x)
 	{
-		XMFLOAT3 resultPos{};
-		const float localWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
-		switch (x)
-		{
-		case AlignModeX::Left:
-			resultPos.x = -localWidth * 0.5f;
-			break;
-		case AlignModeX::Right:
-			resultPos.x = localWidth * 0.5f;
-			break;
-		}
-		switch (y)
-		{
-		case AlignModeY::Top:
-			resultPos.y = (float)StandardHeight * 0.5f;
-			break;
-		case AlignModeY::Bottom:
-			resultPos.y = -(float)StandardHeight * 0.5f;
-			break;
-		}
-		XMStoreFloat4x4(&mDrawWorld3DArr[yIdx][xIdx].first, XMMatrixTranslation(resultPos.x, resultPos.y, resultPos.z));
-		mDrawWorld3DArr[yIdx][xIdx].second = false;
-		TRACE(_T("DrawWorld3D Updated\n"));
+	case AlignModeX::Left:
+		resultPos.x = -localWidth * 0.5f;
+		break;
+	case AlignModeX::Right:
+		resultPos.x = localWidth * 0.5f;
+		break;
 	}
+	switch (y)
+	{
+	case AlignModeY::Top:
+		resultPos.y = (float)StandardHeight * 0.5f;
+		break;
+	case AlignModeY::Bottom:
+		resultPos.y = -(float)StandardHeight * 0.5f;
+		break;
+	}
+	mDrawWorld3DArr[yIdx][xIdx].SetLocalPosition(resultPos);
 }
 
-const D2D1::Matrix3x2F& MainApp::GetDrawWorld2D(const AlignModeX x)
+World2D& MainApp::GetDrawWorld2D(const AlignModeX x)
 {
-	UpdateDrawWorld2D(x);
-	return mDrawWorld2DArr[(int)x].first;
+	return mDrawWorld2DArr[(int)x];
 }
 
-const XMFLOAT4X4& MainApp::GetDrawWorld3D(const AlignModeX x, const AlignModeY y)
+World3D& MainApp::GetDrawWorld3D(const AlignModeX x, const AlignModeY y)
 {
-	UpdateDrawWorld3D(x, y);
-	return mDrawWorld3DArr[(int)y][(int)x].first;
+	return mDrawWorld3DArr[(int)y][(int)x];
 }
 
 void MainApp::DrawScene()

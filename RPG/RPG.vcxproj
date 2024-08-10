@@ -198,8 +198,8 @@
     <ClCompile Include="System\GameScene.cpp" />
     <ClCompile Include="System\GameTimer.cpp" />
     <ClCompile Include="System\Keyboard.cpp" />
-    <ClCompile Include="System\World2D.cpp" />
-    <ClCompile Include="System\World3D.cpp" />
+    <ClCompile Include="System\World\World2D.cpp" />
+    <ClCompile Include="System\World\World3D.cpp" />
     <ClCompile Include="Utility\Math.cpp" />
     <ClCompile Include="Utility\RationalNumber.cpp" />
     <ClCompile Include="Utility\ShortCut.cpp" />
@@ -238,8 +238,8 @@
     <ClInclude Include="System\GameScene.h" />
     <ClInclude Include="System\GameTimer.h" />
     <ClInclude Include="System\Keyboard.h" />
-    <ClInclude Include="System\World2D.h" />
-    <ClInclude Include="System\World3D.h" />
+    <ClInclude Include="System\World\World2D.h" />
+    <ClInclude Include="System\World\World3D.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\RationalNumber.h" />
     <ClInclude Include="Utility\ShortCut.h" />

@@ -50,17 +50,16 @@ private:
 	XMFLOAT4 bgColor;
 
 	//DrawWorld, UpdateFlag
-	pair<D2D1::Matrix3x2F, bool> mDrawWorld2DArr[(int)AlignModeX::MAX];
-	pair<XMFLOAT4X4, bool> mDrawWorld3DArr[(int)AlignModeY::MAX][(int)AlignModeX::MAX];
-	void InitDrawWorld();
+	World2D mDrawWorld2DArr[(int)AlignModeX::MAX];
+	World3D mDrawWorld3DArr[(int)AlignModeY::MAX][(int)AlignModeX::MAX];
 
 	void UpdateDrawWorld2D(AlignModeX x);
 	void UpdateDrawWorld3D(AlignModeX x, AlignModeY y);
 	void NotifyDrawWorldResize();
 
 public:
-	const D2D1::Matrix3x2F& GetDrawWorld2D(const AlignModeX x = AlignModeX::Left);
-	const XMFLOAT4X4& GetDrawWorld3D(const AlignModeX x = AlignModeX::Mid, const AlignModeY y = AlignModeY::Mid);
+	World2D& GetDrawWorld2D(const AlignModeX x = AlignModeX::Left);
+	World3D& GetDrawWorld3D(const AlignModeX x = AlignModeX::Mid, const AlignModeY y = AlignModeY::Mid);
 
 private:
 };

@@ -13,5 +13,5 @@ Shape2D::~Shape2D()
 
 void Shape2D::Draw()
 {
-	D2D.GetRenderTarget()->SetTransform(world2d.GetGlobalWorld() * App->GetDrawWorld2D(world2d.GetAlignX()));
+	D2D.GetRenderTarget()->SetTransform(world2d.GetGlobalWorld());
 }

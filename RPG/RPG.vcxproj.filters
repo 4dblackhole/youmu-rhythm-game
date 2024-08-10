@@ -43,6 +43,9 @@
     <Filter Include="MusicalObject">
       <UniqueIdentifier>{30da6823-4b91-46e8-87bf-d8dd71854a2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\World">
+      <UniqueIdentifier>{93cea854-a446-4147-89ea-80c14003ae50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -126,9 +129,6 @@
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
-    <ClCompile Include="System\World2D.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Object\MusicScroll.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -150,8 +150,11 @@
     <ClCompile Include="GameScene\PlayScene.cpp">
       <Filter>GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="System\World3D.cpp">
-      <Filter>System</Filter>
+    <ClCompile Include="System\World\World2D.cpp">
+      <Filter>System\World</Filter>
+    </ClCompile>
+    <ClCompile Include="System\World\World3D.cpp">
+      <Filter>System\World</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,9 +245,6 @@
     <ClInclude Include="System\AlignMode.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="System\World2D.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Object\MusicScroll.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -266,8 +266,11 @@
     <ClInclude Include="GameScene\PlayScene.h">
       <Filter>GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="System\World3D.h">
-      <Filter>System</Filter>
+    <ClInclude Include="System\World\World2D.h">
+      <Filter>System\World</Filter>
+    </ClInclude>
+    <ClInclude Include="System\World\World3D.h">
+      <Filter>System\World</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

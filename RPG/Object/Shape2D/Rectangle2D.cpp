@@ -4,7 +4,7 @@
 using namespace D2D1;
 
 Rectangle2D::Rectangle2D()
-	: Rectangle2D({ -0.5f,-0.5f,0.5f,0.5f })
+	: Rectangle2D(DefaultRect)
 {
 }
 

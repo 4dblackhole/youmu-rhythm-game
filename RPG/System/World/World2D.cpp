@@ -45,13 +45,18 @@ const D2D1::Matrix3x2F& World2D::GetLocalWorld()
 	return mLocalWorld;
 }
 
-void World2D::SetParentWorld(const D2D1::Matrix3x2F* p)
+void World2D::SetParentWorld(World2D* p)
 {
 	parentWorld = p;
 	mGlobalWorldUpdateFlag = true;
 }
 
-void World2D::ParentWorldUpdate()
+void World2D::SetParentDrawWorld()
+{
+	SetParentWorld(&App->GetDrawWorld2D(GetAlignX()));
+}
+
+void World2D::OnParentWorldUpdate()
 {
 	mGlobalWorldUpdateFlag = true;
 }
@@ -75,7 +80,7 @@ void World2D::UpdateGlobalWorld()
 		mGlobalWorld =
 			(parentWorld == nullptr) ?
 			mLocalWorld :
-			mLocalWorld * (*parentWorld);
+			mLocalWorld * (parentWorld->GetGlobalWorld());
 		mGlobalWorldUpdateFlag = false;
 	}
 }

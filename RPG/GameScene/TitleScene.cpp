@@ -20,7 +20,6 @@ constexpr XMFLOAT4 DefaultTooltipBgColor{ 0.04f,0.04f,0.04f,1.0f };
 
 TitleScene::TitleScene() :
 	titleLogoImg(0.0f, 135.0f, 360.0f, 360.0f),
-	background(0, 0, (float)StandardWidth, (float)StandardHeight, { 0, 0, 0, 1 }, true),
 	tooltipBG(0, (ToolTipSize -(float)(StandardHeight))*0.5f, (float)StandardWidth, ToolTipSize, DefaultTooltipBgColor, true)
 {
 	vector<thread>initThreads;
@@ -46,16 +45,17 @@ void TitleScene::BeginScene()
 	keySelectTriangle->GetWorld2d().SetAlignX(AlignModeX::Mid);
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
+	keySelectTriangle->GetWorld2d().SetParentDrawWorld();
 	ChangeTrianglePos();
 	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
 void TitleScene::OnResize(float newW, float newH)
 {
-	background.ChangeWidthToCurrentWidth(newW, newH);
 	tooltipBG.ChangeWidthToCurrentWidth(newW, newH);
 
-	int asdf = 3;
+	keySelectTriangle->GetWorld2d().OnParentWorldUpdate();
+	for (auto& it : layoutList) it.GetWorld2d().OnParentWorldUpdate();
 }
 
 void TitleScene::Update(float dt)
@@ -105,7 +105,6 @@ void TitleScene::Update(float dt)
 
 void TitleScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	background.Render(deviceContext, cam);
 	tooltipBG.Render(deviceContext, cam);
 	titleLogoImg.Render(deviceContext, cam);
 
@@ -165,5 +164,7 @@ void TitleScene::InitLayout()
 	tempDesc.GetWorld2d().SetAlignX(AlignModeX::Left);
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::Tooltip].SetLayout(L"Press Enter to Select", currentFormat);
+
+	for (auto& it : layoutList)it.GetWorld2d().SetParentDrawWorld();
 
 }
