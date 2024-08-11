@@ -268,19 +268,20 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	// when grabs the resize bars
+		
 	case WM_ENTERSIZEMOVE:
-		mAppPaused = true;
-		mResizing = true;
-		mTimer.Stop();
+		//mAppPaused = true;
+		//mResizing = true;
+		//mTimer.Stop();
 		return 0;
 
 	case WM_EXITSIZEMOVE:
-		mAppPaused = false;
-		mResizing = false;
-		mTimer.Start();
+		//mAppPaused = false;
+		//mResizing = false;
+		//mTimer.Start();
 		OnResize();
 		return 0;
-
+		
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -291,9 +292,12 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return MAKELRESULT(0, MNC_CLOSE);
 
 	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
-		return 0;
+	{
+		MINMAXINFO*& info = (MINMAXINFO*&)lParam;
+		info->ptMinTrackSize.x = 400;
+		info->ptMinTrackSize.y = 300;
+	}
+	return 0;
 
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
@@ -328,8 +332,8 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		//WINDOWPOS* wp = (WINDOWPOS*)lParam;
 		//if (wp->cx < 600)wp->cx = 600;
 		GetMonitorFrequency();
-	}	return 0;
-
+	}
+	return 0;
 	default: break;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);

@@ -117,7 +117,8 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
-		CXMMATRIX world = XMLoadFloat4x4(&GetWorld3d().GetObjectWorld()) * XMLoadFloat4x4(&GetWorld3d().GetGlobalWorld());
+		//CXMMATRIX world = XMLoadFloat4x4(&GetWorld3d().GetObjectWorld()) * XMLoadFloat4x4(&GetWorld3d().GetGlobalWorld());
+		CXMMATRIX world = XMLoadFloat4x4(&GetWorld3d().GetTotalDrawWorld());
 		CXMMATRIX uvWorld = XMLoadFloat4x4(&GetWorld3d().GetUvWorld());
 		CXMMATRIX WVP = world * cam.View() * cam.Proj();
 
@@ -135,6 +136,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 void Sprite::OnResize()
 {
+	GetWorld3d().OnParentWorldUpdate();
 }
 
 void Sprite::ChangeWidthToCurrentWidth(float w, float h)

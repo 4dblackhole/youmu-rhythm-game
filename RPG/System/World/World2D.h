@@ -10,8 +10,6 @@ public:
 	World2D(D2D1_POINT_2F size, FLOAT rot, D2D1_POINT_2F position);
 	~World2D();
 	
-	void OnParentWorldUpdate();
-
 	void SetScale(const D2D1_POINT_2F);
 	void SetScale(const FLOAT);
 	void SetRotation(const FLOAT);
@@ -27,6 +25,7 @@ public:
 	inline World2D* GetParentWorld() const { return parentWorld; }
 	void SetParentWorld(World2D* p);
 	void SetParentDrawWorld();
+	void OnParentWorldUpdate();
 
 	const AlignModeX& GetAlignX() const { return alignX; }
 	void SetAlignX(AlignModeX);

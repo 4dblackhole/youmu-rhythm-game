@@ -9,10 +9,10 @@ constexpr int LayoutDistanceY = 100;
 constexpr int TriangleOffsetX = -8;
 constexpr int TriangleOffsetY = 11;
 
-PlayScene::PlayScene() : youmu(300, 100, 259, 224), transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,0.5f }, true)
+PlayScene::PlayScene(const Music* m, const Pattern* p) : 
+	music(m), pattern(p), 
+	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,0.5f }, true)
 {
-	youmu.SetTexture(GETTEXTURE(TextureManager::Name::myon));
-	youmu.ColorMode = true;
 	InitPauseOptionLayoutList();
 }
 
@@ -167,32 +167,6 @@ void PlayScene::RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& 
 
 void PlayScene::Update(float dt)
 {
-	
-	static bool directionRight = false;
-	float resultX = youmu.GetWorld3d().GetLocalPosition().x;
-	constexpr float speed = 2000.0f;
-	if (directionRight) resultX += dt * speed;
-	else				resultX -= dt * speed;
-
-	const float orthoWidth = ShortCut::GetOrthoWidth((float)App->GetWidth(), (float)App->GetHeight());
-
-	if (resultX <= -orthoWidth*0.5f)
-	{
-		directionRight = true;
-		resultX = -orthoWidth - resultX;
-	}
-	if (resultX >= orthoWidth * 0.5f)
-	{
-		directionRight = false;
-		resultX = orthoWidth - resultX;
-	}
-
-	if (directionRight)
-		youmu.GetWorld3d().SetLocalPosition({ resultX, youmu.GetWorld3d().GetLocalPosition().y, 0 });
-	else
-		youmu.GetWorld3d().SetLocalPosition({ resultX, youmu.GetWorld3d().GetLocalPosition().y, 0 });
-
-		
 	switch (sceneStatus)
 	{
 	case Status::Ready:
@@ -215,8 +189,6 @@ void PlayScene::Update(float dt)
 
 void PlayScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	youmu.Render(deviceContext, cam);
-
 	switch (sceneStatus)
 	{
 	case PlayScene::Status::Ready:

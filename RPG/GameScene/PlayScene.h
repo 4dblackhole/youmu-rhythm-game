@@ -3,10 +3,13 @@
 #include "Object/Sprite.h"
 #include "framework.h"
 
+#include "MusicalObject/Music.h"
+#include "MusicalObject/Pattern.h"
+
 class PlayScene : public GameScene
 {
 public:
-	PlayScene();
+	PlayScene(const Music* m, const Pattern* p);
 	virtual ~PlayScene();
 
 	virtual void BeginScene() final;
@@ -66,9 +69,10 @@ private:
 
 	Triangle2D pauseOptSelectTriangle{};
 
+private:
 	GameTimer resumeTimer;
-
 	Sprite transparentBlackBG;
-	Sprite youmu;
 
+	const Music* music; //weak ptr
+	const Pattern* pattern; //weak ptr
 };

@@ -135,9 +135,6 @@
     <ClCompile Include="MusicalObject\Music.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
-    <ClCompile Include="Object\ClipRect.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Object\Shape2D\Shape2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
@@ -250,9 +247,6 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\Music.h">
       <Filter>MusicalObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Object\ClipRect.h">
-      <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="Singleton\FmodSystem.h">
       <Filter>Singleton</Filter>

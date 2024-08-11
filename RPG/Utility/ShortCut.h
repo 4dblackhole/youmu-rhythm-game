@@ -32,7 +32,7 @@ public:
 	static bool WordSeparateW(const wstring& source, const wstring& separator, wstring* first, wstring* second);
 
 	static D2D1::Matrix3x2F XmFloat4x4To3x2(const XMFLOAT4X4 m);
-	static D2D1::Matrix3x2F World3Dto2D(const XMFLOAT4X4 m, float width, float height);
+	static D2D1::Matrix3x2F WVP3Dto2D(const XMFLOAT4X4 m, float width, float height);
 
 };
 

@@ -1,14 +1,16 @@
 #include "framework.h"
 #include "MusicScroll.h"
 
-constexpr int MusicScrollX = -10;
-constexpr int MusicScrollY = -10;
+constexpr int MusicScrollCenterX = -235;
+constexpr int MusicScrollCenterY = -345;
 constexpr int MusicScrollWidth = 450;
 constexpr int MusicScrollHeight = 670;
+constexpr int MusicScrollRightX = (MusicScrollCenterX + MusicScrollWidth / 2);
+constexpr int MusicScrollTopY = (MusicScrollCenterY + MusicScrollHeight / 2);
 
 constexpr int NoMusicTextSize = 40;
-constexpr int NoMusicTextX = MusicScrollX - MusicScrollWidth;
-constexpr int NoMusicTextY = -MusicScrollY + 60; // Y axis of 3D and 2D is reverse
+constexpr int NoMusicTextX = MusicScrollRightX - MusicScrollWidth;
+constexpr int NoMusicTextY = -MusicScrollTopY + 60; // Y axis of 3D and 2D is reverse
 
 //distance from scroll image
 constexpr int clipAreaOffset = 30;
@@ -32,26 +34,14 @@ constexpr int TextAreaHeight = clipAreaHeight;
 
 constexpr int PTextWidth = PBoxWidth;
 
-MusicScroll::MusicScroll() : MusicScroll(MusicScrollX, MusicScrollY, MusicScrollWidth, MusicScrollHeight)
+MusicScroll::MusicScroll() : MusicScroll(MusicScrollCenterX, MusicScrollCenterY, MusicScrollWidth, MusicScrollHeight)
 {
 }
 
 MusicScroll::MusicScroll(float x, float y, float w, float h) :
-	scrollImg(x, y, w, h),
-	clipArea(x + w * 0.5f, y - clipAreaOffset + h * 0.5f,
-		w, h - clipAreaOffset * 2),
-	textArea(x - (BoxEdgeX + TextEdgeX) + w * 0.5f, y - clipAreaOffset + h * 0.5f,
-		w - (TextEdgeX + BoxEdgeX) * 2, h - clipAreaOffset * 2)
+	scrollImg(x, y, w, h)
 {
 	InitMusicScroll();
-
-	//area to draw boxes
-	clipArea.alignX = scrollImg.GetWorld3d().GetAlignX();
-	clipArea.alignY = scrollImg.GetWorld3d().GetAlignY();
-
-	//area to draw texts
-	textArea.alignX = clipArea.alignX;
-	textArea.alignY = clipArea.alignY;
 
 }
 
@@ -114,8 +104,6 @@ void MusicScroll::UpdateScrollMatrix()
 void MusicScroll::OnResize(float newW, float newH)
 {
 	scrollImg.OnResize();
-	clipArea.Resize();
-	textArea.Resize();
 
 	noMusicText->GetWorld2d().OnParentWorldUpdate();
 	scrollMatrix.OnParentWorldUpdate();
@@ -418,30 +406,34 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	scrollImg.Render(deviceContext, cam);
-	/*
-	XMFLOAT4X4 clipWorld{};
-	XMStoreFloat4x4(&clipWorld,XMLoadFloat4x4(&scrollImg.GetWorld3d().GetObjectWorld())
-		* XMLoadFloat4x4(&scrollImg.GetWorld3d().GetGlobalWorld())
-		* XMLoadFloat4x4(&App->GetDrawWorld3D(scrollImg.GetWorld3d().GetAlignX(), scrollImg.GetWorld3d().GetAlignY())));
-	auto clipworld3x2 = ShortCut::XmFloat4x4To3x2(clipWorld);
-	D2D.GetRenderTarget()->SetTransform(clipworld3x2);
-	D2D.GetRenderTarget()->PushAxisAlignedClip(Rectangle2D::DefaultRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);*/
 
-	D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
-	//D2D.GetRenderTarget()->PushAxisAlignedClip(clipArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	XMFLOAT4X4 drawAreaWorld{};
+	XMStoreFloat4x4(&drawAreaWorld,
+		XMLoadFloat4x4(&scrollImg.GetWorld3d().GetGlobalWorld()) * cam.ViewProj());
+	D2D1::Matrix3x2F drawAreaWorld3x2f = ShortCut::WVP3Dto2D(drawAreaWorld, (float)App->GetWidth(), (float)App->GetHeight());
+
+	const float scrollW = scrollImg.GetWorld3d().GetObjectScale().x;
+	const float scrollH = scrollImg.GetWorld3d().GetObjectScale().y;
+	const float clipAreaWidth = scrollW;
+	const float clipAreaHeight = scrollH - clipAreaOffset * 2;
+	const float textAreaWidth = scrollW - (TextEdgeX + BoxEdgeX) * 2;
+	const float textAreaHeight = scrollH - clipAreaOffset * 2;
+
+	D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Scale({ clipAreaWidth, clipAreaHeight }) * drawAreaWorld3x2f);
+	D2D.GetRenderTarget()->PushAxisAlignedClip(Rectangle2D::DefaultRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	if (musicList.empty()) noMusicText->Draw();
 	else
 	{
 		for (auto& it : musicBoxList) it->Draw();
 		for (auto*& it : patternBoxList) it->Draw();
 
-		D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
-		//D2D.GetRenderTarget()->PushAxisAlignedClip(textArea.Get(), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+		D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Scale({ textAreaWidth, textAreaHeight }) * drawAreaWorld3x2f);
+		D2D.GetRenderTarget()->PushAxisAlignedClip(Rectangle2D::DefaultRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 		for (auto*& it : musicTextList) it->Draw();
 		for (auto*& it : patternTextList) it->Draw();
-		//D2D.GetRenderTarget()->PopAxisAlignedClip();
+		D2D.GetRenderTarget()->PopAxisAlignedClip();
 	}
-	//D2D.GetRenderTarget()->PopAxisAlignedClip();
+	D2D.GetRenderTarget()->PopAxisAlignedClip();
 
 }
 

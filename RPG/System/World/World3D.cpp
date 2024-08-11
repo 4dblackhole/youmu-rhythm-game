@@ -7,6 +7,7 @@ World3D::World3D(XMFLOAT2 size, XMFLOAT3 rot, XMFLOAT3 position) :
 	mObjectWorld = XmFloatT4X4Identity;
 	mLocalWorld = XmFloatT4X4Identity;
 	mGlobalWorld = XmFloatT4X4Identity;
+	mTotalDrawWorld = XmFloatT4X4Identity;
 	mUvWorld = XmFloatT4X4Identity;
 }
 
@@ -104,6 +105,12 @@ const XMFLOAT4X4& World3D::GetGlobalWorld()
 	return mGlobalWorld;
 }
 
+const XMFLOAT4X4& World3D::GetTotalDrawWorld()
+{
+	UpdateTotalDrawWorld();
+	return mTotalDrawWorld;
+}
+
 const XMFLOAT4X4& World3D::GetUvWorld()
 {
 	UpdateUvWorld();
@@ -119,6 +126,11 @@ void World3D::SetParentWorld(World3D* p)
 void World3D::SetParentDrawWorld()
 {
 	SetParentWorld(&App->GetDrawWorld3D(GetAlignX(), GetAlignY()));
+}
+
+void World3D::OnParentWorldUpdate()
+{
+	mGlobalWorldUpdateFlag = true;
 }
 
 void World3D::SetAlignX(AlignModeX x)
@@ -139,6 +151,7 @@ void World3D::UpdateObjectWorld()
 		XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&ObjectRotation));
 		XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&ObjectPosition));
 		XMStoreFloat4x4(&mObjectWorld, S * R * T);
+		mTotalDrawWorldUpdateFlag = true;
 
 		mObjectWorldUpdateFlag = false;
 	}
@@ -166,7 +179,20 @@ void World3D::UpdateGlobalWorld()
 	{
 		if (mParentWorld == nullptr) mGlobalWorld = mLocalWorld;
 		else XMStoreFloat4x4(&mGlobalWorld, XMLoadFloat4x4(&mLocalWorld) * XMLoadFloat4x4(&mParentWorld->GetGlobalWorld()));
+		mTotalDrawWorldUpdateFlag = true;
+
 		mGlobalWorldUpdateFlag = false;
+	}
+}
+
+void World3D::UpdateTotalDrawWorld()
+{
+	UpdateObjectWorld();
+	UpdateGlobalWorld();
+	if (mTotalDrawWorldUpdateFlag)
+	{
+		XMStoreFloat4x4(&mTotalDrawWorld, XMLoadFloat4x4(&mObjectWorld) * XMLoadFloat4x4(&mGlobalWorld));
+		mTotalDrawWorldUpdateFlag = false;
 	}
 }
 
@@ -181,3 +207,4 @@ void World3D::UpdateUvWorld()
 		mUvWorldUpdateFlag = false;
 	}
 }
+

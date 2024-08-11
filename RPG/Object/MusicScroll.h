@@ -3,7 +3,6 @@
 #include "Object/Sprite.h"
 #include "Object/Shape2D/Rectangle2D.h"
 #include "Object/Shape2D/DwLayout2D.h"
-#include "Object/ClipRect.h"
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
 
@@ -38,8 +37,6 @@ private:
 	void LoadPattern();
 
 	Sprite scrollImg;
-	ClipRect clipArea; //area to draw boxes
-	ClipRect textArea; //area to draw texts
 	
 	unique_ptr<DwLayout2D> noMusicText;
 

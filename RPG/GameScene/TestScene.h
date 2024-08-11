@@ -22,8 +22,12 @@ public:
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {}
 
 private:
+
 	Sprite sq;
 	Sprite sq2;
+	Sprite whiteSquare;
+
+	void WhiteSquareLeftRightMove(float dt);
 
 };
 

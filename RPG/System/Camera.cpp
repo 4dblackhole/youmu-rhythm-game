@@ -6,6 +6,7 @@ Camera::Camera(int width, int height)
 {
 	UpdateView();
 	UpdateProj((float)width, (float)height);
+	UpdateViewProj();
 }
 
 Camera::~Camera()
@@ -26,4 +27,10 @@ void Camera::UpdateProj(float w, float h, float zn, float zf)
 {
 	XMMATRIX P = DirectX::XMMatrixOrthographicLH(w, h, zn, zf);
 	XMStoreFloat4x4(&mProj, P);
+	UpdateViewProj();
+}
+
+void Camera::UpdateViewProj()
+{
+	XMStoreFloat4x4(&mViewProj, XMLoadFloat4x4(&mView) * XMLoadFloat4x4(&mProj));
 }

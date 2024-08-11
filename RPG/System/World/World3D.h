@@ -39,11 +39,13 @@ public:
 	const XMFLOAT4X4& GetObjectWorld();
 	const XMFLOAT4X4& GetLocalWorld();
 	const XMFLOAT4X4& GetGlobalWorld();
+	const XMFLOAT4X4& GetTotalDrawWorld();
 	const XMFLOAT4X4& GetUvWorld();
 
 	inline World3D* GetParentWorld() const { return mParentWorld; }
 	void SetParentWorld(World3D* p);
 	void SetParentDrawWorld();
+	void OnParentWorldUpdate();
 
 private:
 	//variables to describe the shape
@@ -60,6 +62,7 @@ private:
 
 	//total world
 	XMFLOAT4X4 mGlobalWorld;
+	XMFLOAT4X4 mTotalDrawWorld;
 
 	XMFLOAT2 UvScale{ 1.0f,1.0f };
 	XMFLOAT3 UvRotation{};
@@ -69,11 +72,13 @@ private:
 	void UpdateObjectWorld();
 	void UpdateLocalWorld();
 	void UpdateGlobalWorld();
+	void UpdateTotalDrawWorld();
 	void UpdateUvWorld();
 
 	bool mObjectWorldUpdateFlag = true;
 	bool mLocalWorldUpdateFlag = true;
 	bool mGlobalWorldUpdateFlag = true;
+	bool mTotalDrawWorldUpdateFlag = true;
 	bool mUvWorldUpdateFlag = true;
 
 	World3D* mParentWorld = nullptr;

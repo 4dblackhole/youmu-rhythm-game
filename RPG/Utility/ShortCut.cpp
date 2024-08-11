@@ -120,7 +120,12 @@ D2D1::Matrix3x2F ShortCut::XmFloat4x4To3x2(const XMFLOAT4X4 m)
 	return D2D1::Matrix3x2F(m._11, m._12, m._21, m._22, m._41, m._42);
 }
 
-D2D1::Matrix3x2F ShortCut::World3Dto2D(const XMFLOAT4X4 m, float width, float height)
+D2D1::Matrix3x2F ShortCut::WVP3Dto2D(const XMFLOAT4X4 m, float width, float height)
 {
-	return D2D1::Matrix3x2F(m._11, -m._12, -m._21, m._22, m._41, -m._42);
+	const float halfW = width * 0.5f;
+	const float halfH = height * 0.5f;
+	return D2D1::Matrix3x2F(
+		m._11 * halfW, -m._12 * halfH,
+		m._21 * halfW, -m._22 * halfH,
+		(m._41 + 1.0f) * halfW, (1.0f - m._42) * halfH);
 }
