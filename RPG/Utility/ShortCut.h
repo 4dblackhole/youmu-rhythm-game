@@ -20,6 +20,8 @@ public:
 	static std::wstring UTF8ToWstring(const std::string& buf);
 	static std::string WstringToUTF8(const std::wstring& buf);
 
+	static std::wstring ReadUTF8File(const std::wstring& fileName);
+
 	static void TraceTimingPoint();
 
 	static float GetOrthoWidth(float w, float h);
@@ -29,7 +31,7 @@ public:
 	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
 
 	static bool WordSeparateA(const string& source, const string& separator, string* first, string* second);
-	static bool WordSeparateW(const wstring& source, const wstring& separator, wstring* first, wstring* second);
+	static bool WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second);
 
 	static D2D1::Matrix3x2F XmFloat4x4To3x2(const XMFLOAT4X4 m);
 	static D2D1::Matrix3x2F WVP3Dto2D(const XMFLOAT4X4 m, float width, float height);
@@ -49,6 +51,8 @@ T ReInterpret(V val)
 {
 	return *((T*)&val);
 }
+
+#define AlertBox(x) (MessageBox(NULL,(x),NULL,NULL))
 
 #if defined(DEBUG) | defined(_DEBUG)
 #ifndef HR

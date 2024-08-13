@@ -1,7 +1,6 @@
 #include "framework.h"
 #include "d3dApp.h"
 
-#define AlertBox(x) (MessageBox(NULL,(x),NULL,NULL))
 static constexpr UINT SWAPCHAIN_BUFFERCOUNT = 2;
 
 namespace
@@ -68,7 +67,7 @@ HWND D3DApp::MainWnd() const
 
 float D3DApp::AspectRatio() const
 {
-	return (float)((double)mClientWidth / (double)mClientHeight);
+	return (float)mClientWidth / (float)mClientHeight;
 }
 
 //main thread

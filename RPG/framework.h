@@ -114,3 +114,12 @@ constexpr XMFLOAT4X4 XmFloatT4X4Identity
 	0,0,1,0,
 	0,0,0,1
 };
+
+
+#if defined(DEBUG) | defined(_DEBUG)
+
+#define DEBUG_BREAKPOINT int asdf__ASDfdsf11 = 3
+
+#else
+#define DEBUG_BREAKPOINT
+#endif

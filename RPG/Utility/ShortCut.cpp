@@ -23,6 +23,21 @@ string ShortCut::WstringToUTF8(const wstring& buf)
     return strUtf8;
 }
 
+std::wstring ShortCut::ReadUTF8File(const std::wstring& fileName)
+{
+	std::ifstream fin(fileName, std::ios::binary);
+
+	fin.seekg(0, std::ios_base::end);
+	int size = (int)fin.tellg();
+	fin.seekg(0, std::ios_base::beg);
+	string utf8Str;
+	utf8Str.resize(size);
+	fin.read(&utf8Str[0], size);
+	fin.close();
+	return UTF8ToWstring(utf8Str);
+
+}
+
 void ShortCut::TraceTimingPoint()
 {
     INT64 t;
@@ -99,7 +114,7 @@ bool ShortCut::WordSeparateA(const string& source, const string& separator, stri
 	}
 	return true;
 }
-bool ShortCut::WordSeparateW(const wstring& source, const wstring& separator, wstring* first, wstring* second)
+bool ShortCut::WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second)
 {
 	size_t columnPos = source.find(separator); // key {separator} filename
 	if (columnPos == wstring::npos) return false; //not valid desc

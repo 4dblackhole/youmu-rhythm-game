@@ -11,29 +11,33 @@ public:
 	MusicScore() {};
 	~MusicScore() {};
 
-private:
 	vector<Measure*> measures;
 	vector<MusicBPM*> bpms;
+	vector<Note*> notes;
+
+	double baseBpm = 120.0;
+	double offset = 0.0;
 };
 
 class Measure
 {
+public:
 	Measure() {};
 	~Measure() {};
-public:
 
-private:
 	RationalNumber<64> length;
-	vector<Note*> notes;
 };
 
 class MusicalObject
 {
 public:
-	MusicalObject() {};
+	MusicalObject() {}
 	virtual ~MusicalObject() = 0;
 
+	size_t GetMeasureIdx() const { return measureIdx; }
+
 protected:
+	size_t measureIdx = 0;
 	RationalNumber<64> position;
 
 };
@@ -41,8 +45,8 @@ protected:
 class Note : public MusicalObject
 {
 public:
-	Note() {};
-	virtual ~Note() {};
+	Note() {}
+	virtual ~Note() {}
 
 private:
 	UINT keyType = 0;
@@ -55,8 +59,19 @@ class MusicBPM : public MusicalObject
 {
 public:
 	MusicBPM(double b = 120.0) :bpm(b) {}
-	~MusicBPM() {};
+	virtual ~MusicBPM() {}
 
 protected:
 	double bpm;
+};
+
+class MusicalEffect : public MusicalObject
+{
+public:
+	MusicalEffect() {}
+	virtual ~MusicalEffect() {}
+
+protected:
+	string type;
+	string val;
 };

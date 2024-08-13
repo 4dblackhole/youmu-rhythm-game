@@ -5,6 +5,7 @@
 
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
+#include "MusicalObject/Note.h"
 
 class PlayScene : public GameScene
 {
@@ -29,6 +30,7 @@ private:
 
 	enum class Status
 	{
+		Load,
 		Ready,
 		Start,
 		Resume,
@@ -36,20 +38,24 @@ private:
 		End
 	};
 
-	Status sceneStatus = Status::Ready;
+	Status sceneStatus = Status::Load;
 	
+	void ChangeStatus(Status);
+	void ChangeStatusLoad();
 	void ChangeStatusReady();
 	void ChangeStatusStart();
 	void ChangeStatusResume();
 	void ChangeStatusPause();
 	void ChangeStatusEnd();
 
+	void UpdateOnLoad(float dt);
 	void UpdateOnReady(float dt);
 	void UpdateOnStart(float dt);
 	void UpdateOnResume(float dt);
 	void UpdateOnPause(float dt);
 	void UpdateOnEnd(float dt);
 
+	void RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
 	enum class PauseOption
@@ -70,9 +76,17 @@ private:
 	Triangle2D pauseOptSelectTriangle{};
 
 private:
-	GameTimer resumeTimer;
+	GameTimer timer;
 	Sprite transparentBlackBG;
 
 	const Music* music; //weak ptr
 	const Pattern* pattern; //weak ptr
+
+	DwLayout2D loadingText;
+	DwLayout2D loadingCompleteText;
+	void InitLoadingText();
+
+	bool musicScoreLoadFlag = false;
+	MusicScore* musicScore = nullptr; //note container
+	void LoadMusicScore();
 };

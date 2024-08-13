@@ -13,7 +13,7 @@ void Keyboard::Update()
 
 	for (DWORD i = 0; i < MAX_INPUT_KEY; i++)
 	{
-		byte key = keyState[i] & 0x80;
+		::byte key = keyState[i] & 0x80;
 		keyState[i] = key ? 1 : 0;
 
 		int oldState = keyOldState[i];

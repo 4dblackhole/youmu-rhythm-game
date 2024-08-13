@@ -180,13 +180,12 @@ int MusicScroll::GetAdjustedCurrentPatternIdx() const
 
 void MusicScroll::Update(float dt)
 {
-	
 	if (KEYBOARD.Down(VK_LEFT))
 	{
 		if (currentSelectMusic > 0)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectMusic(currentSelectMusic - 1);
+			ChangeSelectMusic((size_t)currentSelectMusic - 1);
 		}
 	}
 	if (KEYBOARD.Down(VK_RIGHT))
@@ -194,7 +193,7 @@ void MusicScroll::Update(float dt)
 		if (currentSelectMusic < musicList.size() - 1)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectMusic(currentSelectMusic + 1);
+			ChangeSelectMusic((size_t)currentSelectMusic + 1);
 		}
 	}
 
@@ -205,7 +204,7 @@ void MusicScroll::Update(float dt)
 		if (currentSelectPattern > 0)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectPattern(currentSelectPattern - 1);
+			ChangeSelectPattern((size_t)currentSelectPattern - 1);
 		}
 	}
 
@@ -216,7 +215,7 @@ void MusicScroll::Update(float dt)
 		if (currentSelectPattern < (int)musicList[currentSelectMusic]->patternList.size() - 1)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectPattern(currentSelectPattern + 1);
+			ChangeSelectPattern((size_t)currentSelectPattern + 1);
 		}
 	}
 
@@ -418,7 +417,22 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	const float clipAreaHeight = scrollH - clipAreaOffset * 2;
 	const float textAreaWidth = scrollW - (TextEdgeX + BoxEdgeX) * 2;
 	const float textAreaHeight = scrollH - clipAreaOffset * 2;
+	/*
+	ID2D1Layer* pLayer = nullptr;
+	D2D.GetRenderTarget()->CreateLayer(nullptr, &pLayer);
 
+	D2D1_LAYER_PARAMETERS layerParams = D2D1::LayerParameters(
+		Rectangle2D::DefaultRect,   // 클리핑 영역
+		nullptr,                // 기하 마스크
+		D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
+		D2D1::IdentityMatrix(), //D2D1::Matrix3x2F::Scale({ clipAreaWidth, clipAreaHeight }) * drawAreaWorld3x2f, // 변환 매트릭스
+		1.0f,                   // 불투명도
+		nullptr,                // 불투명도 마스크
+		D2D1_LAYER_OPTIONS_NONE
+	);
+	
+	D2D.GetRenderTarget()->PushLayer(layerParams, pLayer);
+	*/
 	D2D.GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Scale({ clipAreaWidth, clipAreaHeight }) * drawAreaWorld3x2f);
 	D2D.GetRenderTarget()->PushAxisAlignedClip(Rectangle2D::DefaultRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	if (musicList.empty()) noMusicText->Draw();
@@ -434,6 +448,9 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		D2D.GetRenderTarget()->PopAxisAlignedClip();
 	}
 	D2D.GetRenderTarget()->PopAxisAlignedClip();
+	//D2D.GetRenderTarget()->PopLayer();
+
+	//ReleaseCOM(pLayer);
 
 }
 
@@ -518,7 +535,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 		size_t makerCount;
 		wss << val << endl;
 		wss >> makerCount;
-
+		
 		resultPattern->MakerNameList.reserve(makerCount);
 		for (size_t idx = 0; idx < makerCount; ++idx)
 		{
@@ -692,15 +709,7 @@ void MusicScroll::LoadPattern()
 
 	for (const wstring& it : ympList)
 	{
-		std::ifstream fin(it, std::ios::binary);
-
-		fin.seekg(0, std::ios_base::end);
-		int size = (int)fin.tellg();
-		fin.seekg(0, std::ios_base::beg);
-		string utf8Str;
-		utf8Str.resize(size);
-		fin.read(&utf8Str[0], size);
-		wstring uniFile = ShortCut::UTF8ToWstring(utf8Str); //ymm file road complete
+		wstring uniFile = ShortCut::ReadUTF8File(it); //ymm file road complete
 
 		Pattern* pattern = ParseYmpFile(it, uniFile);
 		if (pattern != nullptr)
@@ -716,8 +725,6 @@ void MusicScroll::LoadPattern()
 			size_t musicIdx = musicIdxIter->second;
 			musicList[musicIdx]->patternList.emplace_back(pattern); //add pattern to the corresponding music
 		}
-
-		fin.close();
 	}
 }
 

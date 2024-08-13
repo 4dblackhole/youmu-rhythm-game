@@ -1,4 +1,5 @@
 #pragma once
+#include "framework.h"
 #include "Singleton/SingletonBase.h"
 
 #define MAX_INPUT_KEY 256
@@ -18,9 +19,9 @@ public:
 
 private:
 
-	byte keyState[MAX_INPUT_KEY];
-	byte keyOldState[MAX_INPUT_KEY];
-	byte keyMap[MAX_INPUT_KEY];
+	::byte keyState[MAX_INPUT_KEY];
+	::byte keyOldState[MAX_INPUT_KEY];
+	::byte keyMap[MAX_INPUT_KEY];
 
 	enum
 	{

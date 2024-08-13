@@ -88,5 +88,5 @@ void World2D::UpdateGlobalWorld()
 void World2D::SetAlignX(AlignModeX x)
 {
 	alignX = x;
-	//mDrawWorldUpdateFlag = true;
+	SetParentDrawWorld();
 }
