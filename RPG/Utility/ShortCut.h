@@ -30,8 +30,10 @@ public:
 
 	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
 
-	static bool WordSeparateA(const string& source, const string& separator, string* first, string* second);
+	static bool WordSeparateA(const string_view& source, const string& separator, string* first, string* second);
 	static bool WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second);
+
+	static void WordSeparateW(const wstring_view& source, const wstring& separator, vector<pair<size_t, size_t>>& idxList);
 
 	static D2D1::Matrix3x2F XmFloat4x4To3x2(const XMFLOAT4X4 m);
 	static D2D1::Matrix3x2F WVP3Dto2D(const XMFLOAT4X4 m, float width, float height);

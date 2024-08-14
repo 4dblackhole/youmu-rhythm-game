@@ -89,4 +89,11 @@ private:
 	bool musicScoreLoadFlag = false;
 	MusicScore* musicScore = nullptr; //note container
 	void LoadMusicScore();
+
+	void LoadTimeSignature(const wstring_view& content);
+	void LoadPattern(const wstring_view& content);
+
+	void ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx);
+	void ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength);
+	void ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos);
 };

@@ -73,6 +73,153 @@ static constexpr LPCWSTR BaseBpmIdc = L"Base BPM";
 static constexpr LPCWSTR bpmIdc = L"bpm";
 static constexpr LPCWSTR CommonTimeIdc = L"C";
 
+static constexpr size_t EndlineIdcLength = 2;
+
+const wstring MeasureEffect = wstring(EffectTypeIdc) + measureIdc;
+const wstring BpmEffect = wstring(EffectTypeIdc) + bpmIdc;
+
+void PlayScene::ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx)
+{
+	musicScore->measures.emplace_back(measureLength);
+	++measureIdx;
+}
+
+void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength)
+{
+	size_t signatureIdx = MeasureEffect.length() - 1;
+	while (lineStr[++signatureIdx] == L' ');
+	wstring val = (wstring)lineStr.substr(signatureIdx);
+
+	if (val.find(CommonTimeIdc) != wstring::npos) //#measure C
+	{
+		measureLength = RationalNumber<64>(1, 1);
+	}
+	else
+	{
+		wstring measureNominator, measureDenominator;
+		bool validCheck = ShortCut::WordSeparateW(val, L"/", &measureNominator, &measureDenominator);
+		if (validCheck)
+		{
+			wstringstream wss;
+			wss << measureNominator << " " << measureDenominator;
+			RationalNumber<64>::SignedType nm = 1;
+			RationalNumber<64>::UnsignedType dnm = 1;
+			wss >> nm >> dnm;
+			measureLength = RationalNumber<64>(nm, dnm);
+		}
+	}
+}
+
+void PlayScene::ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos)
+{
+	wstringstream wss;
+	wss << str << endl;
+	double bpm;
+	wss >> bpm;
+
+	//compare with previous bpm
+	double tobeCompareBpm = 120.0;
+	if (musicScore->bpms.empty()) tobeCompareBpm = musicScore->baseBpm;
+	else tobeCompareBpm = musicScore->bpms.back().BPM();
+
+	if (bpm != tobeCompareBpm) musicScore->bpms.emplace_back(MusicBPM({ measureIdx,pos }, bpm));
+}
+
+void PlayScene::LoadTimeSignature(const wstring_view& content)
+{
+	size_t measureIdx = 0;
+	RationalNumber<64> measureLength(1, 1);
+
+	size_t startIdx = 0;
+	size_t endIdx = content.find(EndlineIdc, startIdx);
+
+	wstringstream wss;
+	RationalNumber<64>::SignedType nm = 1;
+	RationalNumber<64>::UnsignedType dnm = 1;
+
+	bool validCheck = true;
+
+	auto ReadNextLine = [&]() -> bool
+		{
+			if (endIdx == wstring::npos) return true; //last line
+			startIdx = endIdx + EndlineIdcLength;
+			endIdx = content.find(EndlineIdc, startIdx);
+			return false;
+		};
+
+	while(true)
+	{
+		wss.str(L"");
+		wss.clear();
+
+		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
+
+		// in case bar line
+		if (lineStr.compare(BarlineIdc) == 0) //--
+		{
+			ParseBarLine(lineStr, measureLength, measureIdx);
+
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
+		// Measure
+		if (lineStr.find(MeasureEffect) != wstring_view::npos) //#measure n/d
+		{
+			ParseMeasure(lineStr, measureLength);
+
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
+		// Effect
+		wstring signatureStr;
+		wstring typeStr;
+		validCheck = ShortCut::WordSeparateW(lineStr, L",", &signatureStr, &typeStr);
+		if (!validCheck)
+		{
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
+		//get signature
+		wstring signatureNominator;
+		wstring signatureDenominator;
+		validCheck = ShortCut::WordSeparateW(signatureStr, L"/", &signatureNominator, &signatureDenominator);
+		if (!validCheck)
+		{
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
+		wss << signatureNominator << L" " << signatureDenominator << endl;
+		wss >> nm >> dnm;
+		RationalNumber<64> signature(nm, dnm);
+
+		//get type
+		wstring effectType;
+		wstring effectValue;
+		validCheck = ShortCut::WordSeparateW(typeStr, L" ", &effectType, &effectValue);
+
+		if (effectType.find(BpmEffect) != wstring::npos) //#bpm xxx
+		{
+			ParseBPM(effectValue, measureIdx, signature);
+			DEBUG_BREAKPOINT;
+		}
+
+		if (ReadNextLine()) break; //in case last line
+		else continue;
+	}
+
+	musicScore->measures.emplace_back(measureLength);
+}
+
+void PlayScene::LoadPattern(const wstring_view& content)
+{
+	size_t measureIdx = 0;
+
+}
+
 void PlayScene::LoadMusicScore()
 {
 	musicScore = new MusicScore;
@@ -111,8 +258,11 @@ void PlayScene::LoadMusicScore()
 			wss >> musicScore->baseBpm;
 		}
 
-		timeSignatureIdx += 1;
 		endIdx = uniFile.find(EndlineIdc, timeSignatureIdx);
+		const wstring_view timeSignatureView(uniFile.c_str() + endIdx + EndlineIdcLength, patternIdx - (endIdx + EndlineIdcLength));
+		LoadTimeSignature(timeSignatureView);
+
+		const wstring_view patternView(uniFile.c_str() + patternIdx);
 
 
 		/*
@@ -130,6 +280,7 @@ void PlayScene::LoadMusicScore()
 		musicScore = nullptr;
 	}
 }
+
 
 PlayScene::~PlayScene()
 {
@@ -180,7 +331,6 @@ void PlayScene::ChangeStatusLoad()
 	timer.Reset();
 	thread loadMusicScoreThread(thread(&PlayScene::LoadMusicScore, this));
 	loadMusicScoreThread.detach();
-	TRACE(_T("Loading...\n"));
 }
 
 void PlayScene::ChangeStatusReady()

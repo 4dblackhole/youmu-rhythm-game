@@ -34,6 +34,8 @@ using namespace DirectX;
 #include <set>
 #include <sstream>
 #include <stdlib.h>
+#include <string>
+#include <string_view>
 #include <vector>
 #include <tchar.h>
 #include <thread>

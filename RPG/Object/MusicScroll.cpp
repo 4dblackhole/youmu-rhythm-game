@@ -486,7 +486,7 @@ const wstring patternNameIdc = L"Pattern Name";
 const wstring endLineIdc = L"\r\n";
 const wstring tagIdc = L"Tags";
 
-static bool ColumnSeparate(const wstring& source, wstring* first, wstring* second)
+static bool ColumnSeparate(const wstring_view& source, wstring* first, wstring* second)
 {
 	size_t columnPos = source.find(L':'); // key: filename
 	if (columnPos == wstring::npos) return false; //not valid desc
@@ -497,7 +497,7 @@ static bool ColumnSeparate(const wstring& source, wstring* first, wstring* secon
 	{
 		size_t secondStartPos = columnPos;
 		while (source[++secondStartPos] == L' ');
-		*second = source.substr(secondStartPos);
+		*second = wstring(source.substr(secondStartPos));
 	}
 	return true;
 }
@@ -520,7 +520,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 		//get ymm file name reference
 		size_t startPos = file.find(musicMetadataIdc, metadataPos);
 		size_t endPos = file.find(endLineIdc, startPos);
-		wstring lineStr = file.substr(startPos, endPos - startPos);
+		wstring_view lineStr(file.c_str() + startPos, endPos - startPos);
 		wstring ymmRefName;
 		ShortCut::WordSeparateW(lineStr, L":", nullptr, &ymmRefName);
 		resultPattern->ymmRefFileName = SongDir + ymmRefName;
@@ -528,7 +528,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 		//patern maker informations
 		startPos = file.find(patternMakerIdc, endPos);
 		endPos = file.find(endLineIdc, startPos);
-		lineStr = file.substr(startPos, endPos - startPos);
+		lineStr = wstring_view(file.c_str() + startPos, endPos - startPos);
 		wstring val;
 		ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
 		wstringstream wss;
@@ -542,7 +542,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 			startPos = file.find(patternMakerIdc, endPos);
 			if (startPos == wstring::npos) break;
 			endPos = file.find(endLineIdc, startPos);
-			lineStr = file.substr(startPos, endPos - startPos);
+			lineStr = wstring_view(file.c_str() + startPos, endPos - startPos);
 			wstring tempMakerName;
 			ShortCut::WordSeparateW(lineStr, L":", nullptr, &tempMakerName);
 			resultPattern->MakerNameList.emplace_back(tempMakerName);
@@ -553,7 +553,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 		if (startPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, startPos);
 
-		lineStr = file.substr(startPos, endPos - startPos);
+		lineStr = wstring_view(file.c_str() + startPos, endPos - startPos);
 		ColumnSeparate(lineStr, nullptr, &resultPattern->DifficultyName);
 
 		//pos of "Tags"
@@ -561,7 +561,7 @@ static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)
 		if (startPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, startPos);
 
-		lineStr = file.substr(startPos, endPos - startPos);
+		lineStr = wstring_view(file.c_str() + startPos, endPos - startPos);
 		wstring tagList;
 		ColumnSeparate(lineStr, nullptr, &tagList); //get whitespace separated wstring
 
@@ -599,7 +599,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		if (filePos == wstring::npos) throw 0;
 		size_t endPos = file.find(endLineIdc);
 
-		wstring lineStr = file.substr(filePos, endPos - filePos);
+		wstring_view lineStr = wstring_view(file.c_str()+filePos, endPos - filePos);
 		ColumnSeparate(lineStr, nullptr, &resultMusic->FileName);
 
 		const wstring musicDir = fileDir + L'/' + resultMusic->FileName;
@@ -620,7 +620,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		if (musicNamePos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, musicNamePos);
 
-		lineStr = file.substr(musicNamePos, endPos - musicNamePos);
+		lineStr = wstring_view(file.c_str()+musicNamePos, endPos - musicNamePos);
 		wstring count;
 		ColumnSeparate(lineStr, nullptr, &count);
 
@@ -636,7 +636,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 			musicNamePos = file.find(musicNameIdc, endPos);
 			if (musicNamePos == wstring::npos) break;
 			endPos = file.find(endLineIdc, musicNamePos);
-			lineStr = file.substr(musicNamePos, endPos - musicNamePos);
+			lineStr = wstring_view(file.c_str()+musicNamePos, endPos - musicNamePos);
 			wstring tempMusicName;
 			ColumnSeparate(lineStr, nullptr, &tempMusicName);
 			resultMusic->MusicNameList.emplace_back(tempMusicName);
@@ -647,7 +647,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		if (artistPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, artistPos);
 
-		lineStr = file.substr(artistPos, endPos - artistPos);
+		lineStr = wstring_view(file.c_str()+artistPos, endPos - artistPos);
 		ColumnSeparate(lineStr, nullptr, &count);
 		//get counts
 		size_t artistCount;
@@ -660,7 +660,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 			artistPos = file.find(artistIdc, endPos);
 			if (artistPos == wstring::npos) break;
 			endPos = file.find(endLineIdc, artistPos);
-			lineStr = file.substr(artistPos, endPos - artistPos);
+			lineStr = wstring_view(file.c_str()+artistPos, endPos - artistPos);
 			wstring tempArtistName;
 			ColumnSeparate(lineStr, nullptr, &tempArtistName);
 			resultMusic->ArtistList.emplace_back(tempArtistName);
@@ -671,22 +671,31 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		if (tagPos == wstring::npos) throw 0;
 		endPos = file.find(endLineIdc, tagPos);
 
-		lineStr = file.substr(tagPos, endPos - tagPos);
+		lineStr = wstring_view(file.c_str() + tagPos);
 		wstring tagList;
 		ColumnSeparate(lineStr, nullptr, &tagList); //get whitespace separated wstring
 
+		//get tag elements
 		size_t tagStartPos = 0;
 		while (true)
 		{
 			size_t whitespacePos = tagList.find(L' ', tagStartPos);
-			wstring tag = tagList.substr(tagStartPos, whitespacePos - tagStartPos);
-			if (tag.length() > 0)resultMusic->TagList.emplace(tag);
-			tagStartPos = whitespacePos;
-			if (tagStartPos != wstring::npos) while (tagList[++tagStartPos] == L' ');
-			else break;
+			if (whitespacePos != wstring::npos)
+			{
+				wstring_view tag(tagList.c_str() + tagStartPos, whitespacePos - tagStartPos);
+				if (tag.length() > 0) resultMusic->TagList.emplace(tag);
+				tagStartPos = whitespacePos;
+				while (tagList[++tagStartPos] == L' ');
+			}
+			else //last element
+			{
+				wstring_view tag(tagList.c_str() + tagStartPos);
+				if (tag.length() > 0) resultMusic->TagList.emplace(tag);
+				break;
+			}
 		}
-
 	}
+
 	catch (int v) //ymm file contents error
 	{
 		if (v == 0)

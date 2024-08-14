@@ -7,14 +7,14 @@ Pattern Name: ソフラン(^^)
 Tags: test
 
 Pattern Offset: 1045
-Preview Time: 1,0/1
+Preview Time: 1045
 Base BPM: 140
 
 [Time Signature]
 0/1,#bpm 140
 #measure 1/4
 --
-0/8,#measure 15/8
+#measure 15/8
 1/8,#bpm 180
 2/8,#bpm 175
 3/8,#bpm 200
@@ -34,6 +34,7 @@ Base BPM: 140
 --
 #measure 1/2
 --
+#measure C
 0/1,#bpm 145
 
 [Pattern]

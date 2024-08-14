@@ -11,8 +11,9 @@ public:
 	MusicScore() {};
 	~MusicScore() {};
 
-	vector<Measure*> measures;
-	vector<MusicBPM*> bpms;
+	vector<Measure> measures;
+
+	vector<MusicBPM> bpms;
 	vector<Note*> notes;
 
 	double baseBpm = 120.0;
@@ -23,6 +24,8 @@ class Measure
 {
 public:
 	Measure() {};
+	Measure(const RationalNumber<64>& q) :length(q) {}
+	Measure(RationalNumber<64>&& q) noexcept :length(q) {}
 	~Measure() {};
 
 	RationalNumber<64> length;
@@ -32,7 +35,8 @@ class MusicalObject
 {
 public:
 	MusicalObject() {}
-	virtual ~MusicalObject() = 0;
+	MusicalObject(size_t idx, RationalNumber<64> pos) : measureIdx(idx), position(pos) {}
+	virtual ~MusicalObject() {};
 
 	size_t GetMeasureIdx() const { return measureIdx; }
 
@@ -58,9 +62,10 @@ private:
 class MusicBPM : public MusicalObject
 {
 public:
-	MusicBPM(double b = 120.0) :bpm(b) {}
+	MusicBPM(MusicalObject obj = {}, double b = 120.0) :MusicalObject(obj), bpm(b) {}
 	virtual ~MusicBPM() {}
 
+	double BPM() const { return bpm; }
 protected:
 	double bpm;
 };

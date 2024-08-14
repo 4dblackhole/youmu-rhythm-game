@@ -26,7 +26,6 @@ string ShortCut::WstringToUTF8(const wstring& buf)
 std::wstring ShortCut::ReadUTF8File(const std::wstring& fileName)
 {
 	std::ifstream fin(fileName, std::ios::binary);
-
 	fin.seekg(0, std::ios_base::end);
 	int size = (int)fin.tellg();
 	fin.seekg(0, std::ios_base::beg);
@@ -99,16 +98,16 @@ void ShortCut::GetFileList(vector<wstring>& vList, const wstring& sPath, const w
 	FindClose(hFind);
 }
 
-bool ShortCut::WordSeparateA(const string& source, const string& separator, string* first, string* second)
+bool ShortCut::WordSeparateA(const string_view& source, const string& separator, string* first, string* second)
 {
-	size_t columnPos = source.find(separator); // key {separator} filename
-	if (columnPos == string::npos) return false; //not valid desc
+	size_t separatorPos = source.find(separator); // key {separator} filename
+	if (separatorPos == string::npos) return false; //not valid desc
 
-	if (first != nullptr)*first = source.substr(0, columnPos);
+	if (first != nullptr)*first = source.substr(0, separatorPos);
 
 	if (second != nullptr)
 	{
-		size_t secondStartPos = columnPos + separator.length() - 1;
+		size_t secondStartPos = separatorPos + separator.length() - 1;
 		while (source[++secondStartPos] == ' ');
 		*second = source.substr(secondStartPos);
 	}
@@ -116,18 +115,32 @@ bool ShortCut::WordSeparateA(const string& source, const string& separator, stri
 }
 bool ShortCut::WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second)
 {
-	size_t columnPos = source.find(separator); // key {separator} filename
-	if (columnPos == wstring::npos) return false; //not valid desc
+	size_t separatorPos = source.find(separator); // key {separator} filename
+	if (separatorPos == wstring::npos) return false; //not valid desc
 
-	if (first != nullptr)*first = source.substr(0, columnPos);
+	if (first != nullptr)*first = source.substr(0, separatorPos);
 
 	if (second != nullptr)
 	{
-		size_t secondStartPos = columnPos + separator.length() - 1;
+		size_t secondStartPos = separatorPos + separator.length() - 1;
 		while (source[++secondStartPos] == L' ');
 		*second = source.substr(secondStartPos);
 	}
 	return true;
+}
+
+void ShortCut::WordSeparateW(const wstring_view& source, const wstring& separator, vector<pair<size_t, size_t>>& idxList)
+{
+	const size_t separatorLength = separator.length();
+	size_t startPos = 0;
+	while(true)
+	{
+		size_t separatorPos = source.find(separator, startPos); // key {separator} filename
+		idxList.emplace_back(make_pair(startPos, separatorPos));
+		if (separatorPos == wstring::npos) break;
+		startPos = separatorPos + separatorLength - 1;
+		while (source[++startPos] == L' ');
+	}
 }
 
 D2D1::Matrix3x2F ShortCut::XmFloat4x4To3x2(const XMFLOAT4X4 m)
