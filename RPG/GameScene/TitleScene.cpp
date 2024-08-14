@@ -63,26 +63,30 @@ void TitleScene::Update(float dt)
 	if (KEYBOARD.Down(VK_ESCAPE)) SCENEMANAGER.ChangeScene(SceneManager::Name::Intro);
 	if (KEYBOARD.Down(VK_UP))
 	{
+		FMODSYSTEM.Play(FmodSystem::Name::button01a);
 		if (selectKey != SelectKey::GameStart)
 		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			int newKey = (int)selectKey - 1;
-			selectKey = (SelectKey)newKey;
+			selectKey = (SelectKey)((int)selectKey - 1);
 			ChangeTrianglePos();
-			//keySelectTriangle->GetWorld2d().UpdateWorld();
-			//keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
+		}
+		else
+		{
+			selectKey = (SelectKey)((int)SelectKey::MAX - 1);
+			ChangeTrianglePos();
 		}
 	}
 	if (KEYBOARD.Down(VK_DOWN))
 	{
+		FMODSYSTEM.Play(FmodSystem::Name::button01a);
 		if (selectKey != (SelectKey)((int)SelectKey::MAX - 1))
 		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			int newKey = (int)selectKey + 1;
-			selectKey = (SelectKey)newKey;
+			selectKey = (SelectKey)((int)selectKey + 1);
 			ChangeTrianglePos();
-			//keySelectTriangle->GetWorld2d().UpdateWorld();
-			//keySelectTriangle->GetWorld2d().UpdateGlobalWorld();
+		}
+		else
+		{
+			selectKey = (SelectKey)0;
+			ChangeTrianglePos();
 		}
 	}
 	if (KEYBOARD.Down(VK_RETURN))

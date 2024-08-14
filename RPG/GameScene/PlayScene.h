@@ -95,5 +95,6 @@ private:
 
 	void ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx);
 	void ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength);
+	bool ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr);
 	void ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos);
 };

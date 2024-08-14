@@ -114,6 +114,22 @@ public:
 		else                        return { ((SignedType)this->denominator), UnsignedType(this->numerator) };
 	}
 
+	bool operator<(const RationalNumber& r) const
+	{
+		if ((*this - r).numerator < 0) return true;
+		else return false;
+	}
+
+	bool operator>(const RationalNumber& r) const
+	{
+		return r < *this;
+	}
+
+	bool operator==(const RationalNumber& r) const
+	{
+		return (*this - r).numerator == 0;
+	}
+
 	operator float() { return (float)numerator / (float)denominator; }
 	operator double() { return (double)numerator / (double)denominator; }
 

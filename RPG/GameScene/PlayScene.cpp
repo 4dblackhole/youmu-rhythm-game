@@ -90,7 +90,7 @@ void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& me
 	while (lineStr[++signatureIdx] == L' ');
 	wstring val = (wstring)lineStr.substr(signatureIdx);
 
-	if (val.find(CommonTimeIdc) != wstring::npos) //#measure C
+	if (val.compare(CommonTimeIdc) == 0) //#measure C
 	{
 		measureLength = RationalNumber<64>(1, 1);
 	}
@@ -110,6 +110,31 @@ void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& me
 	}
 }
 
+bool PlayScene::ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr)
+{
+	bool validCheck = true;
+	wstring signatureStr;
+	wstring typeStr;
+	validCheck = ShortCut::WordSeparateW(lineStr, L",", &signatureStr, &typeStr);
+	if (!validCheck) return false;
+	resultEffectStr = typeStr;
+
+	//get signature
+	wstring signatureNominator;
+	wstring signatureDenominator;
+	validCheck = ShortCut::WordSeparateW(signatureStr, L"/", &signatureNominator, &signatureDenominator);
+	if (!validCheck) return false;
+
+	wstringstream wss;
+	wss << signatureNominator << L" " << signatureDenominator << endl;
+	RationalNumber<64>::SignedType nm = 1;
+	RationalNumber<64>::UnsignedType dnm = 1;
+	wss >> nm >> dnm;
+	resultSignature = RationalNumber<64>(nm, dnm);
+
+	return true;
+}
+
 void PlayScene::ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos)
 {
 	wstringstream wss;
@@ -118,11 +143,12 @@ void PlayScene::ParseBPM(const wstring_view& str, const size_t measureIdx, const
 	wss >> bpm;
 
 	//compare with previous bpm
-	double tobeCompareBpm = 120.0;
-	if (musicScore->bpms.empty()) tobeCompareBpm = musicScore->baseBpm;
-	else tobeCompareBpm = musicScore->bpms.back().BPM();
+	//double tobeCompareBpm = 120.0;
+	//if (musicScore->bpms.empty()) tobeCompareBpm = musicScore->baseBpm;
+	//else tobeCompareBpm = std::prev(musicScore->bpms.cend())->BPM();
 
-	if (bpm != tobeCompareBpm) musicScore->bpms.emplace_back(MusicBPM({ measureIdx,pos }, bpm));
+	//if (bpm != tobeCompareBpm)
+	musicScore->bpms.emplace(MusicBPM({ measureIdx, pos }, bpm));
 }
 
 void PlayScene::LoadTimeSignature(const wstring_view& content)
@@ -132,10 +158,6 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	size_t startIdx = 0;
 	size_t endIdx = content.find(EndlineIdc, startIdx);
-
-	wstringstream wss;
-	RationalNumber<64>::SignedType nm = 1;
-	RationalNumber<64>::UnsignedType dnm = 1;
 
 	bool validCheck = true;
 
@@ -149,9 +171,6 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	while(true)
 	{
-		wss.str(L"");
-		wss.clear();
-
 		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
 
 		// in case bar line
@@ -164,7 +183,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		}
 
 		// Measure
-		if (lineStr.find(MeasureEffect) != wstring_view::npos) //#measure n/d
+		if (lineStr.find(MeasureEffect+L' ') != wstring_view::npos) //#measure n/d
 		{
 			ParseMeasure(lineStr, measureLength);
 
@@ -172,39 +191,24 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 			else continue;
 		}
 
-		// Effect
-		wstring signatureStr;
-		wstring typeStr;
-		validCheck = ShortCut::WordSeparateW(lineStr, L",", &signatureStr, &typeStr);
+		wstring effectStr;
+		RationalNumber<64> signature;
+
+		validCheck = ParseEffect(lineStr, signature, effectStr);
 		if (!validCheck)
 		{
 			if (ReadNextLine()) break;
 			else continue;
 		}
-
-		//get signature
-		wstring signatureNominator;
-		wstring signatureDenominator;
-		validCheck = ShortCut::WordSeparateW(signatureStr, L"/", &signatureNominator, &signatureDenominator);
-		if (!validCheck)
-		{
-			if (ReadNextLine()) break;
-			else continue;
-		}
-
-		wss << signatureNominator << L" " << signatureDenominator << endl;
-		wss >> nm >> dnm;
-		RationalNumber<64> signature(nm, dnm);
 
 		//get type
 		wstring effectType;
 		wstring effectValue;
-		validCheck = ShortCut::WordSeparateW(typeStr, L" ", &effectType, &effectValue);
+		validCheck = ShortCut::WordSeparateW(effectStr, L" ", &effectType, &effectValue);
 
-		if (effectType.find(BpmEffect) != wstring::npos) //#bpm xxx
+		if (effectType.compare(BpmEffect) == 0) //#bpm xxx
 		{
 			ParseBPM(effectValue, measureIdx, signature);
-			DEBUG_BREAKPOINT;
 		}
 
 		if (ReadNextLine()) break; //in case last line
@@ -218,6 +222,39 @@ void PlayScene::LoadPattern(const wstring_view& content)
 {
 	size_t measureIdx = 0;
 
+	size_t startIdx = 0;
+	size_t endIdx = content.find(EndlineIdc, startIdx);
+
+
+	bool validCheck = true;
+
+	auto ReadNextLine = [&]() -> bool
+		{
+			if (endIdx == wstring::npos) return true; //last line
+			startIdx = endIdx + EndlineIdcLength;
+			endIdx = content.find(EndlineIdc, startIdx);
+			return false;
+		};
+
+	while (true)
+	{
+		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
+
+		// in case bar line
+		if (lineStr.compare(BarlineIdc) == 0) //--
+		{
+			++measureIdx;
+
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
+		vector<pair<size_t, size_t>> idxArr;
+		ShortCut::WordSeparateW(lineStr, L",", idxArr);
+
+		if (ReadNextLine()) break; //in case last line
+		else continue;
+	}
 }
 
 void PlayScene::LoadMusicScore()
@@ -262,8 +299,9 @@ void PlayScene::LoadMusicScore()
 		const wstring_view timeSignatureView(uniFile.c_str() + endIdx + EndlineIdcLength, patternIdx - (endIdx + EndlineIdcLength));
 		LoadTimeSignature(timeSignatureView);
 
-		const wstring_view patternView(uniFile.c_str() + patternIdx);
-
+		endIdx = uniFile.find(EndlineIdc, patternIdx);
+		const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
+		LoadPattern(patternView);
 
 		/*
 		//pseudo loading

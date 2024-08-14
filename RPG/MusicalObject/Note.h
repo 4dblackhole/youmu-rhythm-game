@@ -10,11 +10,13 @@ class MusicScore
 public:
 	MusicScore() {};
 	~MusicScore() {};
-
+	 
+	//idx - length
 	vector<Measure> measures;
 
-	vector<MusicBPM> bpms;
-	vector<Note*> notes;
+	//time order
+	set<MusicBPM> bpms;
+	map<size_t, set<Note>> notes;
 
 	double baseBpm = 120.0;
 	double offset = 0.0;
@@ -40,6 +42,9 @@ public:
 
 	size_t GetMeasureIdx() const { return measureIdx; }
 
+	bool operator<(const MusicalObject&v) const;
+	bool operator==(const MusicalObject& v) const;
+
 protected:
 	size_t measureIdx = 0;
 	RationalNumber<64> position;
@@ -56,7 +61,7 @@ private:
 	UINT keyType = 0;
 	UINT actionType = 0;
 	FMOD::Channel* hitSound = nullptr;
-	string extraData;
+	wstring extraData;
 };
 
 class MusicBPM : public MusicalObject
@@ -66,6 +71,7 @@ public:
 	virtual ~MusicBPM() {}
 
 	double BPM() const { return bpm; }
+
 protected:
 	double bpm;
 };
