@@ -96,17 +96,8 @@ void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& me
 	}
 	else
 	{
-		wstring measureNominator, measureDenominator;
-		bool validCheck = ShortCut::WordSeparateW(val, L"/", &measureNominator, &measureDenominator);
-		if (validCheck)
-		{
-			wstringstream wss;
-			wss << measureNominator << " " << measureDenominator;
-			RationalNumber<64>::SignedType nm = 1;
-			RationalNumber<64>::UnsignedType dnm = 1;
-			wss >> nm >> dnm;
-			measureLength = RationalNumber<64>(nm, dnm);
-		}
+		measureLength = ShortCut::StrToRationalNumber<64>(val);
+		DEBUG_BREAKPOINT;
 	}
 }
 
@@ -120,17 +111,7 @@ bool PlayScene::ParseEffect(const wstring_view& lineStr, RationalNumber<64>& res
 	resultEffectStr = typeStr;
 
 	//get signature
-	wstring signatureNominator;
-	wstring signatureDenominator;
-	validCheck = ShortCut::WordSeparateW(signatureStr, L"/", &signatureNominator, &signatureDenominator);
-	if (!validCheck) return false;
-
-	wstringstream wss;
-	wss << signatureNominator << L" " << signatureDenominator << endl;
-	RationalNumber<64>::SignedType nm = 1;
-	RationalNumber<64>::UnsignedType dnm = 1;
-	wss >> nm >> dnm;
-	resultSignature = RationalNumber<64>(nm, dnm);
+	resultSignature = ShortCut::StrToRationalNumber<64>(signatureStr);
 
 	return true;
 }
@@ -252,6 +233,44 @@ void PlayScene::LoadPattern(const wstring_view& content)
 		vector<pair<size_t, size_t>> idxArr;
 		ShortCut::WordSeparateW(lineStr, L",", idxArr);
 
+		wstring_view noteElements[(int)Note::DataOrder::MAX];
+		for (int idx = 0; idx < idxArr.size(); ++idx)
+		{
+			if (idxArr[idx].second != wstring_view::npos)
+				noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first, idxArr[idx].second - idxArr[idx].first));
+			else
+				noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first));
+		}
+
+		wstringstream wss;
+		Note tempNote;
+		tempNote.measureIdx = measureIdx;
+
+		//DataOrder::Beat
+		tempNote.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Beat]);
+
+		//DataOrder::Key
+		wss << noteElements[(int)Note::DataOrder::Key];
+		wss >> tempNote.keyType;
+
+		//DataOrder:Action
+		wss << noteElements[(int)Note::DataOrder::Action];
+		wss >> tempNote.actionType;
+
+		//DataOrder::Hitsound
+		if (idxArr.size() > (int)Note::DataOrder::Hitsound)
+		{
+			tempNote.hitSound = noteElements[(int)Note::DataOrder::Hitsound];
+		}
+
+		wstring asdfdsaf;
+
+		if (idxArr.size() > (int)Note::DataOrder::ExtraData)
+		{
+			tempNote.extraData= noteElements[(int)Note::DataOrder::ExtraData];
+		}
+
+		musicScore->notes[tempNote.keyType].emplace(tempNote);
 		if (ReadNextLine()) break; //in case last line
 		else continue;
 	}

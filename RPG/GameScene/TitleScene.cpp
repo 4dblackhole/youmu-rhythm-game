@@ -46,7 +46,7 @@ void TitleScene::BeginScene()
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
 	keySelectTriangle->GetWorld2d().SetParentDrawWorld();
-	ChangeTrianglePos();
+	ChangeTrianglePos(selectKey);
 	FMODSYSTEM.System()->playSound(bgm, nullptr, false, &bgmChannel);
 }
 
@@ -66,13 +66,11 @@ void TitleScene::Update(float dt)
 		FMODSYSTEM.Play(FmodSystem::Name::button01a);
 		if (selectKey != SelectKey::GameStart)
 		{
-			selectKey = (SelectKey)((int)selectKey - 1);
-			ChangeTrianglePos();
+			ChangeTrianglePos((SelectKey)((int)selectKey - 1));
 		}
 		else
 		{
-			selectKey = (SelectKey)((int)SelectKey::MAX - 1);
-			ChangeTrianglePos();
+			ChangeTrianglePos((SelectKey)((int)SelectKey::MAX - 1));
 		}
 	}
 	if (KEYBOARD.Down(VK_DOWN))
@@ -80,13 +78,11 @@ void TitleScene::Update(float dt)
 		FMODSYSTEM.Play(FmodSystem::Name::button01a);
 		if (selectKey != (SelectKey)((int)SelectKey::MAX - 1))
 		{
-			selectKey = (SelectKey)((int)selectKey + 1);
-			ChangeTrianglePos();
+			ChangeTrianglePos((SelectKey)((int)selectKey + 1));
 		}
 		else
 		{
-			selectKey = (SelectKey)0;
-			ChangeTrianglePos();
+			ChangeTrianglePos((SelectKey)0);
 		}
 	}
 	if (KEYBOARD.Down(VK_RETURN))
@@ -123,9 +119,10 @@ void TitleScene::EndScene()
 	bgmChannel->stop();
 }
 
-void TitleScene::ChangeTrianglePos()
+void TitleScene::ChangeTrianglePos(SelectKey key)
 {
-	switch (selectKey)
+	selectKey = key;
+	switch (key)
 	{
 	case TitleScene::SelectKey::GameStart:
 		keySelectTriangle->GetWorld2d().SetPosition({ selectKeyPosX , gamestartPosY + selectKeyOffsetY });

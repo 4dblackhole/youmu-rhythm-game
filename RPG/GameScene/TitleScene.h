@@ -37,7 +37,7 @@ private:
 	};
 	SelectKey selectKey = SelectKey::GameStart;
 	Triangle2D* keySelectTriangle{};
-	void ChangeTrianglePos();
+	void ChangeTrianglePos(SelectKey key);
 
 
 	enum class LayoutKey

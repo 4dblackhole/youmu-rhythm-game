@@ -108,7 +108,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	XMMATRIX proj = cam.Proj();
 
 	D3DX11_TECHNIQUE_DESC techDesc;
-	ID3DX11EffectTechnique*& currentTech = ColorMode ? Effects::SpriteFX->mTechColor : Effects::SpriteFX->mTechTexture;
+	ID3DX11EffectTechnique*& currentTech = ColorMode ? EffectList::SpriteFX->mTechColor : EffectList::SpriteFX->mTechTexture;
 	currentTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -122,11 +122,11 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		CXMMATRIX uvWorld = XMLoadFloat4x4(&GetWorld3d().GetUvWorld());
 		CXMMATRIX WVP = world * cam.View() * cam.Proj();
 
-		Effects::SpriteFX->mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
-		Effects::SpriteFX->mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&WVP));
-		Effects::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
-		Effects::SpriteFX->mfxTexture->SetResource(textureSRV);
-		Effects::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
+		EffectList::SpriteFX->mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
+		EffectList::SpriteFX->mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&WVP));
+		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
+		EffectList::SpriteFX->mfxTexture->SetResource(textureSRV);
+		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 
 
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
@@ -185,7 +185,7 @@ void Sprite::BuildLayout(ID3D11Device* device)
 {
 	// Create the input layout
 	D3DX11_PASS_DESC passDesc;
-	Effects::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
+	EffectList::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
 	HR(device->CreateInputLayout(VertexColorTexture::InputLayoutDesc::desc, VertexColorTexture::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
 }

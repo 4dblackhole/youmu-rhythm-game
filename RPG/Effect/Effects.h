@@ -17,6 +17,7 @@ class Effect
 {
 public:
 	Effect(ID3D11Device* device, const std::tstring& filename);
+	Effect(ID3D11Device* device, const int resourceId);
 	virtual ~Effect();
 
 private:
@@ -33,11 +34,14 @@ class SpriteEffect : public Effect
 {
 public:
 	SpriteEffect(ID3D11Device* device, const std::tstring& filename);
+	SpriteEffect(ID3D11Device* device, const int resourceId);
 	~SpriteEffect();
 
 	void SetWorld(DirectX::CXMMATRIX M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetWorldViewProj(DirectX::CXMMATRIX M) const { mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexture(ID3D11ShaderResourceView* tex) const { mfxTexture->SetResource(tex); }
+
+	void InitFxVariables();
 
 	ID3DX11EffectTechnique* mTechTexture;
 	ID3DX11EffectTechnique* mTechColor;
@@ -51,7 +55,7 @@ public:
 #pragma endregion
 
 #pragma region Effects
-class Effects
+class EffectList
 {
 public:
 	static void Init(ID3D11Device* device);

@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "Utility/Math.h"
 
 template <UINT32 Bits>
 struct IntegerSelector;
@@ -39,9 +40,9 @@ public:
 	RationalNumber(const RationalNumber& r) : numerator(r.numerator), denominator(r.denominator) {}
 	RationalNumber(RationalNumber&& r) noexcept : numerator(r.numerator), denominator(r.denominator) {}
 
-	constexpr RationalNumber(INT64 n, UINT64 d) noexcept :
-		numerator(n / Math::GCD<UINT64>((UINT64)(n < 0 ? -n : n), d)),
-		denominator(d / Math::GCD<UINT64>((UINT64)(n < 0 ? -n : n), d))
+	constexpr RationalNumber(SignedType n, UnsignedType d) noexcept :
+		numerator(n / Math::GCD<UnsignedType>((UnsignedType)(n < 0 ? -n : n), d)),
+		denominator(d / Math::GCD<UnsignedType>((UnsignedType)(n < 0 ? -n : n), d))
 	{}
 
 	RationalNumber& operator=(const RationalNumber& r)

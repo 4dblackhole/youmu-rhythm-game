@@ -45,7 +45,6 @@ public:
 	bool operator<(const MusicalObject&v) const;
 	bool operator==(const MusicalObject& v) const;
 
-protected:
 	size_t measureIdx = 0;
 	RationalNumber<64> position;
 
@@ -57,10 +56,19 @@ public:
 	Note() {}
 	virtual ~Note() {}
 
-private:
+	enum class DataOrder
+	{
+		Beat,
+		Key,
+		Action,
+		Hitsound,
+		ExtraData,
+		MAX
+	};
+
 	UINT keyType = 0;
 	UINT actionType = 0;
-	FMOD::Channel* hitSound = nullptr;
+	wstring hitSound;
 	wstring extraData;
 };
 

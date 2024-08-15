@@ -7,7 +7,6 @@ Effect::Effect(ID3D11Device* device, const std::tstring& filename)
 	: mFX(nullptr)
 {
 	std::ifstream fin(filename, std::ios::binary);
-
 	fin.seekg(0, std::ios_base::end);
 	int size = (int)fin.tellg();
 	fin.seekg(0, std::ios_base::beg);
@@ -20,6 +19,18 @@ Effect::Effect(ID3D11Device* device, const std::tstring& filename)
 		0, device, &mFX));
 }
 
+Effect::Effect(ID3D11Device* device, const int resourceId)
+{
+	HRSRC hRes = FindResource(nullptr, MAKEINTRESOURCE(resourceId), RT_RCDATA);
+	assert(hRes != nullptr);
+
+	HGLOBAL hResData = LoadResource(nullptr, hRes);
+	assert(hResData != nullptr);
+
+	void* pShaderData = LockResource(hResData);
+	DWORD shaderSize = SizeofResource(nullptr, hRes);
+}
+
 Effect::~Effect()
 {
 }
@@ -29,6 +40,21 @@ Effect::~Effect()
 #pragma region SpriteEffect
 SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
 	: Effect(device, filename)
+{
+	InitFxVariables();
+}
+
+SpriteEffect::SpriteEffect(ID3D11Device* device, const int resourceId)
+	: Effect(device, resourceId)
+{
+	InitFxVariables();
+}
+
+SpriteEffect::~SpriteEffect()
+{
+}
+
+void SpriteEffect::InitFxVariables()
 {
 	mTechTexture = mFX->GetTechniqueByName("TechTexture");
 	mTechColor = mFX->GetTechniqueByName("TechColor");
@@ -40,22 +66,19 @@ SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
 	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();
 }
 
-SpriteEffect::~SpriteEffect()
-{
-}
-
 #pragma endregion
 
 #pragma region Effects
 
-std::unique_ptr<SpriteEffect> Effects::SpriteFX;
+std::unique_ptr<SpriteEffect> EffectList::SpriteFX;
 
-void Effects::Init(ID3D11Device* device)
+void EffectList::Init(ID3D11Device* device)
 {
 	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
+	//SpriteFX.reset(new SpriteEffect(device, IDR_SHADER_SPRITE));
 }
 
-void Effects::Release()
+void EffectList::Release()
 {
 }
 #pragma endregion

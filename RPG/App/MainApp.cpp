@@ -31,7 +31,7 @@ MainApp::MainApp(HINSTANCE hInstance)
 
 MainApp::~MainApp()
 {
-	Effects::Release();
+	EffectList::Release();
 	delete fpsLayout;
 }
 
@@ -48,7 +48,7 @@ bool MainApp::Init()
 	if (!__super::Init())return false;
 
 	RenderStates::Init(md3dDevice);
-	Effects::Init(md3dDevice);
+	EffectList::Init(md3dDevice);
 
 	InitGameScenes();
 	BuildBuffer();

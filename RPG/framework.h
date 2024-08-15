@@ -5,6 +5,8 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
+//#include "resource.h"
+
 //DirectX
 #include <D2D1_1.h>
 #include <dwrite.h>
