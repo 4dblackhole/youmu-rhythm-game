@@ -41,6 +41,7 @@ using namespace DirectX;
 #include <vector>
 #include <tchar.h>
 #include <thread>
+#include <queue>
 
 #include <iostream>
 #include <iomanip>

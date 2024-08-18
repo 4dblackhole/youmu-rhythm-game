@@ -6,12 +6,12 @@
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
 
-class MusicScroll
+class MusicListScroll
 {
 public:
-	MusicScroll();
-	MusicScroll(float x, float y, float w, float h);
-	~MusicScroll();
+	MusicListScroll();
+	MusicListScroll(float x, float y, float w, float h);
+	~MusicListScroll();
 
 	void OnBeginScene();
 	void OnEndScene();

@@ -129,9 +129,6 @@
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp">
       <Filter>Object\Shape2D</Filter>
     </ClCompile>
-    <ClCompile Include="Object\MusicScroll.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="MusicalObject\Music.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
@@ -152,6 +149,12 @@
     </ClCompile>
     <ClCompile Include="System\World\World3D.cpp">
       <Filter>System\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\MusicListScroll.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\Lane.cpp">
+      <Filter>MusicalObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,9 +245,6 @@
     <ClInclude Include="System\AlignMode.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Object\MusicScroll.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="MusicalObject\Music.h">
       <Filter>MusicalObject</Filter>
     </ClInclude>
@@ -265,6 +265,12 @@
     </ClInclude>
     <ClInclude Include="System\World\World3D.h">
       <Filter>System\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\MusicListScroll.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\Lane.h">
+      <Filter>MusicalObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

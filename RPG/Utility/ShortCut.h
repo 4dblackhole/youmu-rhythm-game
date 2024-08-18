@@ -42,6 +42,14 @@ public:
 	static D2D1::Matrix3x2F XmFloat4x4To3x2(const XMFLOAT4X4 m);
 	static D2D1::Matrix3x2F WVP3Dto2D(const XMFLOAT4X4 m, float width, float height);
 
+	template <typename T>
+	struct ptrHeapLess {
+
+		constexpr bool operator()(const T* _Left, const T* _Right) const
+		{
+			return (*_Left) > (*_Right);
+		}
+	};
 };
 
 template <typename T>

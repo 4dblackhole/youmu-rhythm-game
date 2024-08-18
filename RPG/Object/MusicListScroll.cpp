@@ -1,5 +1,5 @@
 #include "framework.h"
-#include "MusicScroll.h"
+#include "MusicListScroll.h"
 
 constexpr int MusicScrollCenterX = -235;
 constexpr int MusicScrollCenterY = -345;
@@ -34,18 +34,18 @@ constexpr int TextAreaHeight = clipAreaHeight;
 
 constexpr int PTextWidth = PBoxWidth;
 
-MusicScroll::MusicScroll() : MusicScroll(MusicScrollCenterX, MusicScrollCenterY, MusicScrollWidth, MusicScrollHeight)
+MusicListScroll::MusicListScroll() : MusicListScroll(MusicScrollCenterX, MusicScrollCenterY, MusicScrollWidth, MusicScrollHeight)
 {
 }
 
-MusicScroll::MusicScroll(float x, float y, float w, float h) :
+MusicListScroll::MusicListScroll(float x, float y, float w, float h) :
 	scrollImg(x, y, w, h)
 {
 	InitMusicScroll();
 
 }
 
-MusicScroll::~MusicScroll()
+MusicListScroll::~MusicListScroll()
 {
 	for (auto*& it : musicList)
 	{
@@ -61,7 +61,7 @@ MusicScroll::~MusicScroll()
 	ReleasePatternBox();
 }
 
-void MusicScroll::OnBeginScene()
+void MusicListScroll::OnBeginScene()
 {
 	if (!musicList.empty()) 
 	{
@@ -70,22 +70,22 @@ void MusicScroll::OnBeginScene()
 	}
 }
 
-void MusicScroll::OnEndScene()
+void MusicListScroll::OnEndScene()
 {
 	StopMusic(currentSelectMusic);
 }
 
-void MusicScroll::PlayMusic(size_t idx)
+void MusicListScroll::PlayMusic(size_t idx)
 {
 	if (!musicList.empty()) FmodSystem::GetInstance().System()->playSound(musicList[idx]->music, nullptr, false, &musicList[idx]->channel);
 }
 
-void MusicScroll::StopMusic(size_t idx)
+void MusicListScroll::StopMusic(size_t idx)
 {
 	if (!musicList.empty()) FmodSystem::GetInstance().System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
 }
 
-void MusicScroll::UpdateScrollMatrix()
+void MusicListScroll::UpdateScrollMatrix()
 {
 	const float scrollStartPosOffset = -scrollImg.GetWorld3d().GetObjectScale().y * 0.5f;
 	const float scrollYpos = scrollStartPosOffset + scrollPos * 20.0f;
@@ -101,7 +101,7 @@ void MusicScroll::UpdateScrollMatrix()
 	NotifyScrollMatrixUpdate();
 }
 
-void MusicScroll::OnResize(float newW, float newH)
+void MusicListScroll::OnResize(float newW, float newH)
 {
 	scrollImg.OnResize();
 
@@ -112,12 +112,12 @@ void MusicScroll::OnResize(float newW, float newH)
 
 }
 
-void MusicScroll::OnMouseDown(WPARAM btnState, int x, int y)
+void MusicListScroll::OnMouseDown(WPARAM btnState, int x, int y)
 {
 
 }
 
-void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
+void MusicListScroll::OnMouseWheel(WPARAM wState, int x, int y)
 {
 	int zDelta = GET_WHEEL_DELTA_WPARAM(wState);
 	if (zDelta < 0) //wheel down
@@ -131,7 +131,7 @@ void MusicScroll::OnMouseWheel(WPARAM wState, int x, int y)
 	UpdateScrollMatrix();
 }
 
-void MusicScroll::ChangeSelectMusic(size_t musicIdx)
+void MusicListScroll::ChangeSelectMusic(size_t musicIdx)
 {
 	previousSelectMusic = currentSelectMusic;
 	currentSelectMusic = (int)musicIdx;
@@ -159,7 +159,7 @@ void MusicScroll::ChangeSelectMusic(size_t musicIdx)
 	}
 }
 
-void MusicScroll::ChangeSelectPattern(size_t idx)
+void MusicListScroll::ChangeSelectPattern(size_t idx)
 {
 	previousSelectPattern = currentSelectPattern;
 	currentSelectPattern = (int)idx;
@@ -172,13 +172,13 @@ void MusicScroll::ChangeSelectPattern(size_t idx)
 	patternTextList[currentSelectPattern]->Color = MyColorF::CherryPink;
 }
 
-int MusicScroll::GetAdjustedCurrentPatternIdx() const
+int MusicListScroll::GetAdjustedCurrentPatternIdx() const
 {
 	if (musicList[currentSelectMusic]->patternList.empty()) return 0;
 	return min(currentSelectPattern, ((int)musicList[currentSelectMusic]->patternList.size() - 1));
 }
 
-void MusicScroll::Update(float dt)
+void MusicListScroll::Update(float dt)
 {
 	if (KEYBOARD.Down(VK_LEFT))
 	{
@@ -221,14 +221,14 @@ void MusicScroll::Update(float dt)
 
 }
 
-void MusicScroll::UpdatePatternHeightMatrix(size_t musicIdx)
+void MusicListScroll::UpdatePatternHeightMatrix(size_t musicIdx)
 {
 	Music*& currentMusic = musicList[musicIdx];
 	const float patternHeight = float(musicList[currentSelectMusic]->patternList.size() * (size_t)(PBoxHeight + PBoxEdgeY));
 	patternHeightMatrix.SetPosition({ 0, patternHeight });
 }
 
-void MusicScroll::ChangeTargetScrollMatrix()
+void MusicListScroll::ChangeTargetScrollMatrix()
 {
 	size_t startPos = previousSelectMusic;
 	size_t endPos = currentSelectMusic;
@@ -257,7 +257,7 @@ void MusicScroll::ChangeTargetScrollMatrix()
 	NotifyScrollMatrixUpdate();
 }
 
-void MusicScroll::NotifyScrollMatrixUpdate()
+void MusicListScroll::NotifyScrollMatrixUpdate()
 {
 	// music boxes' root world is scrollMatrix
 	// and all of boxes and texts are referencing the music boxes' world
@@ -268,7 +268,7 @@ void MusicScroll::NotifyScrollMatrixUpdate()
 	for (auto& it : patternTextList) it->GetWorld2d().OnParentWorldUpdate();
 }
 
-void MusicScroll::InitBoxListParentWorld()
+void MusicListScroll::InitBoxListParentWorld()
 {
 	for (size_t boxIdx = 0; boxIdx < musicList.size(); ++boxIdx)
 	{
@@ -281,7 +281,7 @@ void MusicScroll::InitBoxListParentWorld()
 	}
 }
 
-void MusicScroll::CreateMusicBox()
+void MusicListScroll::CreateMusicBox()
 {
 	musicBoxList.clear();
 	for (size_t i = 0; i < musicList.size(); ++i)
@@ -350,7 +350,7 @@ void MusicScroll::CreateMusicBox()
 	}
 }
 
-void MusicScroll::ReleasePatternBox()
+void MusicListScroll::ReleasePatternBox()
 {
 	for (auto& it : patternBoxList) delete it;
 	for (auto& it : patternTextList) delete it;
@@ -359,7 +359,7 @@ void MusicScroll::ReleasePatternBox()
 	patternTextList.clear();
 }
 
-void MusicScroll::ChangePatternBox(size_t musicIdx)
+void MusicListScroll::ChangePatternBox(size_t musicIdx)
 {
 	ReleasePatternBox();
 
@@ -402,7 +402,7 @@ void MusicScroll::ChangePatternBox(size_t musicIdx)
 	}
 }
 
-void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
+void MusicListScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	scrollImg.Render(deviceContext, cam);
 
@@ -454,13 +454,13 @@ void MusicScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 }
 
-const Music* MusicScroll::GetCurrentMusic() const
+const Music* MusicListScroll::GetCurrentMusic() const
 {
 	if (musicList.empty()) return nullptr;
 	else return musicList[currentSelectMusic];
 }
 
-const Pattern* MusicScroll::GetCurrentPattern() const
+const Pattern* MusicListScroll::GetCurrentPattern() const
 {
 	if (GetCurrentMusic() == nullptr) return nullptr;
 
@@ -709,7 +709,7 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 
 }
 
-void MusicScroll::LoadPattern()
+void MusicListScroll::LoadPattern()
 {
 	vector<wstring> ympList;
 	ympList.reserve(128);
@@ -737,7 +737,7 @@ void MusicScroll::LoadPattern()
 	}
 }
 
-void MusicScroll::LoadMusic()
+void MusicListScroll::LoadMusic()
 {
 	vector<wstring> ymmList;
 	ymmList.reserve(128);
@@ -774,7 +774,7 @@ void MusicScroll::LoadMusic()
 }
 
 
-void MusicScroll::InitMusicScroll()
+void MusicListScroll::InitMusicScroll()
 {
 	scrollImg.GetWorld3d().SetAlignX(AlignModeX::Right);
 	scrollImg.GetWorld3d().SetAlignY(AlignModeY::Top);

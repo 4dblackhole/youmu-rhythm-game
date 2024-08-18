@@ -6,6 +6,7 @@
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
 #include "MusicalObject/Note.h"
+#include "MusicalObject/Lane.h"
 
 class PlayScene : public GameScene
 {
@@ -81,6 +82,10 @@ private:
 
 	const Music* music; //weak ptr
 	const Pattern* pattern; //weak ptr
+
+	Lane testLane;
+
+private:
 
 	DwLayout2D loadingText;
 	DwLayout2D loadingCompleteText;

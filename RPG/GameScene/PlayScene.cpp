@@ -13,8 +13,12 @@ PlayScene::PlayScene(const Music* m, const Pattern* p) :
 	music(m), pattern(p), 
 	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,0.5f }, true)
 {
+	timer.Reset();
 	InitPauseOptionLayoutList();
 	ChangeStatus(Status::Load);
+
+	testLane.AddTargetKey(1);
+	testLane.AddTargetKey(2);
 
 	InitLoadingText();
 }
@@ -206,9 +210,7 @@ void PlayScene::LoadPattern(const wstring_view& content)
 	size_t startIdx = 0;
 	size_t endIdx = content.find(EndlineIdc, startIdx);
 
-
 	bool validCheck = true;
-
 	auto ReadNextLine = [&]() -> bool
 		{
 			if (endIdx == wstring::npos) return true; //last line
@@ -244,10 +246,17 @@ void PlayScene::LoadPattern(const wstring_view& content)
 
 		wstringstream wss;
 		Note tempNote;
-		tempNote.measureIdx = measureIdx;
+		tempNote.mp.measureIdx = measureIdx;
 
 		//DataOrder::Beat
-		tempNote.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Beat]);
+		tempNote.mp.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Beat]);
+		size_t referencingMeasureIdx = min(measureIdx, musicScore->measures.size() - 1);
+		if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) //out of measure
+		{
+			if (ReadNextLine()) break;
+			else continue;
+		}
+
 
 		//DataOrder::Key
 		wss << noteElements[(int)Note::DataOrder::Key];
@@ -270,7 +279,7 @@ void PlayScene::LoadPattern(const wstring_view& content)
 			tempNote.extraData= noteElements[(int)Note::DataOrder::ExtraData];
 		}
 
-		musicScore->notes[tempNote.keyType].emplace(tempNote);
+		musicScore->notesPerKeyMap[tempNote.keyType].emplace(make_pair(tempNote.mp, tempNote));
 		if (ReadNextLine()) break; //in case last line
 		else continue;
 	}
@@ -278,6 +287,7 @@ void PlayScene::LoadPattern(const wstring_view& content)
 
 void PlayScene::LoadMusicScore()
 {
+	musicScoreLoadFlag = false;
 	musicScore = new MusicScore;
 	const wstring& fileName = pattern->ympFileName;
 
@@ -322,12 +332,19 @@ void PlayScene::LoadMusicScore()
 		const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
 		LoadPattern(patternView);
 
+		Note& note1 = musicScore->notesPerKeyMap[1].begin()->second;
+		Note& note2 = musicScore->notesPerKeyMap[2].begin()->second;
+
+		bool r1 = note1 < note2;
+		bool r2 = note1 > note2;
+
+		testLane.LoadNotes(musicScore);
+
 		/*
 		//pseudo loading
 		this_thread::sleep_for(chrono::milliseconds(1000));
 		*/
 
-		musicScoreLoadFlag = true;
 		TRACE(_T("Loading Complete\n"));
 	}
 	catch (void* p)
@@ -336,6 +353,8 @@ void PlayScene::LoadMusicScore()
 		delete musicScore;
 		musicScore = nullptr;
 	}
+	musicScoreLoadFlag = true;
+	timer.Reset();
 }
 
 
@@ -403,7 +422,6 @@ void PlayScene::ChangeStatusStart()
 void PlayScene::ChangeStatusResume()
 {
 	sceneStatus = Status::Resume;
-	timer.Reset();
 }
 
 void PlayScene::ChangeStatusPause()
@@ -416,12 +434,12 @@ void PlayScene::ChangeStatusEnd()
 	sceneStatus = Status::End;
 }
 
+static constexpr float waitTime = 3.0f;
 void PlayScene::UpdateOnLoad(float dt)
 {
-	timer.Tick();
 	if (musicScoreLoadFlag)
 	{
-		constexpr float waitTime = 3.0f;
+		timer.Tick();
 		if (musicScore == nullptr)
 		{
 			AlertBox(_T("Pattern Load Fail"));

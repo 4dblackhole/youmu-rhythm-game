@@ -126,6 +126,16 @@ public:
 		return r < *this;
 	}
 
+	bool operator<=(const RationalNumber& r) const
+	{
+		return !(*this > r);
+	}
+
+	bool operator>=(const RationalNumber& r) const
+	{
+		return !(*this < r);
+	}
+
 	bool operator==(const RationalNumber& r) const
 	{
 		return (*this - r).numerator == 0;

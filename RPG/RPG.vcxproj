@@ -183,10 +183,11 @@
     <ClCompile Include="GameScene\TestScene.cpp" />
     <ClCompile Include="GameScene\TitleScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MusicalObject\Lane.cpp" />
     <ClCompile Include="MusicalObject\Music.cpp" />
     <ClCompile Include="MusicalObject\Note.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
-    <ClCompile Include="Object\MusicScroll.cpp" />
+    <ClCompile Include="Object\MusicListScroll.cpp" />
     <ClCompile Include="Object\Shape2D\DwLayout2D.cpp" />
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp" />
     <ClCompile Include="Object\Shape2D\Shape2D.cpp" />
@@ -220,10 +221,11 @@
     <ClInclude Include="GameScene\SelectMusicScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />
+    <ClInclude Include="MusicalObject\Lane.h" />
     <ClInclude Include="MusicalObject\Music.h" />
     <ClInclude Include="MusicalObject\Note.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
-    <ClInclude Include="Object\MusicScroll.h" />
+    <ClInclude Include="Object\MusicListScroll.h" />
     <ClInclude Include="Object\Shape2D\DwLayout2D.h" />
     <ClInclude Include="Object\Shape2D\Rectangle2D.h" />
     <ClInclude Include="Object\Shape2D\Shape2D.h" />

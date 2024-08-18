@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
 
+struct MusicalPosition;
 class Note;
 class Measure;
 class MusicBPM;
@@ -10,13 +11,15 @@ class MusicScore
 public:
 	MusicScore() {};
 	~MusicScore() {};
-	 
+	
+	using NoteList = map<MusicalPosition, Note>;
+
 	//idx - length
 	vector<Measure> measures;
 
 	//time order
 	set<MusicBPM> bpms;
-	map<size_t, set<Note>> notes;
+	unordered_map<size_t, NoteList> notesPerKeyMap;
 
 	double baseBpm = 120.0;
 	double offset = 0.0;
@@ -33,21 +36,32 @@ public:
 	RationalNumber<64> length;
 };
 
+struct MusicalPosition
+{
+public:
+	bool operator<(const MusicalPosition& v) const;
+	bool operator>(const MusicalPosition& v) const;
+	bool operator<=(const MusicalPosition& v) const;
+	bool operator>=(const MusicalPosition& v) const;
+	bool operator==(const MusicalPosition& v) const;
+	size_t measureIdx = 0;
+	RationalNumber<64> position;
+};
+
 class MusicalObject
 {
 public:
 	MusicalObject() {}
-	MusicalObject(size_t idx, RationalNumber<64> pos) : measureIdx(idx), position(pos) {}
+	MusicalObject(size_t idx, RationalNumber<64> pos) : mp({ idx, pos }) {}
 	virtual ~MusicalObject() {};
 
-	size_t GetMeasureIdx() const { return measureIdx; }
+	size_t GetMeasureIdx() const { return mp.measureIdx; }
 
 	bool operator<(const MusicalObject&v) const;
+	bool operator>(const MusicalObject&v) const;
 	bool operator==(const MusicalObject& v) const;
 
-	size_t measureIdx = 0;
-	RationalNumber<64> position;
-
+	MusicalPosition mp;
 };
 
 class Note : public MusicalObject

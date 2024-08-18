@@ -3,7 +3,7 @@
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
 #include "Object/Shape2D/Rectangle2D.h"
-#include "Object/MusicScroll.h"
+#include "Object/MusicListScroll.h"
 #include "framework.h"
 
 class SelectMusicScene : public GameScene
@@ -28,5 +28,5 @@ public:
 
 private:
 	Sprite background;
-	MusicScroll musicScroll;
+	MusicListScroll musicScroll;
 };
