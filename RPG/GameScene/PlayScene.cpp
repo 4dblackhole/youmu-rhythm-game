@@ -420,52 +420,38 @@ void PlayScene::RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& c
 	if (musicScoreLoadFlag)loadingCompleteText.Draw();
 }
 
-
+double rhythmTimerTotalTime;
 void PlayScene::ChangeStatusReStart()
 {
 	rhythmTimer.Reset();
 	music->PlayMusic();
+	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
+	music->channel->setPosition((unsigned int)rhythmTimerTotalTime, FMOD_TIMEUNIT_MS);
+	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
 	sceneStatus = Status::Start;
 }
 void PlayScene::ChangeStatusStart()
 {
 	rhythmTimer.Start();
-	music->PlayMusic();
-	music->ChangeMusicPosition((int)(rhythmTimer.TotalTime() * 1000.0f), FMOD_TIMEUNIT_MS);
+	music->channel->setPaused(false);
+	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
+	music->channel->setPosition((unsigned int)rhythmTimerTotalTime, FMOD_TIMEUNIT_MS);
+	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
 	sceneStatus = Status::Start;
 }
 void PlayScene::UpdateOnStart(float dt)
 {
 	rhythmTimer.Tick();
-	if (KEYBOARD.Down(VK_ESCAPE))
-	{
-		ChangeStatus(Status::Pause);
-	}
+	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusPause();
+
+	if(KEYBOARD.Hold('1')) ChangeStatusPause();
+	
 	UpdateCurrentTimeText();
 }
 void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	currentTimeText.Draw();
 }
-
-
-void PlayScene::ChangeStatusResume()
-{
-	timer.Reset();
-	sceneStatus = Status::Resume;
-}
-void PlayScene::UpdateOnResume(float dt)
-{
-	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusPause();
-
-	timer.Tick();
-	if (timer.TotalTime() >= 1.0f) ChangeStatusStart();
-}
-void PlayScene::RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam)
-{
-}
-
-
 
 
 void PlayScene::ChangeStatusEnd()
@@ -480,8 +466,6 @@ void PlayScene::RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& ca
 {
 }
 
-
-
 void PlayScene::ChangePauseOptionKey(int val)
 {
 	FMODSYSTEM.Play(FmodSystem::Name::button01a);
@@ -492,13 +476,18 @@ void PlayScene::ChangePauseOptionKey(int val)
 void PlayScene::ChangeStatusPause()
 {
 	rhythmTimer.Stop();
-	music->PlayMusic(true);
+	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
+	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
+	music->channel->setPaused(true);
 	prevSceneStatus = sceneStatus;
 	sceneStatus = Status::Pause;
 }
+
 void PlayScene::UpdateOnPause(float dt)
 {
-	if (KEYBOARD.Down(VK_ESCAPE))sceneStatus = Status::Resume;
+	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusStart();
+
+	if (KEYBOARD.Hold('1')) ChangeStatusStart();
 
 	if (KEYBOARD.Down(VK_UP))
 	{
@@ -529,7 +518,7 @@ void PlayScene::UpdateOnPause(float dt)
 		{
 		case (int)PauseOption::Resume:
 			FMODSYSTEM.Play(FmodSystem::Name::select05);
-			ChangeStatusResume();
+			ChangeStatusStart();
 			break;
 
 		case (int)PauseOption::Restart:
@@ -567,9 +556,6 @@ void PlayScene::ChangeStatus(Status s)
 	case PlayScene::Status::Start:
 		ChangeStatusStart();
 		break;
-	case PlayScene::Status::Resume:
-		ChangeStatusResume();
-		break;
 	case PlayScene::Status::Pause:
 		ChangeStatusPause();
 		break;
@@ -589,9 +575,6 @@ void PlayScene::RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const
 	case Status::Start:
 		RenderOnStart(deviceContext, cam);
 		break;
-	case Status::Resume:
-		RenderOnResume(deviceContext, cam);
-		break;
 	case Status::Pause:
 		RenderOnPause(deviceContext, cam);
 		break;
@@ -610,9 +593,6 @@ void PlayScene::Update(float dt)
 		break;
 	case Status::Start:
 		UpdateOnStart(dt);
-		break;
-	case Status::Resume:
-		UpdateOnResume(dt);
 		break;
 	case Status::Pause:
 		UpdateOnPause(dt);

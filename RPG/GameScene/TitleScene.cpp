@@ -145,7 +145,6 @@ void TitleScene::InitLayout()
 	DwLayout2D tempDesc(selectTextSize, MyColorF::GhostGreen, { 0,0 });
 	tempDesc.GetWorld2d().SetAlignX(AlignModeX::Mid);
 	tempDesc.GetWorld2d().SetPosition({ layoutStartPosX, layoutStartPosY });
-	//tempDesc.world2d.UpdateWorld();
 
 	layoutList.emplace_back(tempDesc);
 	layoutList[(size_t)LayoutKey::GameStart].SetLayout(L"GameStart", currentFormat);

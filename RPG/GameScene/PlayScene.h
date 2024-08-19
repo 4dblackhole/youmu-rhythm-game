@@ -34,7 +34,6 @@ private:
 	{
 		Load,
 		Start,
-		Resume,
 		Pause,
 		End
 	};
@@ -42,27 +41,25 @@ private:
 	Status sceneStatus = Status::Load;
 	Status prevSceneStatus = Status::Load;
 
-	void ChangeStatus(Status);
 	void ChangeStatusLoad();
 	void ChangeStatusStart();
 	void ChangeStatusReStart();
-	void ChangeStatusResume();
 	void ChangeStatusPause();
 	void ChangeStatusEnd();
 
 	void UpdateOnLoad(float dt);
 	void UpdateOnStart(float dt);
-	void UpdateOnResume(float dt);
 	void UpdateOnPause(float dt);
 	void UpdateOnEnd(float dt);
 
-	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam);
-	void RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
+	void ChangeStatus(Status);
+	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
+	
 	enum class PauseOption
 	{
 		Resume,

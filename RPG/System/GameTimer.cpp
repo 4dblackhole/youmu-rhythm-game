@@ -32,6 +32,7 @@ void GameTimer::Reset()
 	chrono::steady_clock::time_point currTime = chrono::high_resolution_clock::now();
 	*/
 
+	mCurrTime = currTime;
 	mBaseTime = currTime;
 	mPrevTime = currTime;
 	mStopTime = 0;
