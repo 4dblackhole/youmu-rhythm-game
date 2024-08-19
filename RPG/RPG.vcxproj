@@ -183,6 +183,7 @@
     <ClCompile Include="GameScene\TestScene.cpp" />
     <ClCompile Include="GameScene\TitleScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MusicalObject\AccuracyRange.cpp" />
     <ClCompile Include="MusicalObject\Lane.cpp" />
     <ClCompile Include="MusicalObject\Music.cpp" />
     <ClCompile Include="MusicalObject\Note.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="GameScene\SelectMusicScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />
+    <ClInclude Include="MusicalObject\AccuracyRange.h" />
     <ClInclude Include="MusicalObject\Lane.h" />
     <ClInclude Include="MusicalObject\Music.h" />
     <ClInclude Include="MusicalObject\Note.h" />

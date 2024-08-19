@@ -7,6 +7,7 @@
 #include "MusicalObject/Pattern.h"
 #include "MusicalObject/Note.h"
 #include "MusicalObject/Lane.h"
+#include "MusicalObject/AccuracyRange.h"
 
 class PlayScene : public GameScene
 {
@@ -40,7 +41,7 @@ private:
 	};
 
 	Status sceneStatus = Status::Load;
-	
+
 	void ChangeStatus(Status);
 	void ChangeStatusLoad();
 	void ChangeStatusReady();
@@ -57,7 +58,11 @@ private:
 	void UpdateOnEnd(float dt);
 
 	void RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	void RenderOnReady(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	void RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	void RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	void RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
 	enum class PauseOption
 	{
@@ -78,14 +83,23 @@ private:
 
 private:
 	GameTimer timer;
+	GameTimer rhythmTimer;
 	Sprite transparentBlackBG;
 
 	const Music* music; //weak ptr
 	const Pattern* pattern; //weak ptr
 
 	Lane testLane;
+	void InitLanes();
+
+	AccuracyRange accRange;
+
+	static constexpr chrono::milliseconds ReadyTime{ 1000 };
 
 private:
+	DwLayout2D currentTimeText;
+	void InitCurrentTimeText();
+	void UpdateCurrentTimeText();
 
 	DwLayout2D loadingText;
 	DwLayout2D loadingCompleteText;

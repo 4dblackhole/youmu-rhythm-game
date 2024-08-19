@@ -12,14 +12,10 @@ GameTimer::GameTimer()
 
 float GameTimer::TotalTime() const
 {
-	if (mStopped)
-	{
-		return (float)(((mStopTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
-	}
-	else
-	{
-		return (float)(((mCurrTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
-	}
+	return
+		mStopped
+		? (float)(((mStopTime - mPausedTime) - mBaseTime) * mSecondsPerCount)
+		: (float)(((mCurrTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
 }
 
 float GameTimer::DeltaTime() const
@@ -32,20 +28,25 @@ void GameTimer::Reset()
 	//Get current time from mainboard
 	INT64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
+	/*
+	
+	chrono::steady_clock::time_point currTime = chrono::high_resolution_clock::now();
+	*/
 
 	mBaseTime = currTime;
 	mPrevTime = currTime;
 	mStopTime = 0;
+	mPausedTime = 0;
 	mStopped = false;
 }
 
 void GameTimer::Start()
-{
-	INT64 currTime;
-	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-	
+{	
 	if (mStopped)
 	{
+		INT64 currTime;
+		QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
+
 		mPausedTime += (currTime - mStopTime);
 
 		mPrevTime = currTime;

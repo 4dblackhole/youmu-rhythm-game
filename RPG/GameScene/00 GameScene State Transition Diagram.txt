@@ -1,0 +1,8 @@
+LogoScene
+│
+TitleScene
+├─────────────────────────┐
+SelectMusicScene          OptionScene(TBD)
+│
+PlayScene
+

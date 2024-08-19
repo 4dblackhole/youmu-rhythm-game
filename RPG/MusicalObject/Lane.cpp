@@ -83,3 +83,16 @@ void Lane::LoadNotes(MusicScore* ptr)
 	}
 	
 }
+
+void Lane::MoveNoteIterator(bool forward)
+{
+	if (forward)
+	{
+		if (currentNote != noteList.end()) ++currentNote;
+	}
+	else
+	{
+		if (currentNote != noteList.begin()) --currentNote;
+	}
+}
+

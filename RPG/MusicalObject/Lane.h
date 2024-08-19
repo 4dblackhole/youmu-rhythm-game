@@ -15,8 +15,11 @@ public:
 
 	void LoadNotes(MusicScore* ptr);
 
+	const Note* GetCurrentNote() const { return *currentNote; }
+	void MoveNoteIterator(bool forward);
+
 private:
 	set<size_t> targetNoteKeyList;
 	vector<Note*> noteList;
-	Note* currentNote = nullptr;
+	vector<Note*>::iterator currentNote;
 };
