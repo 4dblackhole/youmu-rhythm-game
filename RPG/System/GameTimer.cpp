@@ -29,7 +29,6 @@ void GameTimer::Reset()
 	INT64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 	/*
-	
 	chrono::steady_clock::time_point currTime = chrono::high_resolution_clock::now();
 	*/
 

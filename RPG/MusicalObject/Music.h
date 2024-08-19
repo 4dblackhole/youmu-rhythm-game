@@ -8,6 +8,9 @@ public:
 	Music();
 	~Music();
 
+	void PlayMusic(bool pause = false);
+	void ChangeMusicPosition(unsigned int pos, FMOD_TIMEUNIT unit);
+
 	wstring ymmFileName;
 	wstring FileName;
 	std::vector<std::wstring> MusicNameList;

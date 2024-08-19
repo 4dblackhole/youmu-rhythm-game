@@ -24,8 +24,8 @@ public:
 	void Update(float dt);
 	void Render(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
-	const Music* GetCurrentMusic() const;
-	const Pattern* GetCurrentPattern() const;
+	Music* GetCurrentMusic();
+	Pattern* GetCurrentPattern();
 
 private:
 	void InitMusicScroll();

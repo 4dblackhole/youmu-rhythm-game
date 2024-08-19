@@ -39,8 +39,8 @@ void SelectMusicScene::Update(float dt)
 
 	if (KEYBOARD.Down(VK_RETURN))
 	{
-		const Pattern* currentPattern = musicScroll.GetCurrentPattern();
-		const Music* currentMusic = musicScroll.GetCurrentMusic();
+		Pattern* currentPattern = musicScroll.GetCurrentPattern();
+		Music* currentMusic = musicScroll.GetCurrentMusic();
 		if (currentPattern != nullptr)
 		{
 			FMODSYSTEM.Play(FmodSystem::Name::select05);

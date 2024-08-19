@@ -9,13 +9,13 @@ constexpr int LayoutDistanceY = 100;
 constexpr int TriangleOffsetX = -8;
 constexpr int TriangleOffsetY = 11;
 
-PlayScene::PlayScene(const Music* m, const Pattern* p) : 
+PlayScene::PlayScene(Music* m, Pattern* p) : 
 	music(m), pattern(p), 
-	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,0.5f }, true)
+	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,1.0f }, true)
 {
 	timer.Reset();
 	InitPauseOptionLayoutList();
-	ChangeStatus(Status::Load);
+	ChangeStatusLoad();
 
 	InitLanes();
 
@@ -115,7 +115,6 @@ void PlayScene::ParseBarLine(const wstring_view& lineStr, const RationalNumber<6
 	musicScore->measures.emplace_back(measureLength);
 	++measureIdx;
 }
-
 void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength)
 {
 	size_t signatureIdx = MeasureEffect.length() - 1;
@@ -132,7 +131,6 @@ void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& me
 		DEBUG_BREAKPOINT;
 	}
 }
-
 bool PlayScene::ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr)
 {
 	bool validCheck = true;
@@ -147,7 +145,6 @@ bool PlayScene::ParseEffect(const wstring_view& lineStr, RationalNumber<64>& res
 
 	return true;
 }
-
 void PlayScene::ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos)
 {
 	wstringstream wss;
@@ -163,7 +160,6 @@ void PlayScene::ParseBPM(const wstring_view& str, const size_t measureIdx, const
 	//if (bpm != tobeCompareBpm)
 	musicScore->bpms.emplace(MusicBPM({ measureIdx, pos }, bpm));
 }
-
 void PlayScene::LoadTimeSignature(const wstring_view& content)
 {
 	size_t measureIdx = 0;
@@ -230,7 +226,6 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	musicScore->measures.emplace_back(measureLength);
 }
-
 void PlayScene::LoadPattern(const wstring_view& content)
 {
 	size_t measureIdx = 0;
@@ -312,7 +307,6 @@ void PlayScene::LoadPattern(const wstring_view& content)
 		else continue;
 	}
 }
-
 void PlayScene::LoadMusicScore()
 {
 	musicScoreLoadFlag = false;
@@ -369,7 +363,13 @@ void PlayScene::LoadMusicScore()
 		delete musicScore;
 		musicScore = nullptr;
 	}
+	LoadMusicScoreComplete();
+}
+
+void PlayScene::LoadMusicScoreComplete()
+{
 	musicScoreLoadFlag = true;
+	timer.Reset();
 	rhythmTimer.Reset();
 }
 
@@ -390,32 +390,7 @@ void PlayScene::OnResize(float newW, float newH)
 	currentTimeText.GetWorld2d().OnParentWorldUpdate();
 }
 
-void PlayScene::ChangeStatus(Status s)
-{
-	TRACE(_T("status %d\n"), (int)s);
-	switch (s)
-	{
-	case PlayScene::Status::Load:
-		ChangeStatusLoad();
-		break;
-	case PlayScene::Status::Ready:
-		ChangeStatusReady();
-		break;
-	case PlayScene::Status::Start:
-		ChangeStatusStart();
-		break;
-	case PlayScene::Status::Resume:
-		ChangeStatusResume();
-		break;
-	case PlayScene::Status::Pause:
-		ChangeStatusPause();
-		break;
-	case PlayScene::Status::End: 
-		ChangeStatusEnd();
-		break;
-	}
-}
-
+static constexpr float waitTime = 3.0f;
 void PlayScene::ChangeStatusLoad()
 {
 	sceneStatus = Status::Load;
@@ -424,35 +399,6 @@ void PlayScene::ChangeStatusLoad()
 	thread loadMusicScoreThread(thread(&PlayScene::LoadMusicScore, this));
 	loadMusicScoreThread.detach();
 }
-
-void PlayScene::ChangeStatusReady()
-{
-	sceneStatus = Status::Ready;
-}
-
-void PlayScene::ChangeStatusStart()
-{
-	rhythmTimer.Start();
-	sceneStatus = Status::Start;
-}
-
-void PlayScene::ChangeStatusResume()
-{
-	timer.Reset();
-	sceneStatus = Status::Resume;
-}
-
-void PlayScene::ChangeStatusPause()
-{
-	sceneStatus = Status::Pause;
-}
-
-void PlayScene::ChangeStatusEnd()
-{
-	sceneStatus = Status::End;
-}
-
-static constexpr float waitTime = 3.0f;
 void PlayScene::UpdateOnLoad(float dt)
 {
 	if (musicScoreLoadFlag)
@@ -463,36 +409,78 @@ void PlayScene::UpdateOnLoad(float dt)
 			AlertBox(_T("Pattern Load Fail"));
 			ChangeStatus(Status::End);
 		}
-		else if (KEYBOARD.Down(VK_RETURN) || timer.TotalTime() > waitTime) ChangeStatus(Status::Ready);
+		else if (KEYBOARD.Down(VK_RETURN) || timer.TotalTime() > waitTime) ChangeStatusReStart();
 	}
 
-	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatus(Status::End);
+	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusEnd();
 }
-
-void PlayScene::UpdateOnReady(float dt)
+void PlayScene::RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatus(Status::Pause);
-	ChangeStatus(Status::Start);
+	if (!musicScoreLoadFlag)loadingText.Draw();
+	if (musicScoreLoadFlag)loadingCompleteText.Draw();
 }
 
+
+void PlayScene::ChangeStatusReStart()
+{
+	rhythmTimer.Reset();
+	music->PlayMusic();
+	sceneStatus = Status::Start;
+}
+void PlayScene::ChangeStatusStart()
+{
+	rhythmTimer.Start();
+	music->PlayMusic();
+	music->ChangeMusicPosition((int)(rhythmTimer.TotalTime() * 1000.0f), FMOD_TIMEUNIT_MS);
+	sceneStatus = Status::Start;
+}
 void PlayScene::UpdateOnStart(float dt)
 {
 	rhythmTimer.Tick();
 	if (KEYBOARD.Down(VK_ESCAPE))
 	{
-		rhythmTimer.Stop();
 		ChangeStatus(Status::Pause);
 	}
 	UpdateCurrentTimeText();
 }
+void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam)
+{
+	currentTimeText.Draw();
+}
 
+
+void PlayScene::ChangeStatusResume()
+{
+	timer.Reset();
+	sceneStatus = Status::Resume;
+}
 void PlayScene::UpdateOnResume(float dt)
 {
-	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatus(Status::Pause);
+	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusPause();
 
 	timer.Tick();
-	if (timer.TotalTime() >= 1.0f) ChangeStatus(Status::Ready);
+	if (timer.TotalTime() >= 1.0f) ChangeStatusStart();
 }
+void PlayScene::RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam)
+{
+}
+
+
+
+
+void PlayScene::ChangeStatusEnd()
+{
+	sceneStatus = Status::End;
+}
+void PlayScene::UpdateOnEnd(float dt)
+{
+	SCENEMANAGER.ChangeScene(SceneManager::Name::SelectMusic);
+}
+void PlayScene::RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam)
+{
+}
+
+
 
 void PlayScene::ChangePauseOptionKey(int val)
 {
@@ -501,6 +489,13 @@ void PlayScene::ChangePauseOptionKey(int val)
 	pauseOptSelectTriangle.GetWorld2d().SetParentWorld(&PauseOptLayoutList[pauseOptionKey].GetWorld2d());
 }
 
+void PlayScene::ChangeStatusPause()
+{
+	rhythmTimer.Stop();
+	music->PlayMusic(true);
+	prevSceneStatus = sceneStatus;
+	sceneStatus = Status::Pause;
+}
 void PlayScene::UpdateOnPause(float dt)
 {
 	if (KEYBOARD.Down(VK_ESCAPE))sceneStatus = Status::Resume;
@@ -534,50 +529,26 @@ void PlayScene::UpdateOnPause(float dt)
 		{
 		case (int)PauseOption::Resume:
 			FMODSYSTEM.Play(FmodSystem::Name::select05);
-			ChangeStatus(Status::Resume);
+			ChangeStatusResume();
 			break;
 
 		case (int)PauseOption::Restart:
 			//TODO: Reload Pattern
 			FMODSYSTEM.Play(FmodSystem::Name::select05);
-			rhythmTimer.Reset();
-			ChangeStatus(Status::Start);
+			ChangeStatusReStart();
 			break;
 
 		case (int)PauseOption::Quit:
 			FMODSYSTEM.Play(FmodSystem::Name::select05);
-			ChangeStatus(Status::End);
+			ChangeStatusEnd();
 			break;
 		}
 	}
 }
-
-void PlayScene::UpdateOnEnd(float dt)
-{
-	SCENEMANAGER.ChangeScene(SceneManager::Name::SelectMusic);
-}
-
-void PlayScene::RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam)
-{
-	if(!musicScoreLoadFlag)loadingText.Draw();
-	if(musicScoreLoadFlag)loadingCompleteText.Draw();
-}
-
-void PlayScene::RenderOnReady(ID3D11DeviceContext* deviceContext, const Camera& cam)
-{
-}
-
-void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam)
-{
-	currentTimeText.Draw();
-}
-
-void PlayScene::RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam)
-{
-}
-
 void PlayScene::RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
+	RenderStatus(prevSceneStatus, deviceContext, cam);
+
 	transparentBlackBG.Render(deviceContext, cam);
 	for (auto& it : PauseOptLayoutList) it.Draw();
 	pauseOptSelectTriangle.Draw();
@@ -585,10 +556,50 @@ void PlayScene::RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& 
 	DEBUG_BREAKPOINT;
 }
 
-void PlayScene::RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam)
+void PlayScene::ChangeStatus(Status s)
 {
+	TRACE(_T("status %d\n"), (int)s);
+	switch (s)
+	{
+	case PlayScene::Status::Load:
+		ChangeStatusLoad();
+		break;
+	case PlayScene::Status::Start:
+		ChangeStatusStart();
+		break;
+	case PlayScene::Status::Resume:
+		ChangeStatusResume();
+		break;
+	case PlayScene::Status::Pause:
+		ChangeStatusPause();
+		break;
+	case PlayScene::Status::End:
+		ChangeStatusEnd();
+		break;
+	}
 }
 
+void PlayScene::RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam)
+{
+	switch (s)
+	{
+	case Status::Load:
+		RenderOnLoad(deviceContext, cam);
+		break;
+	case Status::Start:
+		RenderOnStart(deviceContext, cam);
+		break;
+	case Status::Resume:
+		RenderOnResume(deviceContext, cam);
+		break;
+	case Status::Pause:
+		RenderOnPause(deviceContext, cam);
+		break;
+	case Status::End:
+		RenderOnEnd(deviceContext, cam);
+		break;
+	}
+}
 
 void PlayScene::Update(float dt)
 {
@@ -596,9 +607,6 @@ void PlayScene::Update(float dt)
 	{
 	case Status::Load:
 		UpdateOnLoad(dt);
-		break;
-	case Status::Ready:
-		UpdateOnReady(dt);
 		break;
 	case Status::Start:
 		UpdateOnStart(dt);
@@ -617,29 +625,7 @@ void PlayScene::Update(float dt)
 
 void PlayScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	switch (sceneStatus)
-	{
-	case PlayScene::Status::Load:
-		RenderOnLoad(deviceContext, cam);
-		break;
-	case PlayScene::Status::Ready:
-		RenderOnReady(deviceContext, cam);
-		break;
-	case PlayScene::Status::Start:
-		RenderOnStart(deviceContext, cam);
-		break;
-	case PlayScene::Status::Resume:
-		RenderOnResume(deviceContext, cam);
-		break;
-	case PlayScene::Status::Pause:
-		RenderOnPause(deviceContext, cam);
-		break;
-	case PlayScene::Status::End:
-		RenderOnEnd(deviceContext, cam);
-		break;
-	default:
-		break;
-	}
+	RenderStatus(sceneStatus, deviceContext, cam);
 }
 
 void PlayScene::EndScene()

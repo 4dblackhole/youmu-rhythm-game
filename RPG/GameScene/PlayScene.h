@@ -12,7 +12,7 @@
 class PlayScene : public GameScene
 {
 public:
-	PlayScene(const Music* m, const Pattern* p);
+	PlayScene(Music* m, Pattern* p);
 	virtual ~PlayScene();
 
 	virtual void BeginScene() final;
@@ -33,7 +33,6 @@ private:
 	enum class Status
 	{
 		Load,
-		Ready,
 		Start,
 		Resume,
 		Pause,
@@ -41,24 +40,24 @@ private:
 	};
 
 	Status sceneStatus = Status::Load;
+	Status prevSceneStatus = Status::Load;
 
 	void ChangeStatus(Status);
 	void ChangeStatusLoad();
-	void ChangeStatusReady();
 	void ChangeStatusStart();
+	void ChangeStatusReStart();
 	void ChangeStatusResume();
 	void ChangeStatusPause();
 	void ChangeStatusEnd();
 
 	void UpdateOnLoad(float dt);
-	void UpdateOnReady(float dt);
 	void UpdateOnStart(float dt);
 	void UpdateOnResume(float dt);
 	void UpdateOnPause(float dt);
 	void UpdateOnEnd(float dt);
 
+	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam);
-	void RenderOnReady(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnResume(ID3D11DeviceContext* deviceContext, const Camera& cam);
 	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
@@ -86,8 +85,8 @@ private:
 	GameTimer rhythmTimer;
 	Sprite transparentBlackBG;
 
-	const Music* music; //weak ptr
-	const Pattern* pattern; //weak ptr
+	Music* music; //weak ptr
+	Pattern* pattern; //weak ptr
 
 	Lane testLane;
 	void InitLanes();
@@ -108,6 +107,7 @@ private:
 	bool musicScoreLoadFlag = false;
 	MusicScore* musicScore = nullptr; //note container
 	void LoadMusicScore();
+	void LoadMusicScoreComplete();
 
 	void LoadTimeSignature(const wstring_view& content);
 	void LoadPattern(const wstring_view& content);

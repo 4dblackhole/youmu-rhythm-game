@@ -77,12 +77,12 @@ void MusicListScroll::OnEndScene()
 
 void MusicListScroll::PlayMusic(size_t idx)
 {
-	if (!musicList.empty()) FmodSystem::GetInstance().System()->playSound(musicList[idx]->music, nullptr, false, &musicList[idx]->channel);
+	if (!musicList.empty()) FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, false, &musicList[idx]->channel);
 }
 
 void MusicListScroll::StopMusic(size_t idx)
 {
-	if (!musicList.empty()) FmodSystem::GetInstance().System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
+	if (!musicList.empty()) FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
 }
 
 void MusicListScroll::UpdateScrollMatrix()
@@ -454,13 +454,13 @@ void MusicListScroll::Render(ID3D11DeviceContext* deviceContext, const Camera& c
 
 }
 
-const Music* MusicListScroll::GetCurrentMusic() const
+Music* MusicListScroll::GetCurrentMusic()
 {
 	if (musicList.empty()) return nullptr;
 	else return musicList[currentSelectMusic];
 }
 
-const Pattern* MusicListScroll::GetCurrentPattern() const
+Pattern* MusicListScroll::GetCurrentPattern()
 {
 	if (GetCurrentMusic() == nullptr) return nullptr;
 
