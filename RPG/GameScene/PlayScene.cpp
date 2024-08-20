@@ -433,6 +433,7 @@ void PlayScene::ChangeStatusReStart()
 void PlayScene::ChangeStatusStart()
 {
 	rhythmTimer.Start();
+	rhythmTimer.Tick();
 	music->channel->setPaused(false);
 	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
 	music->channel->setPosition((unsigned int)rhythmTimerTotalTime, FMOD_TIMEUNIT_MS);
@@ -476,6 +477,7 @@ void PlayScene::ChangePauseOptionKey(int val)
 void PlayScene::ChangeStatusPause()
 {
 	rhythmTimer.Stop();
+	rhythmTimer.Tick();
 	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
 	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
 	music->channel->setPaused(true);
