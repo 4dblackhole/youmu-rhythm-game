@@ -47,7 +47,7 @@ void PlayScene::UpdateCurrentTimeText()
 {
 	IDWriteTextFormat*& currentFont = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
 	WCHAR tempStr[50];
-	swprintf_s(tempStr, L"Time: %.3fs", rhythmTimer.TotalTime());
+	swprintf_s(tempStr, L"Time: %.3fs", totalMusicTime * 0.001f);
 	currentTimeText.SetLayout(tempStr, currentFont);
 }
 
@@ -346,6 +346,8 @@ void PlayScene::LoadMusicScore()
 			wss >> musicScore->baseBpm;
 		}
 
+		//TODO: run Load-functions as thread
+
 		endIdx = uniFile.find(EndlineIdc, timeSignatureIdx);
 		const wstring_view timeSignatureView(uniFile.c_str() + endIdx + EndlineIdcLength, patternIdx - (endIdx + EndlineIdcLength));
 		LoadTimeSignature(timeSignatureView);
@@ -355,6 +357,15 @@ void PlayScene::LoadMusicScore()
 		LoadPattern(patternView);
 
 		testLane.LoadNotes(musicScore);
+
+		Note* firstNote = musicScore->FindFirstNote();
+		const double firstNotePos = musicScore->offset + double(firstNote->mp.position);
+
+		musicScore->InitTree();
+
+		//this_thread::sleep_for(chrono::milliseconds(3000));
+
+		DEBUG_BREAKPOINT;
 
 	}
 	catch (void* p)
@@ -373,9 +384,17 @@ void PlayScene::LoadMusicScoreComplete()
 	rhythmTimer.Reset();
 }
 
+void PlayScene::StopThread()
+{
+	playMusicThreadRunFlag = false;
+	loadMusicScoreThreadFlag = false;
+	if (playMusicThread.joinable()) playMusicThread.join();
+	if(loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
+}
 
 PlayScene::~PlayScene()
 {
+	StopThread();
 	SafeDelete(musicScore);
 }
 
@@ -390,26 +409,38 @@ void PlayScene::OnResize(float newW, float newH)
 	currentTimeText.GetWorld2d().OnParentWorldUpdate();
 }
 
-static constexpr float waitTime = 3.0f;
 void PlayScene::ChangeStatusLoad()
 {
 	sceneStatus = Status::Load;
 	SafeDelete(musicScore);
 	timer.Reset();
-	thread loadMusicScoreThread(thread(&PlayScene::LoadMusicScore, this));
-	loadMusicScoreThread.detach();
+	loadMusicScoreThreadFlag = true;
+	loadMusicScoreThread = thread(&PlayScene::LoadMusicScore, this);
 }
+
+void PlayScene::ExitStatusLoad()
+{
+	loadMusicScoreThreadFlag = false;
+	if (loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
+}
+
 void PlayScene::UpdateOnLoad(float dt)
 {
+	constexpr float enterWaitTime = 3.0f;
 	if (musicScoreLoadFlag)
 	{
 		timer.Tick();
 		if (musicScore == nullptr)
 		{
 			AlertBox(_T("Pattern Load Fail"));
-			ChangeStatus(Status::End);
+			ExitStatusLoad();
+			ChangeStatusEnd();
 		}
-		else if (KEYBOARD.Down(VK_RETURN) || timer.TotalTime() > waitTime) ChangeStatusReStart();
+		else if (KEYBOARD.Down(VK_RETURN) || timer.TotalTime() > enterWaitTime)
+		{
+			ExitStatusLoad();
+			ChangeStatusReStart();
+		}
 	}
 
 	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusEnd();
@@ -420,37 +451,80 @@ void PlayScene::RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& c
 	if (musicScoreLoadFlag)loadingCompleteText.Draw();
 }
 
-double rhythmTimerTotalTime;
+void PlayScene::UpdateTotalMusicTime()
+{
+	totalMusicTime = rhythmTimer.TotalTime() * 1000.0f + (double)musicTimeOffset.count();
+}
+
+void PlayScene::PlayMusic()
+{
+	while (totalMusicTime < 0 && playMusicThreadRunFlag); //busy wait
+
+	music->PlayMusic();
+	UpdateTotalMusicTime();
+	music->channel->setPosition((unsigned int)totalMusicTime, FMOD_TIMEUNIT_MS);
+}
+
 void PlayScene::ChangeStatusReStart()
 {
 	rhythmTimer.Reset();
-	music->PlayMusic();
-	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
-	music->channel->setPosition((unsigned int)rhythmTimerTotalTime, FMOD_TIMEUNIT_MS);
-	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
+	UpdateTotalMusicTime();
+	
+	playMusicThreadRunFlag = true;
+	playMusicThread = thread(&PlayScene::PlayMusic, this);
+
+	TRACE(_T("ReStart Time: %.6lf\n"), totalMusicTime);
 	sceneStatus = Status::Start;
 }
 void PlayScene::ChangeStatusStart()
 {
 	rhythmTimer.Start();
 	rhythmTimer.Tick();
-	music->channel->setPaused(false);
-	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
-	music->channel->setPosition((unsigned int)rhythmTimerTotalTime, FMOD_TIMEUNIT_MS);
-	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
+
+	playMusicThreadRunFlag = true;
+	playMusicThread = thread(&PlayScene::PlayMusic, this);
+
+	TRACE(_T("Start Time: %.6lf\n"), totalMusicTime);
 	sceneStatus = Status::Start;
 }
+
+void PlayScene::ExitStatusStart()
+{
+	playMusicThreadRunFlag = false;
+	if (playMusicThread.joinable())
+	{
+		playMusicThread.join();
+	}
+	music->channel->setPaused(true);
+}
+
 void PlayScene::UpdateOnStart(float dt)
 {
 	rhythmTimer.Tick();
-	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusPause();
+	UpdateTotalMusicTime();
 
-	if(KEYBOARD.Hold('1')) ChangeStatusPause();
+	if (KEYBOARD.Down(VK_ESCAPE))
+	{
+		ExitStatusStart();
+		ChangeStatusPause();
+	}
+#ifdef _DEBUG
+	if (KEYBOARD.Hold('1'))
+	{
+		ExitStatusStart();
+		ChangeStatusPause();
+	}
+	else if (KEYBOARD.Hold('2'))
+	{
+		ExitStatusStart();
+		ChangeStatusPause();
+	}
+#endif
 	
-	UpdateCurrentTimeText();
 }
 void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
+	UpdateCurrentTimeText();
 	currentTimeText.Draw();
 }
 
@@ -477,10 +551,7 @@ void PlayScene::ChangePauseOptionKey(int val)
 void PlayScene::ChangeStatusPause()
 {
 	rhythmTimer.Stop();
-	rhythmTimer.Tick();
-	rhythmTimerTotalTime = (rhythmTimer.TotalTime() * 1000.0f);
-	TRACE(_T("Time: %.6lf\n"), rhythmTimerTotalTime);
-	music->channel->setPaused(true);
+	TRACE(_T("Pause Time: %.6lf\n"), totalMusicTime);
 	prevSceneStatus = sceneStatus;
 	sceneStatus = Status::Pause;
 }
@@ -489,7 +560,10 @@ void PlayScene::UpdateOnPause(float dt)
 {
 	if (KEYBOARD.Down(VK_ESCAPE)) ChangeStatusStart();
 
+#ifdef _DEBUG
 	if (KEYBOARD.Hold('1')) ChangeStatusStart();
+	else if (KEYBOARD.Hold('2')) ChangeStatusReStart(); 
+#endif
 
 	if (KEYBOARD.Down(VK_UP))
 	{
@@ -563,6 +637,24 @@ void PlayScene::ChangeStatus(Status s)
 		break;
 	case PlayScene::Status::End:
 		ChangeStatusEnd();
+		break;
+	}
+}
+
+void PlayScene::ExitStatus(Status s)
+{
+	TRACE(_T("Exit Status %d\n"), (int)s);
+	switch (s)
+	{
+	case PlayScene::Status::Load:
+		ExitStatusLoad();
+		break;
+	case PlayScene::Status::Start:
+		ExitStatusStart();
+		break;
+	case PlayScene::Status::Pause:
+		break;
+	case PlayScene::Status::End:
 		break;
 	}
 }

@@ -16,7 +16,11 @@ public:
 
 	static int Random(int r1, int r2);
 	static float Random(float r1, float r2);
-
+	
+	static int FindHighestPowerOfTwo(int n);
+	static int FindHighestPowerOfTwoLinearSearch(int n);
+	static int FindHighestPowerOfTwoBinarySearch(int n);
+	
 	static float Clamp(float value, float min, float max);
 
 	static XMMATRIX InverseTranspose(CXMMATRIX M);

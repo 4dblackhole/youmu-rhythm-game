@@ -102,3 +102,41 @@ int Math::Random(int r1, int r2)
 {
 	return (int)(rand() % (r2 - r1 + 1)) + r1;
 }
+
+static constexpr int searchPivot = 512;
+int Math::FindHighestPowerOfTwo(int n)
+{
+	if (n < (1 << 7)) return FindHighestPowerOfTwoLinearSearch(n);
+	else			  return FindHighestPowerOfTwoBinarySearch(n);
+}
+
+int Math::FindHighestPowerOfTwoLinearSearch(int n) {
+	static int counter = 0;
+	int res = 1;
+	while (n > 1) {
+		n >>= 1;
+		res <<= 1;
+		counter += 3;
+	}
+	return res;
+}
+
+int Math::FindHighestPowerOfTwoBinarySearch(int n) {
+	int low = 0;
+	int high = 31;
+
+	static int counter = 0;
+	// 지수에 대해 이진 탐색 수행
+	while (low < high) {
+		int mid = (low + high + 1) >> 1;  // 중간값 계산
+		if ((1 << mid) <= n) {
+			low = mid;
+		}
+		else {
+			high = mid - 1;
+		}
+		counter += 4;
+	}
+
+	return (1 << low);  // 2^low 반환
+}

@@ -8,10 +8,15 @@ class MusicBPM;
 
 class MusicScore
 {
+private:
+	struct MeasureNode;
 public:
-	MusicScore() {};
-	~MusicScore() {};
+	MusicScore();
+	~MusicScore();
 	
+	Note* FindFirstNote();
+	RationalNumber<64> GetMeasureMusicalPosition(size_t pos); //first measure's position is 0
+
 	using NoteList = map<MusicalPosition, Note>;
 
 	//idx - length
@@ -23,6 +28,35 @@ public:
 
 	double baseBpm = 120.0;
 	double offset = 0.0;
+
+	void InitTree();
+	void ReleaseTree();
+	RationalNumber<64> GetMeasureLength(int idx);
+	RationalNumber<64> GetMeasureLength(int listLeft, int listRight);
+
+private:
+	//segment tree of Measure
+	struct MeasureNode
+	{
+		RationalNumber<64> totalLength{ 0, 1 };
+		MeasureNode* pLeft = nullptr, *pRight = nullptr;
+	};
+	MeasureNode* measureSegTree = nullptr;
+	MeasureNode* measureSegLazyTree = nullptr;
+	
+	//for debug
+	vector<MeasureNode*> segTreeView;
+	vector<MeasureNode*> segLazyTreeView;
+
+	void InitTreeRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
+	void ReleaseTreeRC(MeasureNode* node);
+
+	RationalNumber<64> GetMeasureLengthRC(MeasureNode* node, MeasureNode* lazyNode, int searchLeft, int searchRight, int listLeft, int listRight);
+
+	void UpdateLazyTree(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
+	void UpdateMeasureRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight, RationalNumber<64> val);
+
+	void RightRotate(MeasureNode* node);
 };
 
 class Measure

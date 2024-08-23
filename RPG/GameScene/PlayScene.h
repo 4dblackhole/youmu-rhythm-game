@@ -42,22 +42,26 @@ private:
 	Status prevSceneStatus = Status::Load;
 
 	void ChangeStatusLoad();
-	void ChangeStatusStart();
-	void ChangeStatusReStart();
-	void ChangeStatusPause();
-	void ChangeStatusEnd();
-
+	void ExitStatusLoad();
 	void UpdateOnLoad(float dt);
-	void UpdateOnStart(float dt);
-	void UpdateOnPause(float dt);
-	void UpdateOnEnd(float dt);
-
 	void RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& cam);
+
+	void ChangeStatusReStart();
+	void ChangeStatusStart();
+	void ExitStatusStart();
+	void UpdateOnStart(float dt);
 	void RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	
+	void ChangeStatusPause();
+	void UpdateOnPause(float dt);
 	void RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam);
+	
+	void ChangeStatusEnd();
+	void UpdateOnEnd(float dt);
 	void RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
 	void ChangeStatus(Status);
+	void ExitStatus(Status);
 	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
 	
 	enum class PauseOption
@@ -79,8 +83,18 @@ private:
 
 private:
 	GameTimer timer;
+
 	GameTimer rhythmTimer;
+	chrono::milliseconds musicTimeOffset{ -500 };
+	double totalMusicTime = (double)musicTimeOffset.count();
 	Sprite transparentBlackBG;
+	void UpdateTotalMusicTime();
+
+	thread playMusicThread;
+	bool playMusicThreadRunFlag = false;
+	void PlayMusic();
+
+	void StopThread();
 
 	Music* music; //weak ptr
 	Pattern* pattern; //weak ptr
@@ -89,8 +103,6 @@ private:
 	void InitLanes();
 
 	AccuracyRange accRange;
-
-	static constexpr chrono::milliseconds ReadyTime{ 1000 };
 
 private:
 	DwLayout2D currentTimeText;
@@ -103,6 +115,9 @@ private:
 
 	bool musicScoreLoadFlag = false;
 	MusicScore* musicScore = nullptr; //note container
+
+	thread loadMusicScoreThread;
+	bool loadMusicScoreThreadFlag = false;
 	void LoadMusicScore();
 	void LoadMusicScoreComplete();
 
