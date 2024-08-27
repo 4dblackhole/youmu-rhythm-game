@@ -26,7 +26,7 @@ public:
 private:
 	Sprite tooltipBG;
 	Sprite titleLogoImg;
-	ID3D11ShaderResourceView* titleSrv = nullptr;
+	ID3D11ShaderResourceView* titleSRV;
 
 	enum class SelectKey
 	{

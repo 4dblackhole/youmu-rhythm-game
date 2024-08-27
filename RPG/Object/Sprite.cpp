@@ -141,7 +141,31 @@ void Sprite::OnResize()
 
 void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
-	GetWorld3d().SetLocalScale({ ShortCut::GetOrthoWidth(w,h) / GetWorld3d().GetObjectScale().x , GetWorld3d().GetLocalScale().y });
+	GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(w, h) , GetWorld3d().GetObjectScale().y });
+	MakeCenterUV();
+}
+
+void Sprite::MakeCenterUV()
+{
+	if (textureSRV != nullptr)
+	{
+		const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(textureSRV);
+		const float spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
+		const float imgRate = (float)desc.Height / (float)desc.Width;
+		if (spriteRate < imgRate)
+		{
+			world3d.SetUvScale({ 1.0f, (spriteRate / imgRate) });
+			const XMFLOAT2& uv = world3d.GetUvScale();
+			world3d.SetUvPosition({ 0.0f, (1.0f-uv.y) * 0.5f });
+		}
+		else
+		{
+			world3d.SetUvScale({ (imgRate / spriteRate),1.0f });
+			const XMFLOAT2& uv = world3d.GetUvScale();
+			world3d.SetUvPosition({ (1.0f - uv.x) * 0.5f , 0.0f });
+
+		}
+	}
 }
 
 void Sprite::BulidBuffer(ID3D11Device* device)

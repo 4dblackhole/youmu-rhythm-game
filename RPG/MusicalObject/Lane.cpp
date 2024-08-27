@@ -15,8 +15,8 @@ void Lane::LoadNotes(MusicScore* ptr)
 {
 	assert(ptr != nullptr);
 	
-	using NoteContainer = decltype(ptr->notesPerKeyMap);
-	NoteContainer& wholeNoteList = ptr->notesPerKeyMap;
+	using NoteContainer = decltype(ptr->notesPerTypeMap);
+	NoteContainer& wholeNoteList = ptr->notesPerTypeMap;
 
 	//in case there is no Note which is using current key
 	/*
@@ -68,7 +68,7 @@ void Lane::LoadNotes(MusicScore* ptr)
 	{
 		//select most earliest note
 		Note* const& mostEarliestNote = targetNoteListTimeSort.top();
-		size_t key_of_recentlyPoppedNote = mostEarliestNote->keyType;
+		size_t key_of_recentlyPoppedNote = mostEarliestNote->noteType;
 		noteList.push_back(mostEarliestNote);
 		targetNoteListTimeSort.pop();
 

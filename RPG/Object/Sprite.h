@@ -33,6 +33,8 @@ private:
 	World3D world3d;
 	ID3D11ShaderResourceView* textureSRV; //weak reference, never delete this pointer
 
+	void MakeCenterUV();
+
 	static ComPtr<ID3D11Buffer> mVB;
 	static ComPtr<ID3D11Buffer> mIB;
 	static ComPtr<ID3D11InputLayout> mInputLayout;

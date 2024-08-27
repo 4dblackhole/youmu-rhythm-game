@@ -36,6 +36,8 @@ public:
 
 	static void WordSeparateW(const wstring_view& source, const wstring& separator, vector<pair<size_t, size_t>>& idxList);
 
+	static D3D11_TEXTURE2D_DESC GetDescFromSRV(ID3D11ShaderResourceView*& ptr);
+
 	template <UINT32 Bits>
 	static RationalNumber<Bits> StrToRationalNumber(const wstring_view& source);
 
@@ -58,7 +60,16 @@ inline void SafeDelete(T*& ptr) { delete ptr; ptr = nullptr; }
 template <typename T>
 inline void SafeDeleteArr(T*& ptr) { delete[] ptr; ptr = nullptr; }
 
-#define ReleaseCOM(x) { if(x) { x->Release(); x = nullptr; } }
+template <typename T>
+typename std::enable_if_t<std::is_base_of<IUnknown, T>::value>
+ReleaseCOM(T*& resource) {
+	if (resource) {
+		resource->Release();
+		resource = nullptr;
+	}
+}
+
+//#define ReleaseCOM(x) { if(x) { x->Release(); x = nullptr; } }
 
 template <typename T, typename V>
 T ReInterpret(V val)

@@ -85,13 +85,17 @@ private:
 	GameTimer timer;
 
 	GameTimer rhythmTimer;
-	chrono::milliseconds musicTimeOffset{ -500 };
-	double totalMusicTime = (double)musicTimeOffset.count();
+	chrono::microseconds musicTimeOffset{ 0 };
+	double totalMusicTime = 0;
 	Sprite transparentBlackBG;
+	
+	template<typename DurationType>
+	void UpdateMusicTimeOffset(DurationType waitTime);
 	void UpdateTotalMusicTime();
 
 	thread playMusicThread;
 	bool playMusicThreadRunFlag = false;
+	void STopPlayMusicThread();
 	void PlayMusic();
 
 	void StopThread();
@@ -99,10 +103,16 @@ private:
 	Music* music; //weak ptr
 	Pattern* pattern; //weak ptr
 
+private:
 	Lane testLane;
 	void InitLanes();
 
 	AccuracyRange accRange;
+	map<size_t, FMOD::Sound*> defaultHitSoundList;
+
+	double musicVolume;
+	double hitsoundVolume;
+	double masterVolume;
 
 private:
 	DwLayout2D currentTimeText;
@@ -118,6 +128,7 @@ private:
 
 	thread loadMusicScoreThread;
 	bool loadMusicScoreThreadFlag = false;
+	void StopLoadMusicScoreThread();
 	void LoadMusicScore();
 	void LoadMusicScoreComplete();
 
@@ -129,3 +140,9 @@ private:
 	bool ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr);
 	void ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos);
 };
+
+template<typename DurationType>
+inline void PlayScene::UpdateMusicTimeOffset(DurationType waitTime)
+{
+	musicTimeOffset = musicScore->offset - waitTime;
+}

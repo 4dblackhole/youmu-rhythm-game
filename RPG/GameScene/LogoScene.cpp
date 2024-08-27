@@ -114,7 +114,7 @@ void LogoScene::Update(float dt)
 
 void LogoScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	background.Render(deviceContext, cam);
+	//background.Render(deviceContext, cam);
 	fmodLogo.Render(deviceContext, cam);
 }
 

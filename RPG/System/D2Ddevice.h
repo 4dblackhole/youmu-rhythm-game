@@ -18,11 +18,14 @@ public:
 	~D2Ddevice();
 
 	void CreateD2DDWFactory();
+	HRESULT CreateWicFactory();
 	void ResetBackBuffer(IDXGISwapChain* swapChain);
 	void ResetBackBuffer_Release();
 
 	void BeginDraw() { d2Rtg->BeginDraw(); }
 	void EndDraw() { d2Rtg->EndDraw(); }
+
+	void GetImageDimensions(wstring_view dir,UINT* w, UINT* h);
 
 	ID2D1SolidColorBrush*& GetSolidBrush(const D2D1::ColorF color);
 	IDWriteTextFormat*& GetFont(const std::string name);
@@ -40,19 +43,21 @@ private:
 	ID2D1RenderTarget* d2Rtg = nullptr;
 	IDXGISurface* pBackBuffer = nullptr;
 
-	//Brush
+	Microsoft::WRL::ComPtr<IWICImagingFactory> pWicFactory;
+
+//Brush
 private:
 	struct CompareD2D1ColorF {
-		bool operator()(const D2D1::ColorF& a, const D2D1::ColorF& b) const 
+		bool operator()(const D2D1::ColorF& a, const D2D1::ColorF& b) const
 		{
-			uint16_t aVal = ReInterpret<uint16_t>(a);
-			uint16_t bVal = ReInterpret<uint16_t>(b);
-			return aVal < bVal;
+			return std::tie(a.r, a.g, a.b, a.a) < std::tie(b.r, b.g, b.b, b.a);
 		}
 	};
 	std::map<const D2D1::ColorF, ID2D1SolidColorBrush*, CompareD2D1ColorF> brushList;
 
-	//Font
+	bool AddSolidBrush(const D2D1::ColorF color);
+
+//Font
 private:
 	std::map<const std::string, IDWriteTextFormat*> fontList;
 public:
@@ -67,7 +72,7 @@ public:
 	void DrawTextLayout(D2D1_POINT_2F origin,
 		_In_ IDWriteTextLayout* textLayout,
 		_In_ ID2D1Brush* defaultFillBrush,
-		D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE)
+		D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE) noexcept
 	{
 		d2Rtg->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
 	}

@@ -33,6 +33,9 @@ public:
 	const XMFLOAT2& GetLocalScale() const { return LocalScale; }
 	const XMFLOAT3& GetLocalPosition() const { return LocalPosition; }
 
+	const XMFLOAT2& GetUvScale() const { return UvScale; }
+	const XMFLOAT2& GetUvPosition() const { return UvPosition; }
+
 	const AlignModeX& GetAlignX() const { return alignX; }
 	const AlignModeY& GetAlignY() const { return alignY; }
 

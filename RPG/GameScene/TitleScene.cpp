@@ -38,11 +38,12 @@ TitleScene::~TitleScene()
 void TitleScene::BeginScene()
 {
 	HR(D3DX11CreateShaderResourceViewFromFile(App->GetDevice(),
-		(TextureDir+L"/Title/TitleLogo_ghost.png").c_str(), 0, 0, &titleSrv, 0));
-	titleLogoImg.SetTexture(titleSrv);
+		(TextureDir+L"/Title/TitleLogo_ghost.png").c_str(), 0, 0, &titleSRV, 0));
+	titleLogoImg.SetTexture(titleSRV);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->GetWorld2d().SetScale(12.0f);
 	keySelectTriangle->GetWorld2d().SetAlignX(AlignModeX::Mid);
+	keySelectTriangle->isHollow = false;
 	keySelectTriangle->FillColor = MyColorF::GhostGreen;
 	keySelectTriangle->BorderSize = 0.5f;
 	keySelectTriangle->GetWorld2d().SetParentDrawWorld();
@@ -114,7 +115,7 @@ void TitleScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 void TitleScene::EndScene()
 {
-	ReleaseCOM(titleSrv);
+	ReleaseCOM(titleSRV);
 	delete keySelectTriangle;
 	bgmChannel->stop();
 }

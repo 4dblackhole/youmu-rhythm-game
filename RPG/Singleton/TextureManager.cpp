@@ -3,11 +3,10 @@
 
 void TextureManager::AddTexture(ID3D11Device* device, const wstring& file, string&& name)
 {
-	ID3D11ShaderResourceView* tempTexture;
+	ComPtr<ID3D11ShaderResourceView> tempTexture;
 	HR(D3DX11CreateShaderResourceViewFromFile(device,
-		file.c_str(), 0, 0, &tempTexture, 0));
-	textureList.insert(make_pair(name, tempTexture));
-	ReleaseCOM(tempTexture);
+		file.c_str(), 0, 0, tempTexture.GetAddressOf(), 0));
+	textureList.emplace(make_pair(name, tempTexture));
 }
 
 void TextureManager::InitTextures(ID3D11Device* device)

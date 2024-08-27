@@ -58,7 +58,7 @@ MusicScore::~MusicScore()
 Note* MusicScore::FindFirstNote()
 {
     Note* firstNote = nullptr;
-    for (pair<const size_t, MusicScore::NoteList>& noteListOfEachKey : notesPerKeyMap)
+    for (pair<const size_t, MusicScore::NoteList>& noteListOfEachKey : notesPerTypeMap)
     {
         if (noteListOfEachKey.second.empty()) continue;
         Note& currentNote = noteListOfEachKey.second.begin()->second;

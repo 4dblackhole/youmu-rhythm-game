@@ -4,6 +4,7 @@
 D2Ddevice::D2Ddevice()
 {
 	CreateD2DDWFactory();
+	CreateWicFactory();
 	InitFonts();
 }
 
@@ -13,6 +14,8 @@ D2Ddevice::~D2Ddevice()
 	for (pair<const string, IDWriteTextFormat*>& it : fontList) ReleaseCOM(it.second);
 	ReleaseCOM(d2Rtg);
 	ReleaseCOM(pBackBuffer);
+
+	CoUninitialize();
 }
 
 void D2Ddevice::CreateD2DDWFactory()
@@ -26,6 +29,31 @@ void D2Ddevice::CreateD2DDWFactory()
 
 	HR(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
 		__uuidof(IDWriteFactory), (IUnknown**)dwFactory.GetAddressOf()));
+}
+
+HRESULT D2Ddevice::CreateWicFactory()
+{
+	HRESULT hr = S_OK;
+	try
+	{
+		hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+		if (hr == S_FALSE) throw hr;
+
+		hr = CoCreateInstance(
+			CLSID_WICImagingFactory,
+			nullptr,
+			CLSCTX_INPROC_SERVER,
+			IID_PPV_ARGS(&pWicFactory)
+		);
+		if (FAILED(S_OK)) throw hr;
+	}
+	catch (HRESULT val)
+	{
+		val = val;
+		CoUninitialize();
+	}
+
+	return hr;
 }
 
 void D2Ddevice::InitFonts()
@@ -68,19 +96,53 @@ void D2Ddevice::ResetBackBuffer_Release()
 }
 
 
+void D2Ddevice::GetImageDimensions(wstring_view dir, UINT* w, UINT* h)
+{
+	HRESULT hr = S_OK;
+
+	Microsoft::WRL::ComPtr<IWICBitmapDecoder> pDecoder;
+	hr = pWicFactory->CreateDecoderFromFilename(
+		dir.data(),
+		nullptr,
+		GENERIC_READ,
+		WICDecodeMetadataCacheOnDemand,
+		pDecoder.GetAddressOf()
+	);
+	if (FAILED(hr)) return;
+
+	// 첫 번째 프레임 가져오기 (애니메이션이 아닌 경우 프레임은 하나만 있음)
+	Microsoft::WRL::ComPtr<IWICBitmapFrameDecode> pFrame;
+	hr = pDecoder->GetFrame(0, pFrame.GetAddressOf());
+	if (FAILED(hr)) return;
+
+	// 이미지 해상도 가져오기
+	hr = pFrame->GetSize(w, h);
+
+}
+
+//TODO: make this function thread-safe
 ID2D1SolidColorBrush*& D2Ddevice::GetSolidBrush(const D2D1::ColorF color)
 {
 	//in case not found, create a solid brush
 	if (brushList.find(color) == brushList.end())
 	{
-		ID2D1SolidColorBrush* brush;
-		d2Rtg->CreateSolidColorBrush(color, &brush);
-		brushList.insert(make_pair(color, move(brush)));
+		bool insertCheck = AddSolidBrush(color);
+		assert(insertCheck);
 	}
 
 	return brushList[color];
 }
 
+bool D2Ddevice::AddSolidBrush(const D2D1::ColorF color)
+{
+	ID2D1SolidColorBrush* brush;
+	d2Rtg->CreateSolidColorBrush(color, &brush);
+	const auto& result = brushList.emplace(make_pair(color, brush));
+	if (!result.second) ReleaseCOM(brush);
+	return result.second;
+}
+
+//TODO: make this function thread-safe
 IDWriteTextFormat*& D2Ddevice::GetFont(const string name)
 {
 	//in case not found, returns default font

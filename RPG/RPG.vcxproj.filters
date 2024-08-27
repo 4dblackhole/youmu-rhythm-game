@@ -159,6 +159,12 @@
     <ClCompile Include="MusicalObject\AccuracyRange.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
+    <ClCompile Include="MusicalObject\PlayMode.cpp">
+      <Filter>MusicalObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Texture.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -277,6 +283,12 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\AccuracyRange.h">
       <Filter>MusicalObject</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\PlayMode.h">
+      <Filter>MusicalObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Texture.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

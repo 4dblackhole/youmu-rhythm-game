@@ -5,6 +5,9 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
+#include <wincodec.h>
+#include <comdef.h> 
+
 //#include "resource.h"
 
 //DirectX
@@ -74,6 +77,8 @@ using namespace std;
 #include "Singleton/SceneManager.h"
 #include "Singleton/FmodSystem.h"
 
+#include "Object/Texture.h"
+
 #include "Object/Shape2D/DwLayout2D.h"
 #include "Object/Shape2D/Triangle2D.h"
 #include "Object/Shape2D/Rectangle2D.h"
@@ -92,6 +97,8 @@ constexpr UINT StandardHeight = 720;
 
 namespace MyColorF
 {
+	extern const D2D1::ColorF BlackHalfAlpha;
+	extern const D2D1::ColorF WhiteHalfAlpha;
 	extern const D2D1::ColorF GhostGreen;
 	extern const D2D1::ColorF CherryPink;
 }

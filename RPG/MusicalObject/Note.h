@@ -24,10 +24,10 @@ public:
 
 	//time order
 	set<MusicBPM> bpms;
-	unordered_map<size_t, NoteList> notesPerKeyMap;
+	unordered_map<size_t, NoteList> notesPerTypeMap;
 
 	double baseBpm = 120.0;
-	double offset = 0.0;
+	chrono::microseconds offset{ 0 };
 
 	void InitTree();
 	void ReleaseTree();
@@ -114,7 +114,7 @@ public:
 		MAX
 	};
 
-	UINT keyType = 0;
+	UINT noteType = 0;
 	UINT actionType = 0;
 	wstring hitSound;
 	wstring extraData;

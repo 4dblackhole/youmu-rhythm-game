@@ -21,8 +21,16 @@ Rectangle2D::~Rectangle2D()
 void Rectangle2D::Draw()
 {
 	__super::Draw();
-	if(IsRound)D2D.GetRenderTarget()->DrawRoundedRectangle(rect, D2D.GetSolidBrush(BorderColor), BorderSize);
-	else D2D.GetRenderTarget()->DrawRectangle(rect.rect, D2D.GetSolidBrush(BorderColor), BorderSize);
+	if (IsRound)
+	{
+		D2D.GetRenderTarget()->DrawRoundedRectangle(rect, D2D.GetSolidBrush(BorderColor), BorderSize);
+		if (!isHollow) D2D.GetRenderTarget()->FillRoundedRectangle(rect, D2D.GetSolidBrush(FillColor));
+	}
+	else
+	{
+		D2D.GetRenderTarget()->DrawRectangle(rect.rect, D2D.GetSolidBrush(BorderColor), BorderSize);
+		if (!isHollow) D2D.GetRenderTarget()->FillRectangle(rect.rect, D2D.GetSolidBrush(FillColor));
+	}
 }
 
 void Rectangle2D::SetRadius(FLOAT f)

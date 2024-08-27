@@ -143,6 +143,23 @@ void ShortCut::WordSeparateW(const wstring_view& source, const wstring& separato
 	}
 }
 
+D3D11_TEXTURE2D_DESC ShortCut::GetDescFromSRV(ID3D11ShaderResourceView*& ptr)
+{
+	ID3D11Resource* pResource = nullptr;
+	ptr->GetResource(&pResource);
+
+	ID3D11Texture2D* pTexture2D = nullptr;
+	pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pTexture2D);
+
+	D3D11_TEXTURE2D_DESC desc;
+	pTexture2D->GetDesc(&desc);
+
+	ReleaseCOM(pTexture2D);
+	ReleaseCOM(pResource);
+
+	return desc;
+}
+
 D2D1::Matrix3x2F ShortCut::XmFloat4x4To3x2(const XMFLOAT4X4 m)
 {
 	return D2D1::Matrix3x2F(m._11, m._12, m._21, m._22, m._41, m._42);

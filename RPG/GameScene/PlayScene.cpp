@@ -283,7 +283,7 @@ void PlayScene::LoadPattern(const wstring_view& content)
 
 		//DataOrder::Key
 		wss << noteElements[(int)Note::DataOrder::Key];
-		wss >> tempNote.keyType;
+		wss >> tempNote.noteType;
 
 		//DataOrder:Action
 		wss << noteElements[(int)Note::DataOrder::Action];
@@ -302,10 +302,15 @@ void PlayScene::LoadPattern(const wstring_view& content)
 			tempNote.extraData= noteElements[(int)Note::DataOrder::ExtraData];
 		}
 
-		musicScore->notesPerKeyMap[tempNote.keyType].emplace(make_pair(tempNote.mp, tempNote));
+		musicScore->notesPerTypeMap[tempNote.noteType].emplace(make_pair(tempNote.mp, tempNote));
 		if (ReadNextLine()) break; //in case last line
 		else continue;
 	}
+}
+void PlayScene::StopLoadMusicScoreThread()
+{
+	loadMusicScoreThreadFlag = false;
+	if (loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
 }
 void PlayScene::LoadMusicScore()
 {
@@ -331,9 +336,16 @@ void PlayScene::LoadMusicScore()
 		wstring val;
 		ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
 
+
+		using namespace chrono;
+		double offset = 0;
 		wstringstream wss;
 		wss << val << endl;
-		wss >> musicScore->offset;
+		wss >> offset;
+		//offset in text: miliseconds unit, offset in memory: microseconds unit
+		duration<double, std::milli> offsetMili = duration<double, std::milli>(offset);
+		microseconds offsetMicro = duration_cast<microseconds>(offsetMili);
+		musicScore->offset = offsetMicro;
 
 		//Base BPM
 		size_t baseBpmIdx = uniFile.find(BaseBpmIdc, offsetIdx);
@@ -357,14 +369,18 @@ void PlayScene::LoadMusicScore()
 		LoadPattern(patternView);
 
 		testLane.LoadNotes(musicScore);
-
+		/*
 		Note* firstNote = musicScore->FindFirstNote();
-		const double firstNotePos = musicScore->offset + double(firstNote->mp.position);
+		const RationalNumber<64>& firstNotePos = firstNote->mp.position;
+		const RationalNumber<64> measurePosOfFirstNote = musicScore->GetMeasureLength(firstNote->mp.measureIdx);
+		*/
+
+		constexpr chrono::milliseconds waitTime(1000);
+		if (musicScore->offset < waitTime) UpdateMusicTimeOffset(waitTime);
 
 		musicScore->InitTree();
 
 		//this_thread::sleep_for(chrono::milliseconds(3000));
-
 		DEBUG_BREAKPOINT;
 
 	}
@@ -380,16 +396,15 @@ void PlayScene::LoadMusicScore()
 void PlayScene::LoadMusicScoreComplete()
 {
 	musicScoreLoadFlag = true;
+	//if (musicScore->offset < chrono::duration<double, chrono::seconds>(1));
 	timer.Reset();
 	rhythmTimer.Reset();
 }
 
 void PlayScene::StopThread()
 {
-	playMusicThreadRunFlag = false;
-	loadMusicScoreThreadFlag = false;
-	if (playMusicThread.joinable()) playMusicThread.join();
-	if(loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
+	STopPlayMusicThread();
+	StopLoadMusicScoreThread();
 }
 
 PlayScene::~PlayScene()
@@ -420,8 +435,7 @@ void PlayScene::ChangeStatusLoad()
 
 void PlayScene::ExitStatusLoad()
 {
-	loadMusicScoreThreadFlag = false;
-	if (loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
+	StopLoadMusicScoreThread();
 }
 
 void PlayScene::UpdateOnLoad(float dt)
@@ -453,7 +467,14 @@ void PlayScene::RenderOnLoad(ID3D11DeviceContext* deviceContext, const Camera& c
 
 void PlayScene::UpdateTotalMusicTime()
 {
-	totalMusicTime = rhythmTimer.TotalTime() * 1000.0f + (double)musicTimeOffset.count();
+	using namespace std::chrono;
+	totalMusicTime = rhythmTimer.TotalTime() * 1000.0f + (double)(duration_cast<milliseconds>(musicTimeOffset).count());
+}
+
+void PlayScene::STopPlayMusicThread()
+{
+	playMusicThreadRunFlag = false;
+	if (playMusicThread.joinable())playMusicThread.join();
 }
 
 void PlayScene::PlayMusic()
@@ -490,11 +511,7 @@ void PlayScene::ChangeStatusStart()
 
 void PlayScene::ExitStatusStart()
 {
-	playMusicThreadRunFlag = false;
-	if (playMusicThread.joinable())
-	{
-		playMusicThread.join();
-	}
+	STopPlayMusicThread();
 	music->channel->setPaused(true);
 }
 

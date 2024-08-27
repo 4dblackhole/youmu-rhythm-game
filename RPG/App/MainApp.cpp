@@ -14,7 +14,7 @@ MainApp* App;
 MainApp::MainApp(HINSTANCE hInstance)
 	: D3DApp(hInstance), mCamera(mClientWidth, mClientHeight),
 	drawFPSCounterFlag(true),
-	bgColor(MyColor4::Black)
+	bgColor(DefaultBgColor)
 {
 	App = this;
 	mMainWndCaption = _T("2D Test");
@@ -27,6 +27,7 @@ MainApp::MainApp(HINSTANCE hInstance)
 	fpsLayout->SetLayoutRightAlign(L"FPS: 000", D2D.GetFont(D2Ddevice::FontName::DefaultFont));
 
 	fpsTimer.Reset();
+
 }
 
 MainApp::~MainApp()
@@ -130,37 +131,6 @@ void MainApp::UpdateDrawWorld2D(AlignModeX x)
 	mDrawWorld2DArr[(int)x].SetPosition(drawPos);
 	mDrawWorld2DArr[(int)x].SetScale(RateY());
 }
-
-/*
-void MainApp::UpdateDrawWorld2D(AlignModeX x)
-{
-	const int xIdx = (int)x;
-	if (mDrawWorld2DArr[xIdx].second)
-	{
-		D2D1_POINT_2F drawPos;
-		float w = (float)mClientWidth;
-		float h = (float)mClientHeight;
-		switch (x)
-		{
-		case AlignModeX::Left:
-			drawPos = { 0, 0 };
-			break;
-		case AlignModeX::Mid:
-			drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w * 0.5f);
-			break;
-		case AlignModeX::Right:
-			drawPos = ShortCut::Resize2DtoStandardCS(w, h, 0, 0, w);
-			break;
-		default:
-			drawPos = { 0, 0 };
-			break;
-		}
-		mDrawWorld2DArr[xIdx].first = D2D1::Matrix3x2F::Scale({ rateY, rateY }) * D2D1::Matrix3x2F::Translation({ drawPos.x, drawPos.y });
-		mDrawWorld2DArr[xIdx].second = false;
-		TRACE(_T("DrawWorld2D Updated\n"));
-	}
-}
-*/
 
 void MainApp::UpdateDrawWorld3D(AlignModeX x, AlignModeY y)
 {

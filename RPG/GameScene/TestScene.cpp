@@ -1,12 +1,9 @@
 #include "framework.h"
 #include "TestScene.h"
 
-TestScene::TestScene() : sq(0.0f, 0.0f, 1280.0f, 720.0f), sq2(300, 100, 259, 224), whiteSquare(300, -100, 259, 224,MyColor4::White,true)
+TestScene::TestScene() : sq(0.0f, 0.0f, 1280.0f, 720.0f), sq2(300, 100, 259, 224), whiteSquare(300, -100, 259, 224, MyColor4::White, true)
 {
 	sq.SetTexture(GETTEXTURE(TextureManager::Name::test));
-	constexpr float rate = (640.0 / 480.0) / (1280.0 / 720.0);
-	sq.GetWorld3d().SetUvScale({ 1.0f, rate });
-	sq.GetWorld3d().SetUvPosition({ 1.0f, rate });
 	sq2.SetTexture(GETTEXTURE(TextureManager::Name::myon));
 }
 

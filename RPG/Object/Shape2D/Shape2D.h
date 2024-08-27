@@ -13,9 +13,10 @@ public:
 	const World2D& GetWorld2dConst() const { return world2d; }
 	World2D& GetWorld2d() { return world2d; }
 
-	D2D1::ColorF FillColor = { 1,1,1,1 };
-	D2D1::ColorF BorderColor = { 1,1,1,1 };
+	D2D1::ColorF FillColor{ D2D1::ColorF::Black };
+	D2D1::ColorF BorderColor{ D2D1::ColorF::White };
 	float BorderSize = 1.0f;
+	bool isHollow = false;
 
 protected:
 	World2D world2d;
