@@ -22,10 +22,10 @@ public:
 	void ResetBackBuffer(IDXGISwapChain* swapChain);
 	void ResetBackBuffer_Release();
 
-	void BeginDraw() { d2Rtg->BeginDraw(); }
-	void EndDraw() { d2Rtg->EndDraw(); }
+	void BeginDraw() noexcept { d2Rtg->BeginDraw(); }
+	void EndDraw() noexcept { d2Rtg->EndDraw(); }
 
-	void GetImageDimensions(wstring_view dir,UINT* w, UINT* h);
+	void GetImageDimensions(wstring_view dir,UINT* w, UINT* h) const;
 
 	ID2D1SolidColorBrush*& GetSolidBrush(const D2D1::ColorF color);
 	IDWriteTextFormat*& GetFont(const std::string name);

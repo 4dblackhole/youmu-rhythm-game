@@ -61,7 +61,8 @@ void SpriteEffect::InitFxVariables()
 
 	mfxWorld = mFX->GetVariableByName("gWorld")->AsMatrix();
 	mfxUvWorld = mFX->GetVariableByName("gUvWorld")->AsMatrix();
-	mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+	mfxView= mFX->GetVariableByName("gView")->AsMatrix();
+	mfxProj = mFX->GetVariableByName("gProj")->AsMatrix();
 	mfxTexture = mFX->GetVariableByName("gTexture")->AsShaderResource();
 	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();
 }

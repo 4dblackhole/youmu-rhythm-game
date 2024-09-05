@@ -1,8 +1,9 @@
 cbuffer cbPerFrame
 {
     matrix gWorld;
+    matrix gView;
+    matrix gProj;
     matrix gUvWorld;
-    matrix gWorldViewProj;
     float4 gTextureDiffuse;
 };
 
@@ -33,51 +34,36 @@ struct VertexOut
 	
 VertexOut VS(VertexIn vin)
 {
-	VertexOut vout;
-	
-	// Transform to world space space.
-    vout.Pos = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
-	
-	// Output vertex attributes for interpolation across triangle.
-    vout.Color = vin.Color;
-    vout.Tex = vin.Tex;
-
-	return vout;
-}
-
-VertexOut VS_Texture(VertexIn vin)
-{
     VertexOut vout;
 	
 	// Transform to world space space.
-    vout.Pos = mul(float4(vin.Pos, 1.0f), gWorldViewProj);
+    vout.Pos = mul(float4(vin.Pos, 1.0f), gWorld);
+    vout.Pos = mul(vout.Pos, gView);
+    vout.Pos = mul(vout.Pos, gProj);
 	
 	// Output vertex attributes for interpolation across triangle.
     vout.Color = vin.Color;
     
-	// Output vertex attributes for interpolation across triangle.
     vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gUvWorld).xy;
-
+   
     return vout;
 }
- 
-float4 PS_Texture(VertexOut pin) : SV_Target
-{
-    return gTexture.Sample(samAnisotropic, pin.Tex) * gTextureDiffuse;
-}
 
-float4 PS_Color(VertexOut pin) : SV_Target
+float4 PS(VertexOut pin, uniform bool textureMode) : SV_Target
 {
-    return pin.Color * gTextureDiffuse;
+    if (textureMode)
+        return gTexture.Sample(samAnisotropic, pin.Tex) * gTextureDiffuse;
+    else
+        return pin.Color * gTextureDiffuse;
 }
 
 technique11 TechTexture
 {
     pass P0
     {
-        SetVertexShader( CompileShader( vs_5_0, VS_Texture() ) );
+        SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader(CompileShader(ps_5_0, PS_Texture()));
+        SetPixelShader(CompileShader(ps_5_0, PS(true) ) );
     }
 }
 
@@ -85,8 +71,8 @@ technique11 TechColor
 {
     pass P0
     {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetVertexShader(CompileShader(vs_5_0, VS() ) );
         SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS_Color()));
+        SetPixelShader(CompileShader(ps_5_0, PS(false) ) );
     }
 }

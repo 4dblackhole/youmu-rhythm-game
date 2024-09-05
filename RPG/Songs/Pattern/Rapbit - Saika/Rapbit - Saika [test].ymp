@@ -16,7 +16,7 @@ Base BPM: 140
 0/1,#bpm 140
 #measure 1/4
 --
-#measure 15/8
+#measure 20/8
 
 1/8,#bpm 180
 2/8,#bpm 175
@@ -25,12 +25,12 @@ Base BPM: 140
 5/8,#bpm 155
 6/8,#bpm 115
 7/8,#bpm 110
-9/8,#bpm 115
+8/8,#bpm 115
 10/8,#bpm 175
-11/8,#bpm 165
-12/8,#bpm 120
-13/8,#bpm 115
-14/8,#bpm 108
+12/8,#bpm 165
+14/8,#bpm 120
+16/8,#bpm 115
+18/8,#bpm 108
 --
 #measure C
 0/1,#bpm 144

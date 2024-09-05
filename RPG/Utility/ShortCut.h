@@ -61,7 +61,7 @@ template <typename T>
 inline void SafeDeleteArr(T*& ptr) { delete[] ptr; ptr = nullptr; }
 
 template <typename T>
-typename std::enable_if_t<std::is_base_of<IUnknown, T>::value>
+std::enable_if_t<std::is_base_of<IUnknown, T>::value>
 ReleaseCOM(T*& resource) {
 	if (resource) {
 		resource->Release();

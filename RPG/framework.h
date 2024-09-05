@@ -59,6 +59,7 @@ using namespace std;
 #include "defines.h"
 
 //my headers
+#include "Utility/Node.h"
 #include "Utility/ShortCut.h"
 #include "Utility/Math.h"
 #include "Utility/RationalNumber.h"
@@ -106,10 +107,13 @@ namespace MyColor4
 {
 	constexpr DirectX::XMFLOAT4 Black(0, 0, 0, 1);
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
+	constexpr DirectX::XMFLOAT4 MyRed(232.0/255.0, 48.0/255.0, 32.0/255.0, 1.0);
+	constexpr DirectX::XMFLOAT4 MyBlue(232.0/255.0, 48.0/255.0, 32.0/255.0, 1.0);
 }
 
 constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;
 
+extern const wstring SkinDir;
 extern const wstring SongDir;
 extern const wstring MusicDir;
 extern const wstring PatternDir;

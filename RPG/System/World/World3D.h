@@ -9,6 +9,8 @@ public:
 	World3D(XMFLOAT2 size, XMFLOAT3 rot, XMFLOAT3 position);
 	~World3D();
 
+	void SetCenterPosition(const XMFLOAT3);
+
 	void SetObjectScale(const XMFLOAT2 s);
 	void SetObjectScale(const FLOAT s);
 	void SetObjectRotation(const XMFLOAT3 s);
@@ -26,6 +28,8 @@ public:
 
 	void SetAlignX(AlignModeX m);
 	void SetAlignY(AlignModeY m);
+
+	const XMFLOAT3& GetCenterPosition() const { return CenterPosition; }
 
 	const XMFLOAT2& GetObjectScale() const { return ObjectScale; }
 	const XMFLOAT3& GetObjectPosition() const { return ObjectPosition; }
@@ -51,6 +55,8 @@ public:
 	void OnParentWorldUpdate();
 
 private:
+	XMFLOAT3 CenterPosition{};
+
 	//variables to describe the shape
 	XMFLOAT2 ObjectScale;
 	XMFLOAT3 ObjectRotation{};

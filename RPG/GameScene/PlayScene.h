@@ -86,6 +86,7 @@ private:
 
 	GameTimer rhythmTimer;
 	chrono::microseconds musicTimeOffset{ 0 };
+	chrono::microseconds firstNoteTiming{ 0 };
 	double totalMusicTime = 0;
 	Sprite transparentBlackBG;
 	
@@ -103,9 +104,22 @@ private:
 	Music* music; //weak ptr
 	Pattern* pattern; //weak ptr
 
+//Game mode related
 private:
 	Lane testLane;
 	void InitLanes();
+
+	class TextureName
+	{
+	public:
+		DECLARE_VARIABLE_STRING(LaneBackground);
+		DECLARE_VARIABLE_STRING(hitCircle);
+		DECLARE_VARIABLE_STRING(hitcircleoverlay);
+	};
+
+	map<const string, Texture*> textureList;
+	void InitTextures();
+	void ReleaseTextures();
 
 	AccuracyRange accRange;
 	map<size_t, FMOD::Sound*> defaultHitSoundList;
@@ -114,7 +128,30 @@ private:
 	double hitsoundVolume;
 	double masterVolume;
 
+//prefix sum for calculating timing
 private:
+	void InitTimeSignaturePrefixSum();
+
+	vector<RationalNumber<64>> measurePrefixSum;
+	void InitMeasurePrefixSum();
+	void ReleaseMeasurePrefixSum();
+	RationalNumber<64> GetMeasurePrefixSum(int start, int end);
+	RationalNumber<64> GetMeasurePrefixSum(int end);
+
+	using MilliDouble = chrono::duration<double, std::milli>;
+	map<MusicalPosition, MilliDouble> bpmTimingPrefixSum;
+	void InitBpmTimingPrefixSum();
+	void ReleaseBpmTimingPrefixSum();
+	const decltype(bpmTimingPrefixSum)::iterator GetBpmTimingPoint(const decltype(bpmTimingPrefixSum)::key_type& val);
+
+	chrono::microseconds GetNoteTimingPoint(const Note& note);
+
+private:
+	Sprite laneSprite;
+	Sprite circleSprite;
+	Sprite circleOverlaySprite;
+	void InitSprites();
+
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();
 	void UpdateCurrentTimeText();
@@ -144,5 +181,5 @@ private:
 template<typename DurationType>
 inline void PlayScene::UpdateMusicTimeOffset(DurationType waitTime)
 {
-	musicTimeOffset = musicScore->offset - waitTime;
+	musicTimeOffset = waitTime;
 }

@@ -208,6 +208,7 @@
     <ClCompile Include="System\World\World2D.cpp" />
     <ClCompile Include="System\World\World3D.cpp" />
     <ClCompile Include="Utility\Math.cpp" />
+    <ClCompile Include="Utility\Node.cpp" />
     <ClCompile Include="Utility\RationalNumber.cpp" />
     <ClCompile Include="Utility\ShortCut.cpp" />
     <ClCompile Include="Utility\Trace.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="System\World\World2D.h" />
     <ClInclude Include="System\World\World3D.h" />
     <ClInclude Include="Utility\Math.h" />
+    <ClInclude Include="Utility\Node.h" />
     <ClInclude Include="Utility\RationalNumber.h" />
     <ClInclude Include="Utility\ShortCut.h" />
     <ClInclude Include="Utility\Trace.h" />

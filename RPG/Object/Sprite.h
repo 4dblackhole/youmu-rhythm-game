@@ -14,6 +14,7 @@ public:
 
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
 	void Render(ID3D11DeviceContext*, const Camera&);
+	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, const vector<World3D>&);
 	void OnResize();
 
 	void ChangeWidthToCurrentWidth(float w, float h);
@@ -23,6 +24,9 @@ public:
 
 	const World3D& GetWorld3dConst() const { return world3d; }
 	World3D& GetWorld3d() { return world3d; }
+
+	void RepeatTexture(UINT imgWidth, UINT imgHeight, float imgRate = 1.0f);
+	void RepeatTextureInExtraArea(UINT imgWidth, UINT imgHeight);
 
 	XMFLOAT4 Diffuse;
 	bool ColorMode = false;

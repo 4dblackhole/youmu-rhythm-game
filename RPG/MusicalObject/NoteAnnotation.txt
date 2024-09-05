@@ -1,0 +1,213 @@
+
+/*
+public:
+    //segment tree of Measure
+    void InitTree();
+    void ReleaseTree();
+    RationalNumber<64> GetMeasureLength(int idx);
+    RationalNumber<64> GetMeasureLength(int listLeft, int listRight);
+
+private:
+    struct MeasureNode : public Node<MeasureNode>
+    {
+    public:
+        RationalNumber<64> totalLength{ 0, 1 };
+        int idx = 0;
+    };
+
+    MeasureNode* measureSegTree = nullptr;
+    MeasureNode* measureSegLazyTree = nullptr;
+
+    //for debug
+    vector<MeasureNode*> segTreeView;
+    vector<MeasureNode*> segLazyTreeView;
+
+    void InitTreeRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
+    void ReleaseTreeRC(MeasureNode* node);
+
+    RationalNumber<64> GetMeasureLengthRC(MeasureNode* node, MeasureNode* lazyNode, int searchLeft, int searchRight, int listLeft, int listRight);
+
+    void UpdateLazyTree(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
+    void UpdateMeasureRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight, RationalNumber<64> val);
+    */
+    /*
+    template <typename T>
+    std::enable_if_t<std::is_base_of<Node<T>, T>::value> RightRotate(T*& node)
+    {
+        if (node == nullptr) return;
+
+        T* newNode = node->pLeft;
+        if (newNode == nullptr) return;
+        T* temp = newNode->pRight;
+
+        // 회전 수행
+        newNode->pRight = node;
+        node->pLeft = temp;
+
+        node = newNode;
+    }
+
+    //enable when T is base of Node class
+    template <typename T>
+    std::enable_if_t<std::is_base_of<Node<T>, T>::value> LeftRotate(T*& node)
+    {
+        if (node == nullptr) return;
+
+        MeasureNode* newNode = node->pRight;
+        if (newNode == nullptr) return;
+        MeasureNode* temp = newNode->pLeft;
+
+        // 회전 수행
+        newNode->pLeft = node;
+        node->pRight = temp;
+
+        node = newNode;
+    }*/
+void MusicScore::InitTree()
+{
+    ReleaseTree();
+
+    measureSegTree = new MeasureNode;
+    measureSegLazyTree = new MeasureNode;
+
+    segTreeView.emplace_back(measureSegTree);
+    segLazyTreeView.emplace_back(measureSegLazyTree);
+
+    InitTreeRC(measureSegTree, measureSegLazyTree, 0, (int)measures.size() - 1);
+
+
+    DEBUG_BREAKPOINT;
+}
+
+void MusicScore::InitTreeRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight)
+{
+    static int nodeIdx;
+    node->idx = nodeIdx++;
+
+    if (listLeft == listRight)
+    {
+        node->totalLength = measures[listLeft].length;
+    }
+    else
+    {
+        node->pLeft = new MeasureNode;
+        node->pRight = new MeasureNode;
+        MeasureNode* const& leftChild = node->pLeft;
+        MeasureNode* const& rightChild = node->pRight;
+
+        lazyNode->pLeft = new MeasureNode;
+        lazyNode->pRight = new MeasureNode;
+        MeasureNode* const& leftLazyChild = lazyNode->pLeft;
+        MeasureNode* const& rightLazyChild = lazyNode->pRight;
+
+        segTreeView.emplace_back(leftChild);
+        segTreeView.emplace_back(rightChild);
+
+        segLazyTreeView.emplace_back(leftLazyChild);
+        segLazyTreeView.emplace_back(rightLazyChild);
+
+        const int& pivot = GetSegTreePivot(listLeft, listRight);
+        InitTreeRC(leftChild, leftLazyChild, listLeft, pivot - 1);
+        InitTreeRC(rightChild, rightLazyChild, pivot, listRight);
+        node->totalLength = node->pLeft->totalLength + node->pRight->totalLength;
+    }
+}
+
+
+void MusicScore::ReleaseTree()
+{
+    if (measureSegTree != nullptr) ReleaseTreeRC(measureSegTree);
+    if (measureSegLazyTree != nullptr) ReleaseTreeRC(measureSegLazyTree);
+    if (!segTreeView.empty()) segTreeView.clear();
+    if (!segLazyTreeView.empty()) segLazyTreeView.clear();
+}
+
+
+
+RationalNumber<64> MusicScore::GetMeasureLength(int idx)
+{
+    if (measures.empty() || idx < 0) return 0;
+
+    int trueIdx = min(idx, (int)measures.size() - 1);
+    return measures[trueIdx].length;
+}
+
+RationalNumber<64> MusicScore::GetMeasureLength(int searchLeft, int searchRight)
+{
+    if (searchRight < searchLeft) return GetMeasureLength(searchRight, searchLeft);
+    if (measures.empty() || searchRight < 0) return 0;
+
+    if (searchLeft < 0) searchLeft = 0;
+
+    if (measures.size() <= searchLeft) //out of measurelist range
+    {
+        const RationalNumber<64>& lastMeasureLength = measures.back().length;
+        return lastMeasureLength * (searchRight - searchLeft + 1);
+    }
+    else
+    {
+        const int mostRightIdx = (int)measures.size() - 1;
+        const int trueSearchRightIdx = min(searchRight, mostRightIdx);
+        RationalNumber<64> result = GetMeasureLengthRC(measureSegTree, measureSegLazyTree, searchLeft, trueSearchRightIdx, 0, (int)measures.size() - 1);
+
+        const int outRangeIdxCount = searchRight - mostRightIdx;
+        if (outRangeIdxCount > 0)
+        {
+            const RationalNumber<64>& lastMeasureLength = measures.back().length;
+            RationalNumber<64> outOfArea = lastMeasureLength * outRangeIdxCount;
+            return result + outOfArea;
+        }
+        else return result;
+    }
+}
+
+RationalNumber<64> MusicScore::GetMeasureLengthRC(MeasureNode* node, MeasureNode* lazyNode, int searchLeft, int searchRight, int listLeft, int listRight)
+{
+    if (node == nullptr) return RationalNumber<64>(0);
+
+    UpdateLazyTree(node, lazyNode, listLeft, listRight);
+    if (listRight < searchLeft || searchRight < listLeft) return 0;
+
+    if (searchLeft <= listLeft && listRight <= searchRight) return node->totalLength;
+
+    const int pivot = GetSegTreePivot(listLeft, listRight);
+
+    MeasureNode* const& leftChild = node->pLeft;
+    MeasureNode* const& rightChild = node->pRight;
+
+    MeasureNode* const& leftLazyChild = lazyNode->pLeft;
+    MeasureNode* const& rightLazyChild = lazyNode->pRight;
+
+    return GetMeasureLengthRC(leftChild, leftLazyChild, searchLeft, searchRight, listLeft, pivot - 1)
+        + GetMeasureLengthRC(rightChild, rightLazyChild, searchLeft, searchRight, pivot, listRight);
+
+}
+
+void MusicScore::ReleaseTreeRC(MeasureNode* node)
+{
+    if (node->pLeft != nullptr) ReleaseTreeRC(node->pLeft);
+    if (node->pRight != nullptr) ReleaseTreeRC(node->pRight);
+    SafeDelete(node);
+}
+
+void MusicScore::UpdateLazyTree(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight)
+{
+    if (lazyNode->totalLength != 0)
+    {
+        node->totalLength += ((*lazyNode).totalLength) * (listRight - listLeft + 1);
+
+        //propagation
+        if (listLeft != listRight)
+        {
+            lazyNode->pLeft->totalLength += lazyNode->totalLength;
+            lazyNode->pRight->totalLength += lazyNode->totalLength;
+        }
+        lazyNode->totalLength = 0;
+    }
+}
+
+void MusicScore::UpdateMeasureRC(MeasureNode* node, MeasureNode* lazyNode, int start, int end, RationalNumber<64> diff)
+{
+    UpdateLazyTree(node, lazyNode, start, end);
+
+}

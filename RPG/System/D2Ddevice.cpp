@@ -96,7 +96,7 @@ void D2Ddevice::ResetBackBuffer_Release()
 }
 
 
-void D2Ddevice::GetImageDimensions(wstring_view dir, UINT* w, UINT* h)
+void D2Ddevice::GetImageDimensions(wstring_view dir, UINT* w, UINT* h) const
 {
 	HRESULT hr = S_OK;
 

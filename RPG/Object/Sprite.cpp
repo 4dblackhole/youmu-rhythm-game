@@ -45,7 +45,6 @@ VertexColorTexture& VertexColorTexture::operator=(const VertexColorTexture& p)
 	this->Uv = p.Uv;
 	return *this;
 }
-
 VertexColorTexture& VertexColorTexture::operator=(VertexColorTexture&& p) noexcept
 {
 	this->Pos = p.Pos;
@@ -104,8 +103,8 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	UINT stride = sizeof(VertexColorTexture);
 	UINT offset = 0;
 
-	XMMATRIX view = cam.View();
-	XMMATRIX proj = cam.Proj();
+	CXMMATRIX& view = cam.View();
+	CXMMATRIX& proj = cam.Proj();
 
 	D3DX11_TECHNIQUE_DESC techDesc;
 	ID3DX11EffectTechnique*& currentTech = ColorMode ? EffectList::SpriteFX->mTechColor : EffectList::SpriteFX->mTechTexture;
@@ -117,21 +116,23 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
-		//CXMMATRIX world = XMLoadFloat4x4(&GetWorld3d().GetObjectWorld()) * XMLoadFloat4x4(&GetWorld3d().GetGlobalWorld());
-		CXMMATRIX world = XMLoadFloat4x4(&GetWorld3d().GetTotalDrawWorld());
-		CXMMATRIX uvWorld = XMLoadFloat4x4(&GetWorld3d().GetUvWorld());
-		CXMMATRIX WVP = world * cam.View() * cam.Proj();
+		CXMMATRIX& world = XMLoadFloat4x4(&GetWorld3d().GetTotalDrawWorld());
+		CXMMATRIX& uvWorld = XMLoadFloat4x4(&GetWorld3d().GetUvWorld());
 
 		EffectList::SpriteFX->mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
-		EffectList::SpriteFX->mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&WVP));
+		EffectList::SpriteFX->mfxView->SetMatrix(reinterpret_cast<const float*>(&view));
+		EffectList::SpriteFX->mfxProj->SetMatrix(reinterpret_cast<const float*>(&proj));
 		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
 		EffectList::SpriteFX->mfxTexture->SetResource(textureSRV);
 		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 
-
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
 		deviceContext->DrawIndexed(6, 0, 0);
 	}
+}
+
+void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, const vector<World3D>& worldArr)
+{
 }
 
 void Sprite::OnResize()
@@ -143,6 +144,8 @@ void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
 	GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(w, h) , GetWorld3d().GetObjectScale().y });
 	MakeCenterUV();
+
+	DEBUG_BREAKPOINT;
 }
 
 void Sprite::MakeCenterUV()
@@ -150,20 +153,19 @@ void Sprite::MakeCenterUV()
 	if (textureSRV != nullptr)
 	{
 		const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(textureSRV);
-		const float spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
-		const float imgRate = (float)desc.Height / (float)desc.Width;
-		if (spriteRate < imgRate)
+		const float& spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
+		const float& imgRate = (float)desc.Height / (float)desc.Width;
+		if (spriteRate < imgRate) //sprite is more width than img
 		{
 			world3d.SetUvScale({ 1.0f, (spriteRate / imgRate) });
 			const XMFLOAT2& uv = world3d.GetUvScale();
-			world3d.SetUvPosition({ 0.0f, (1.0f-uv.y) * 0.5f });
+			world3d.SetUvPosition({ 0.0f, (1.0f - uv.y) * 0.5f });
 		}
 		else
 		{
-			world3d.SetUvScale({ (imgRate / spriteRate),1.0f });
+			world3d.SetUvScale({ (imgRate / spriteRate), 1.0f });
 			const XMFLOAT2& uv = world3d.GetUvScale();
 			world3d.SetUvPosition({ (1.0f - uv.x) * 0.5f , 0.0f });
-
 		}
 	}
 }
@@ -212,4 +214,25 @@ void Sprite::BuildLayout(ID3D11Device* device)
 	EffectList::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
 	HR(device->CreateInputLayout(VertexColorTexture::InputLayoutDesc::desc, VertexColorTexture::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
+}
+
+void Sprite::RepeatTexture(UINT imgWidth, UINT imgHeight, float imgRate)
+{
+	const float& widthRate = world3d.GetObjectScale().x / (float)imgWidth;
+	const float& heightRate = world3d.GetObjectScale().y / (float)imgHeight;
+
+	world3d.SetUvScale({ widthRate / imgRate, heightRate / imgRate });
+}
+
+void Sprite::RepeatTextureInExtraArea(UINT imgWidth, UINT imgHeight)
+{
+	const float& spriteW = world3d.GetObjectScale().x;
+	const float& spriteH = world3d.GetObjectScale().y;
+
+	const float& spriteRate = spriteH / spriteW;
+	const float& imgRate = (float)imgHeight / (float)imgWidth;
+
+	//in case the sprite is more width than img
+	if (spriteRate < imgRate) world3d.SetUvScale({ spriteRate / imgRate, 1.0f });
+	else world3d.SetUvScale({ 1.0f, spriteRate / imgRate});
 }

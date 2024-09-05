@@ -68,7 +68,6 @@ void SelectMusicScene::OnMouseDown(WPARAM btnState, int x, int y)
 }
 
 void SelectMusicScene::OnMouseUp(WPARAM btnState, int x, int y)
-
 {
 }
 

@@ -38,7 +38,8 @@ public:
 	~SpriteEffect();
 
 	void SetWorld(DirectX::CXMMATRIX M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
-	void SetWorldViewProj(DirectX::CXMMATRIX M) const { mfxWorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetView(DirectX::CXMMATRIX M) const { mfxView->SetMatrix(reinterpret_cast<const float*>(&M)); }
+	void SetProj(DirectX::CXMMATRIX M) const { mfxProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetTexture(ID3D11ShaderResourceView* tex) const { mfxTexture->SetResource(tex); }
 
 	void InitFxVariables();
@@ -47,7 +48,8 @@ public:
 	ID3DX11EffectTechnique* mTechColor;
 	ID3DX11EffectMatrixVariable* mfxWorld;
 	ID3DX11EffectMatrixVariable* mfxUvWorld;
-	ID3DX11EffectMatrixVariable* mfxWorldViewProj;
+	ID3DX11EffectMatrixVariable* mfxView;
+	ID3DX11EffectMatrixVariable* mfxProj;
 	ID3DX11EffectShaderResourceVariable* mfxTexture;
 	ID3DX11EffectVectorVariable* mfxTextureDiffuse;
 

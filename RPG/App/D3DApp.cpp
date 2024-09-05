@@ -278,7 +278,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		//mAppPaused = false;
 		//mResizing = false;
 		//mTimer.Start();
-		OnResize();
+		//OnResize();
 		return 0;
 		
 	case WM_DESTROY:

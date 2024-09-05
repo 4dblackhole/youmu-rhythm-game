@@ -8,14 +8,11 @@ class MusicBPM;
 
 class MusicScore
 {
-private:
-	struct MeasureNode;
 public:
 	MusicScore();
 	~MusicScore();
 	
-	Note* FindFirstNote();
-	RationalNumber<64> GetMeasureMusicalPosition(size_t pos); //first measure's position is 0
+	const Note* GetFirstNote() const;
 
 	using NoteList = map<MusicalPosition, Note>;
 
@@ -29,34 +26,6 @@ public:
 	double baseBpm = 120.0;
 	chrono::microseconds offset{ 0 };
 
-	void InitTree();
-	void ReleaseTree();
-	RationalNumber<64> GetMeasureLength(int idx);
-	RationalNumber<64> GetMeasureLength(int listLeft, int listRight);
-
-private:
-	//segment tree of Measure
-	struct MeasureNode
-	{
-		RationalNumber<64> totalLength{ 0, 1 };
-		MeasureNode* pLeft = nullptr, *pRight = nullptr;
-	};
-	MeasureNode* measureSegTree = nullptr;
-	MeasureNode* measureSegLazyTree = nullptr;
-	
-	//for debug
-	vector<MeasureNode*> segTreeView;
-	vector<MeasureNode*> segLazyTreeView;
-
-	void InitTreeRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
-	void ReleaseTreeRC(MeasureNode* node);
-
-	RationalNumber<64> GetMeasureLengthRC(MeasureNode* node, MeasureNode* lazyNode, int searchLeft, int searchRight, int listLeft, int listRight);
-
-	void UpdateLazyTree(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight);
-	void UpdateMeasureRC(MeasureNode* node, MeasureNode* lazyNode, int listLeft, int listRight, RationalNumber<64> val);
-
-	void RightRotate(MeasureNode* node);
 };
 
 class Measure
@@ -73,6 +42,7 @@ public:
 struct MusicalPosition
 {
 public:
+	constexpr MusicalPosition(size_t idx = 0, RationalNumber<64>pos = 0) noexcept : measureIdx(idx), position(pos) {}
 	bool operator<(const MusicalPosition& v) const;
 	bool operator>(const MusicalPosition& v) const;
 	bool operator<=(const MusicalPosition& v) const;
@@ -85,11 +55,9 @@ public:
 class MusicalObject
 {
 public:
-	MusicalObject() {}
+	MusicalObject() : mp() {}
 	MusicalObject(size_t idx, RationalNumber<64> pos) : mp({ idx, pos }) {}
 	virtual ~MusicalObject() {};
-
-	size_t GetMeasureIdx() const { return mp.measureIdx; }
 
 	bool operator<(const MusicalObject&v) const;
 	bool operator>(const MusicalObject&v) const;
@@ -127,6 +95,7 @@ public:
 	virtual ~MusicBPM() {}
 
 	double BPM() const { return bpm; }
+	void SetBPM(double b);
 
 protected:
 	double bpm;

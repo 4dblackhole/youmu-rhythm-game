@@ -15,6 +15,12 @@ World3D::~World3D()
 {
 }
 
+void World3D::SetCenterPosition(const XMFLOAT3 s)
+{
+	CenterPosition = s;
+	mObjectWorldUpdateFlag = true;
+}
+
 void World3D::SetObjectScale(const XMFLOAT2 s)
 {
 	ObjectScale = s;
@@ -147,10 +153,11 @@ void World3D::UpdateObjectWorld()
 {
 	if (mObjectWorldUpdateFlag)
 	{
+		XMMATRIX CenterPosTranslation = XMMatrixTranslationFromVector(XMLoadFloat3(&CenterPosition));
 		XMMATRIX S = XMMatrixScalingFromVector(XMLoadFloat2(&ObjectScale));
 		XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&ObjectRotation));
 		XMMATRIX T = XMMatrixTranslationFromVector(XMLoadFloat3(&ObjectPosition));
-		XMStoreFloat4x4(&mObjectWorld, S * R * T);
+		XMStoreFloat4x4(&mObjectWorld, CenterPosTranslation * S * R * T);
 		mTotalDrawWorldUpdateFlag = true;
 
 		mObjectWorldUpdateFlag = false;

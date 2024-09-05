@@ -22,4 +22,6 @@ private:
 	set<size_t> targetNoteKeyList;
 	vector<Note*> noteList;
 	vector<Note*>::iterator currentNote;
+
+	deque<Sprite> spriteList;
 };

@@ -38,6 +38,8 @@ void DwLayout2D::GetLayoutMetrics(const std::wstring text, IDWriteTextFormat* te
 	HR(D2D.GetDwFactory()->CreateTextLayout(text.c_str(), (UINT32)text.length(), textFormat, 10000.0f, 0.0f, &tempLayout));
 	tempLayout->GetMetrics(out);
 	ReleaseCOM(tempLayout);
+
+
 }
 
 void DwLayout2D::Draw()
