@@ -46,6 +46,9 @@
     <Filter Include="System\World">
       <UniqueIdentifier>{93cea854-a446-4147-89ea-80c14003ae50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MusicalObject\PrefixSum">
+      <UniqueIdentifier>{60f933f9-3ca8-4870-a8a1-816f4e7a3360}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -167,6 +170,12 @@
     </ClCompile>
     <ClCompile Include="Utility\Node.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.cpp">
+      <Filter>MusicalObject\PrefixSum</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp">
+      <Filter>MusicalObject\PrefixSum</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +304,15 @@
     </ClInclude>
     <ClInclude Include="Utility\Node.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.h">
+      <Filter>MusicalObject\PrefixSum</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\PrefixSum\MeasurePrefixSum.h">
+      <Filter>MusicalObject\PrefixSum</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

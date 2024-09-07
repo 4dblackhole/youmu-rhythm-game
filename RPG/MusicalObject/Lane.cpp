@@ -1,6 +1,8 @@
 #include "framework.h"
 #include "Lane.h"
 
+#include "GameScene/PlayScene.h"
+
 void Lane::AddTargetKey(size_t key)
 {
 	targetNoteKeyList.emplace(key);
@@ -81,7 +83,28 @@ void Lane::LoadNotes(MusicScore* ptr)
 		}
 		else --validIterCount;
 	}
-	
+
+	currentNote = noteList.begin();
+}
+
+void Lane::LoadNoteTiming(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, size_t noteIdx)
+{
+	noteTimingList[noteIdx] = PlayScene::GetNoteTimingPoint(measureSum, bpmSum, *noteList[noteIdx]);
+}
+
+
+void Lane::LoadNoteTimings(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum)
+{
+	const size_t& noteListSize = noteList.size();
+	noteTimingList.resize(noteListSize);
+	vector<thread> noteTimingThread;
+	noteTimingThread.reserve(noteListSize);
+	for (int noteIdx = 0; noteIdx < (int)noteListSize; ++noteIdx)
+	{
+		noteTimingThread.push_back(thread(&Lane::LoadNoteTiming, this, measureSum, bpmSum, (size_t)noteIdx));
+	}
+
+	for (thread& it : noteTimingThread) it.join();
 }
 
 void Lane::MoveNoteIterator(bool forward)
@@ -95,4 +118,3 @@ void Lane::MoveNoteIterator(bool forward)
 		if (currentNote != noteList.begin()) --currentNote;
 	}
 }
-

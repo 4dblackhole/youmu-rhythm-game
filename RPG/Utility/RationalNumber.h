@@ -45,13 +45,13 @@ public:
 
 	//divide with GCD of n and d, positive integer
 	//ex) if you initiate with 2/8 then the result should be 1/4
-	constexpr RationalNumber(SignedType n, UnsignedType d) noexcept
+	constexpr RationalNumber(SignedType n, UnsignedType d)
 	{
 		numerator = (n / Math::GCD<UnsignedType>((UnsignedType)(n < 0 ? -n : n), d));
 		denominator = (d / Math::GCD<UnsignedType>((UnsignedType)(n < 0 ? -n : n), d));
 	}
 
-	constexpr RationalNumber(SignedType n) noexcept :
+	constexpr RationalNumber(SignedType n) :
 		numerator(n), denominator((UnsignedType)1)
 	{}
 
@@ -149,33 +149,33 @@ public:
 		else                        return { ((SignedType)this->denominator), UnsignedType(this->numerator) };
 	}
 
-	bool operator<(const RationalNumber& r) const
+	constexpr bool operator<(const RationalNumber& r) const
 	{
 		if ((*this - r).numerator < 0) return true;
 		else return false;
 	}
 
-	bool operator>(const RationalNumber& r) const
+	constexpr bool operator>(const RationalNumber& r) const
 	{
 		return r < *this;
 	}
 
-	bool operator<=(const RationalNumber& r) const
+	constexpr bool operator<=(const RationalNumber& r) const
 	{
 		return !(*this > r);
 	}
 
-	bool operator>=(const RationalNumber& r) const
+	constexpr bool operator>=(const RationalNumber& r) const
 	{
 		return !(*this < r);
 	}
 
-	bool operator==(const RationalNumber& r) const
+	constexpr bool operator==(const RationalNumber& r) const
 	{
 		return (*this - r).numerator == 0;
 	}
 
-	bool operator!=(const RationalNumber& r) const
+	constexpr bool operator!=(const RationalNumber& r) const
 	{
 		return !(*this == r);
 	}
@@ -207,14 +207,14 @@ public:
 
 	template <typename T,
 		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
-	bool operator==(const T& value) const
+	constexpr bool operator==(const T& value) const
 	{
 		return ((*this).numerator - (value * ((*this).denominator))) == 0;
 	}
 
 	template <typename T,
 		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
-	bool operator!=(const T& value) const
+	constexpr bool operator!=(const T& value) const
 	{
 		return !(*this == value);
 	}

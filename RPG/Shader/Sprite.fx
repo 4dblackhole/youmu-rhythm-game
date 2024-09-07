@@ -49,12 +49,14 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 
-float4 PS(VertexOut pin, uniform bool textureMode) : SV_Target
+float4 PS_Texture(VertexOut pin) : SV_Target
 {
-    if (textureMode)
-        return gTexture.Sample(samAnisotropic, pin.Tex) * gTextureDiffuse;
-    else
-        return pin.Color * gTextureDiffuse;
+    return gTexture.Sample(samAnisotropic, pin.Tex) * gTextureDiffuse;
+}
+
+float4 PS_Color(VertexOut pin) : SV_Target
+{
+    return pin.Color * gTextureDiffuse;
 }
 
 technique11 TechTexture
@@ -63,7 +65,7 @@ technique11 TechTexture
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader(CompileShader(ps_5_0, PS(true) ) );
+        SetPixelShader(CompileShader(ps_5_0, PS_Texture()));
     }
 }
 
@@ -73,6 +75,6 @@ technique11 TechColor
     {
         SetVertexShader(CompileShader(vs_5_0, VS() ) );
         SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_5_0, PS(false) ) );
+        SetPixelShader(CompileShader(ps_5_0, PS_Color()));
     }
 }

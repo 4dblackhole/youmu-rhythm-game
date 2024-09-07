@@ -7,6 +7,10 @@ class World3D
 public:
 	World3D() : World3D({ 1.0f,1.0f }, {}, {}) {}
 	World3D(XMFLOAT2 size, XMFLOAT3 rot, XMFLOAT3 position);
+	constexpr World3D(const World3D& w); 
+	constexpr World3D(World3D&& w) noexcept;
+	World3D& operator=(const World3D& w);
+	World3D& operator=(World3D&& w) noexcept;
 	~World3D();
 
 	void SetCenterPosition(const XMFLOAT3);
@@ -78,6 +82,8 @@ private:
 	XMFLOAT2 UvPosition{};
 	XMFLOAT4X4 mUvWorld;
 
+	void InitWorld();
+
 	void UpdateObjectWorld();
 	void UpdateLocalWorld();
 	void UpdateGlobalWorld();
@@ -90,7 +96,7 @@ private:
 	bool mTotalDrawWorldUpdateFlag = true;
 	bool mUvWorldUpdateFlag = true;
 
-	World3D* mParentWorld = nullptr;
+	World3D* mParentWorld = nullptr; //weak ptr, never delete this
 
 	AlignModeX alignX = AlignModeX::Mid;
 	AlignModeY alignY = AlignModeY::Mid;

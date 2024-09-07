@@ -11,7 +11,9 @@ public:
 	{
 		HR(D3DX11CreateShaderResourceViewFromFile(device3d,
 			file.c_str(), 0, 0, textureSRV.GetAddressOf(), 0));
-		device2d->GetImageDimensions(file, &width, &height);
+		auto desc = ShortCut::GetDescFromSRV(*textureSRV.GetAddressOf());
+		width = desc.Width;
+		height = desc.Height;
 	}
 
 	ComPtr<ID3D11ShaderResourceView> textureSRV;

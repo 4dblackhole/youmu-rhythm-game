@@ -81,6 +81,14 @@ private:
 
 	Triangle2D pauseOptSelectTriangle{};
 
+	ID3D11Texture2D* pauseBG = nullptr;
+	ID3D11RenderTargetView* pauseBgRTV = nullptr;
+	ID3D11ShaderResourceView* pauseBgSRV = nullptr;
+
+	Sprite transparentBlackBG;
+	void InitPauseBackground();
+	void ReleasePauseBackground();
+
 private:
 	GameTimer timer;
 
@@ -88,7 +96,6 @@ private:
 	chrono::microseconds musicTimeOffset{ 0 };
 	chrono::microseconds firstNoteTiming{ 0 };
 	double totalMusicTime = 0;
-	Sprite transparentBlackBG;
 	
 	template<typename DurationType>
 	void UpdateMusicTimeOffset(DurationType waitTime);
@@ -132,19 +139,12 @@ private:
 private:
 	void InitTimeSignaturePrefixSum();
 
-	vector<RationalNumber<64>> measurePrefixSum;
-	void InitMeasurePrefixSum();
-	void ReleaseMeasurePrefixSum();
-	RationalNumber<64> GetMeasurePrefixSum(int start, int end);
-	RationalNumber<64> GetMeasurePrefixSum(int end);
+	MeasurePrefixSum measurePrefixSum;
+	BpmTimingPrefixSum bpmTimingPrefixSum;
 
-	using MilliDouble = chrono::duration<double, std::milli>;
-	map<MusicalPosition, MilliDouble> bpmTimingPrefixSum;
-	void InitBpmTimingPrefixSum();
-	void ReleaseBpmTimingPrefixSum();
-	const decltype(bpmTimingPrefixSum)::iterator GetBpmTimingPoint(const decltype(bpmTimingPrefixSum)::key_type& val);
-
-	chrono::microseconds GetNoteTimingPoint(const Note& note);
+public:
+	//TODO: Change the owner of this function
+	static chrono::microseconds GetNoteTimingPoint(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, const Note& note);
 
 private:
 	Sprite laneSprite;

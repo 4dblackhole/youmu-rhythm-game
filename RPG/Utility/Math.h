@@ -28,14 +28,14 @@ public:
 	static XMVECTOR RandHemisphereUnitVec3(XMVECTOR n);
 
 	template <typename _Integer>
-	static constexpr _Integer GCD(_Integer a, _Integer b) noexcept
+	static constexpr std::enable_if_t<std::is_integral<_Integer>::value, _Integer> GCD(_Integer a, _Integer b)
 	{
 		if (b == 0) return a;	// found the GCD
 		else return GCD<_Integer>(b, a % b);
 	}
 
 	template <typename _Integer>
-	static constexpr _Integer LCM(_Integer a, _Integer b) noexcept
+	static constexpr std::enable_if_t<std::is_integral<_Integer>::value, _Integer> LCM(_Integer a, _Integer b)
 	{
 		return  (a / GCD<_Integer>(b, a % b)) * b;
 	}

@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-struct MusicalPosition;
+class MusicalPosition;
 class Note;
 class Measure;
 class MusicBPM;
@@ -39,38 +39,43 @@ public:
 	RationalNumber<64> length;
 };
 
-struct MusicalPosition
+class MusicalPosition
 {
 public:
-	constexpr MusicalPosition(size_t idx = 0, RationalNumber<64>pos = 0) noexcept : measureIdx(idx), position(pos) {}
+	constexpr MusicalPosition(const size_t& idx = 0, const RationalNumber<64>& pos = 0) : measureIdx(idx), position(pos) {}
+	constexpr MusicalPosition(const MusicalPosition& m) : measureIdx(m.measureIdx), position(m.position) {}
+	constexpr ~MusicalPosition() {}
+
 	bool operator<(const MusicalPosition& v) const;
 	bool operator>(const MusicalPosition& v) const;
 	bool operator<=(const MusicalPosition& v) const;
 	bool operator>=(const MusicalPosition& v) const;
 	bool operator==(const MusicalPosition& v) const;
-	size_t measureIdx = 0;
+
+	size_t measureIdx;
 	RationalNumber<64> position;
+
 };
 
 class MusicalObject
 {
 public:
-	MusicalObject() : mp() {}
-	MusicalObject(size_t idx, RationalNumber<64> pos) : mp({ idx, pos }) {}
-	virtual ~MusicalObject() {};
+	constexpr MusicalObject() : mp() {}
+	constexpr MusicalObject(const size_t& idx, const RationalNumber<64>& pos) : mp({ idx, pos }) {}
 
-	bool operator<(const MusicalObject&v) const;
-	bool operator>(const MusicalObject&v) const;
+	bool operator<(const MusicalObject& v) const;
+	bool operator>(const MusicalObject& v) const;
 	bool operator==(const MusicalObject& v) const;
 
 	MusicalPosition mp;
+
 };
 
 class Note : public MusicalObject
 {
 public:
 	Note() {}
-	virtual ~Note() {}
+	~Note() {}
 
 	enum class DataOrder
 	{
@@ -91,8 +96,7 @@ public:
 class MusicBPM : public MusicalObject
 {
 public:
-	MusicBPM(MusicalObject obj = {}, double b = 120.0) :MusicalObject(obj), bpm(b) {}
-	virtual ~MusicBPM() {}
+	constexpr MusicBPM(const MusicalObject& obj = {}, const double b = 120.0) :MusicalObject(obj), bpm(b) {}
 
 	double BPM() const { return bpm; }
 	void SetBPM(double b);
@@ -105,7 +109,7 @@ class MusicalEffect : public MusicalObject
 {
 public:
 	MusicalEffect() {}
-	virtual ~MusicalEffect() {}
+	~MusicalEffect() {}
 
 protected:
 	string type;

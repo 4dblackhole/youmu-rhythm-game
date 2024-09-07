@@ -194,9 +194,9 @@ fxgroup
                 //   v0.x <- pin.Pos.x; v0.y <- pin.Pos.y; v0.z <- pin.Pos.z; v0.w <- pin.Pos.w; 
                 //   v1.x <- pin.Color.x; v1.y <- pin.Color.y; v1.z <- pin.Color.z; v1.w <- pin.Color.w; 
                 //   v2.x <- pin.Tex.x; v2.y <- pin.Tex.y; 
-                //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
+                //   o0.x <- <PS_Texture return value>.x; o0.y <- <PS_Texture return value>.y; o0.z <- <PS_Texture return value>.z; o0.w <- <PS_Texture return value>.w
                 //
-                #line 55 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 54 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0
                 mul o0.xyzw, r0.xyzw, cb0[16].xyzw
                 ret 
@@ -364,9 +364,9 @@ fxgroup
                 //   v0.x <- pin.Pos.x; v0.y <- pin.Pos.y; v0.z <- pin.Pos.z; v0.w <- pin.Pos.w; 
                 //   v1.x <- pin.Color.x; v1.y <- pin.Color.y; v1.z <- pin.Color.z; v1.w <- pin.Color.w; 
                 //   v2.x <- pin.Tex.x; v2.y <- pin.Tex.y; 
-                //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
+                //   o0.x <- <PS_Color return value>.x; o0.y <- <PS_Color return value>.y; o0.z <- <PS_Color return value>.z; o0.w <- <PS_Color return value>.w
                 //
-                #line 57 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 59 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mul o0.xyzw, v1.xyzw, cb0[16].xyzw
                 ret 
                 // Approximately 2 instruction slots used

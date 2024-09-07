@@ -1,14 +1,135 @@
 #include "framework.h"
 #include "World3D.h"
 
-World3D::World3D(XMFLOAT2 size, XMFLOAT3 rot, XMFLOAT3 position) :
-	ObjectScale(size), ObjectRotation(rot), LocalPosition(position)
+void World3D::InitWorld()
 {
 	mObjectWorld = XmFloatT4X4Identity;
 	mLocalWorld = XmFloatT4X4Identity;
 	mGlobalWorld = XmFloatT4X4Identity;
 	mTotalDrawWorld = XmFloatT4X4Identity;
 	mUvWorld = XmFloatT4X4Identity;
+}
+
+World3D::World3D(XMFLOAT2 size, XMFLOAT3 rot, XMFLOAT3 position) :
+	ObjectScale(size), ObjectRotation(rot), LocalPosition(position)
+{
+	InitWorld();
+}
+
+constexpr World3D::World3D(const World3D& w)
+{
+	CenterPosition = w.CenterPosition;
+
+	ObjectScale = w.ObjectScale;
+	ObjectRotation = w.ObjectRotation;
+	ObjectPosition = w.ObjectPosition;
+
+	LocalScale = w.LocalScale;
+	LocalRotation = w.LocalRotation;
+	LocalPosition = w.LocalPosition;
+
+	UvScale = w.UvScale;
+	UvRotation = w.UvRotation;
+	UvPosition = w.UvPosition;
+
+	mParentWorld = w.mParentWorld;
+
+	alignX = w.alignX;
+	alignY = w.alignY;
+
+	mObjectWorld = XmFloatT4X4Identity;
+	mLocalWorld = XmFloatT4X4Identity;
+	mGlobalWorld = XmFloatT4X4Identity;
+	mTotalDrawWorld = XmFloatT4X4Identity;
+	mUvWorld = XmFloatT4X4Identity;
+}
+
+constexpr World3D::World3D(World3D&& w) noexcept
+{
+	CenterPosition = w.CenterPosition;
+
+	ObjectScale = w.ObjectScale;
+	ObjectRotation = w.ObjectRotation;
+	ObjectPosition = w.ObjectPosition;
+
+	LocalScale = w.LocalScale;
+	LocalRotation = w.LocalRotation;
+	LocalPosition = w.LocalPosition;
+
+	UvScale = w.UvScale;
+	UvRotation = w.UvRotation;
+	UvPosition = w.UvPosition;
+
+	mParentWorld = w.mParentWorld;
+
+	alignX = w.alignX;
+	alignY = w.alignY;
+
+	mObjectWorld = XmFloatT4X4Identity;
+	mLocalWorld = XmFloatT4X4Identity;
+	mGlobalWorld = XmFloatT4X4Identity;
+	mTotalDrawWorld = XmFloatT4X4Identity;
+	mUvWorld = XmFloatT4X4Identity;
+}
+
+World3D& World3D::operator=(const World3D& w)
+{
+	CenterPosition = w.CenterPosition;
+
+	ObjectScale = w.ObjectScale;
+	ObjectRotation = w.ObjectRotation;
+	ObjectPosition = w.ObjectPosition;
+
+	LocalScale = w.LocalScale;
+	LocalRotation = w.LocalRotation;
+	LocalPosition = w.LocalPosition;
+
+	UvScale = w.UvScale;
+	UvRotation = w.UvRotation;
+	UvPosition = w.UvPosition;
+
+	mParentWorld = w.mParentWorld;
+
+	alignX = w.alignX;
+	alignY = w.alignY;
+
+	mObjectWorld = XmFloatT4X4Identity;
+	mLocalWorld = XmFloatT4X4Identity;
+	mGlobalWorld = XmFloatT4X4Identity;
+	mTotalDrawWorld = XmFloatT4X4Identity;
+	mUvWorld = XmFloatT4X4Identity;
+
+	return *this;
+}
+
+World3D& World3D::operator=(World3D&& w) noexcept
+{
+	CenterPosition = w.CenterPosition;
+
+	ObjectScale = w.ObjectScale;
+	ObjectRotation = w.ObjectRotation;
+	ObjectPosition = w.ObjectPosition;
+
+	LocalScale = w.LocalScale;
+	LocalRotation = w.LocalRotation;
+	LocalPosition = w.LocalPosition;
+
+	UvScale = w.UvScale;
+	UvRotation = w.UvRotation;
+	UvPosition = w.UvPosition;
+
+	mParentWorld = w.mParentWorld;
+
+	alignX = w.alignX;
+	alignY = w.alignY;
+
+	mObjectWorld = XmFloatT4X4Identity;
+	mLocalWorld = XmFloatT4X4Identity;
+	mGlobalWorld = XmFloatT4X4Identity;
+	mTotalDrawWorld = XmFloatT4X4Identity;
+	mUvWorld = XmFloatT4X4Identity;
+
+	return *this;
 }
 
 World3D::~World3D()

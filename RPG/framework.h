@@ -5,9 +5,6 @@
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
-#include <wincodec.h>
-#include <comdef.h> 
-
 //#include "resource.h"
 
 //DirectX
@@ -57,6 +54,7 @@ using namespace std;
 
 //defines
 #include "defines.h"
+#include "Types.h"
 
 //my headers
 #include "Utility/Node.h"
@@ -88,9 +86,12 @@ using namespace std;
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Note.h"
 #include "MusicalObject/Pattern.h"
+#include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
+#include "MusicalObject/PrefixSum/BpmTimingPrefixSum.h"
 
 #include "App/MainApp.h"
 extern MainApp* App;
+
 
 //all coordinates are based on these numbers.
 constexpr UINT StandardWidth = 1280;
@@ -107,8 +108,9 @@ namespace MyColor4
 {
 	constexpr DirectX::XMFLOAT4 Black(0, 0, 0, 1);
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
-	constexpr DirectX::XMFLOAT4 MyRed(232.0/255.0, 48.0/255.0, 32.0/255.0, 1.0);
-	constexpr DirectX::XMFLOAT4 MyBlue(232.0/255.0, 48.0/255.0, 32.0/255.0, 1.0);
+	constexpr DirectX::XMFLOAT4 MyRed(1, 56.0f/255.0f, 40.0f/255.0f, 1);
+	constexpr DirectX::XMFLOAT4 MyBlue(64.0f/255.0f, 152.0f/255.0f, 1, 1);
+	constexpr DirectX::XMFLOAT4 GhostGreen(48.0f / 255.0f, 224.0f / 255.0f, 104.0f / 255.0f, 1);
 }
 
 constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;

@@ -136,8 +136,8 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilView);
 	ReleaseCOM(mDepthStencilBuffer);
 
-	//Release D2 BackBuffer and RenderTarget
-	D2D.ResetBackBuffer_Release();
+	//Release D2D DXGI Surface and RenderTarget
+	D2D.ReleaseBackBuffer();
 
 	//Resize the swap chain and recreate the RTV
 	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
@@ -146,8 +146,8 @@ void D3DApp::OnResize()
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
 	HR(md3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, &mRenderTargetView));
 
-	//Direct Write
-	D2D.ResetBackBuffer(mSwapChain);
+	//Reset D2D DXGI Surface and RenderTarget
+	D2D.ResetBackBufferFromSwapChain(mSwapChain);
 
 	//Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -180,7 +180,7 @@ void D3DApp::OnResize()
 	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
 	//Bind the Render Target View and Depth/Stencil View to the pipeline
-	//md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	//Set the Viewport transform
 	mScreenViewport.TopLeftX = 0;
@@ -194,6 +194,18 @@ void D3DApp::OnResize()
 
 }
 
+void D3DApp::OnWindowActive()
+{
+	mAppPaused = false;
+	mTimer.Start();
+}
+
+void D3DApp::OnWindowInactive()
+{
+	mAppPaused = true;
+	mTimer.Stop();
+}
+
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -202,13 +214,11 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
-			mAppPaused = true;
-			mTimer.Stop();
+			OnWindowInactive();
 		}
 		else
 		{
-			mAppPaused = false;
-			mTimer.Start();
+			OnWindowActive();
 		}
 		return 0;
 

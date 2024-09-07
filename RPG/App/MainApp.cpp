@@ -172,7 +172,7 @@ World3D& MainApp::GetDrawWorld3D(const AlignModeX x, const AlignModeY y)
 
 void MainApp::DrawScene()
 {
-	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	ResetRenderTarget();
 
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, (const float*)&bgColor);
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -221,7 +221,23 @@ void MainApp::OnKeyUp(WPARAM wParam, LPARAM lParam)
 {
 	SCENEMANAGER.GetCurrentScene()->OnKeyUp(wParam, lParam);
 }
+void MainApp::ResetRenderTarget()
+{
+	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+}
+/*
+void MainApp::OnWindowActive()
+{
+	__super::OnWindowActive();
+	SCENEMANAGER.GetCurrentScene()->OnWindowActive();
+}
 
+void MainApp::OnWindowInactive()
+{
+	__super::OnWindowInactive();
+	SCENEMANAGER.GetCurrentScene()->OnWindowInactive();
+}
+*/
 void MainApp::BuildBuffer()
 {
 	Sprite::BulidBuffer(md3dDevice);

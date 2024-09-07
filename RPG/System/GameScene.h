@@ -19,5 +19,6 @@ public:
 
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) = 0;
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) = 0;
+
 };
 

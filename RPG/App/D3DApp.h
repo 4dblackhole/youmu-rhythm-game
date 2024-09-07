@@ -35,6 +35,9 @@ public:
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) {}
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) {}
 
+	virtual void OnWindowActive();
+	virtual void OnWindowInactive();
+
 protected:
 	bool InitMainWindow();
 	bool InitDirect3D();

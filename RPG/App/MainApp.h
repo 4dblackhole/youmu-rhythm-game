@@ -17,6 +17,8 @@ public:
 
 	const float RateY() const { return rateY; }
 	void ChangeBgColor(const XMFLOAT4 c) { bgColor = c; }
+	const XMFLOAT4& GetBgColor() const { return bgColor; }
+	const Camera& GetCamera() const { return mCamera; }
 
 	virtual void OnMouseDown(WPARAM btnState, int x, int y) final;
 	virtual void OnMouseUp(WPARAM btnState, int x, int y) final;
@@ -25,6 +27,8 @@ public:
 	
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) final;
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final;
+
+	void ResetRenderTarget();
 
 private:
 	void BuildBuffer();

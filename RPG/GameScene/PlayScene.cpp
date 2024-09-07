@@ -13,15 +13,18 @@ constexpr float LaneWidth = 180.0f;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
-	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 0,0,0,0.5f }, true),
+	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2 }, false),
 	laneSprite(LaneWidth, 10000), circleSprite(0, 0)
 {
 	timer.Reset();
-	InitPauseOptionLayoutList();
-	ChangeStatusLoad();
+}
 
-	InitLoadingText();
-	InitCurrentTimeText();
+PlayScene::~PlayScene()
+{
+	StopThread();
+	SafeDelete(musicScore);
+	ReleaseTextures();
+	ReleasePauseBackground();
 }
 
 void PlayScene::InitLanes()
@@ -76,12 +79,15 @@ void PlayScene::InitSprites()
 	circleSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
 	circleSprite.GetWorld3d().SetObjectScale({ (float)hitCircleTexture->width, (float)hitCircleTexture->height });
 	circleSprite.SetTexture(hitCircleTexture->textureSRV.Get());
-	circleSprite.Diffuse = XMFLOAT4(0, 1, 0.5f, 1);
+	circleSprite.Diffuse = MyColor4::GhostGreen;
+	circleSprite.Diffuse.w = 0.5f;
 
 	Texture* const& hitCircleOverlayTexture = textureList.find(TextureName::hitcircleoverlay)->second;
 	circleOverlaySprite.GetWorld3d().SetParentWorld(&circleSprite.GetWorld3d());
 	circleOverlaySprite.GetWorld3d().SetObjectScale({ (float)hitCircleOverlayTexture->width, (float)hitCircleOverlayTexture->height });
 	circleOverlaySprite.SetTexture(hitCircleOverlayTexture->textureSRV.Get());
+	//circleOverlaySprite.ColorMode = true;
+	circleOverlaySprite.Diffuse = { 1,1,1,1 };
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -145,6 +151,52 @@ void PlayScene::InitPauseOptionLayoutList()
 	pauseOptSelectTriangle.FillColor = MyColorF::GhostGreen;
 	pauseOptSelectTriangle.BorderSize = 0.5f;
 	pauseOptSelectTriangle.GetWorld2d().SetPosition({ (float)TriangleOffsetX, (float)TriangleOffsetY });
+}
+
+void PlayScene::InitPauseBackground()
+{
+	ReleasePauseBackground();
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = (UINT)App->GetWidth();
+	textureDesc.Height = (UINT)App->GetHeight();
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+
+	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &pauseBG));
+	HR(App->GetDevice()->CreateRenderTargetView(pauseBG, nullptr, &pauseBgRTV));
+	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgSRV));
+
+	D2D.ReleaseBackBuffer();
+	D2D.ResetBackBuffer(pauseBG);
+
+	App->GetDeviceContext()->OMSetRenderTargets(1, &pauseBgRTV, nullptr);
+
+	const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	App->GetDeviceContext()->ClearRenderTargetView(pauseBgRTV, (const float*)&App->GetBgColor());
+
+	D2D.BeginDraw();
+	RenderStatus(prevSceneStatus, App->GetDeviceContext(), App->GetCamera());
+	D2D.EndDraw();
+
+	D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
+	transparentBlackBG.SetTexture(pauseBgSRV);
+
+	App->ResetRenderTarget();
+	D2D.ReleaseBackBuffer();
+	D2D.ResetBackBufferFromSwapChain(App->GetSwapChain());
+}
+
+void PlayScene::ReleasePauseBackground()
+{
+	ReleaseCOM(pauseBG);
+	ReleaseCOM(pauseBgRTV);
+	ReleaseCOM(pauseBgSRV);
 }
 
 static constexpr LPCWSTR OffsetIdc = L"Pattern Offset";
@@ -371,109 +423,18 @@ void PlayScene::StopLoadMusicScoreThread()
 
 void PlayScene::InitTimeSignaturePrefixSum()
 {
-	InitMeasurePrefixSum();
-	InitBpmTimingPrefixSum();
+	measurePrefixSum.InitMeasurePrefixSum(&musicScore->measures);
+	bpmTimingPrefixSum.InitBpmTimingPrefixSum(&musicScore->bpms, measurePrefixSum);
 }
 
-void PlayScene::InitMeasurePrefixSum()
-{
-	if (musicScore->measures.empty()) return;
-
-	ReleaseMeasurePrefixSum();
-	measurePrefixSum.reserve(musicScore->measures.size());
-	
-	vector<Measure>::const_iterator it = musicScore->measures.begin();
-	measurePrefixSum.emplace_back((it++)->length);
-
-	for (size_t prevIdx = 0; it!= musicScore->measures.cend(); ++prevIdx, ++it)
-	{
-		const auto& val = measurePrefixSum[prevIdx] + it->length;
-		measurePrefixSum.emplace_back(val);
-	}
-}
-
-void PlayScene::ReleaseMeasurePrefixSum()
-{
-	measurePrefixSum.clear();
-}
-
-//[start, end]
-RationalNumber<64> PlayScene::GetMeasurePrefixSum(int start, int end)
-{
-	if (end < start) return 0;
-	if (start == end)
-	{
-		const int& idx = std::clamp(start, 0, (int)musicScore->measures.size() - 1);
-		return musicScore->measures[idx].length;
-	}
-
-	const RationalNumber<64>& endSum = GetMeasurePrefixSum(end);
-	if (start < 1) return endSum;
-	const RationalNumber<64>& prevSum = GetMeasurePrefixSum(start - 1);
-	return endSum - prevSum;
-}
-
-//[start, end]
-RationalNumber<64> PlayScene::GetMeasurePrefixSum(int idx)
-{
-	if (idx < 0) return 0;
-	const size_t& measureListSize = measurePrefixSum.size();
-	if (idx < (int)measureListSize) return measurePrefixSum[idx];
-	else
-	{
-		return measurePrefixSum[idx] + musicScore->measures.back().length * (idx - (int)measureListSize + 1);
-	}
-
-}
-
-void PlayScene::InitBpmTimingPrefixSum()
-{
-	ReleaseBpmTimingPrefixSum();
-	bpmTimingPrefixSum.emplace(make_pair(MusicalPosition({ 0, RationalNumber<64>(0) }), 0));
-	if (musicScore->bpms.empty()) return;
-
-	//initiation variables for loop
-	MusicBPM currentBpmSignature({}, musicScore->baseBpm); // 0-pos, basebpm
-	set<MusicBPM>::const_iterator nextBpmSignature = musicScore->bpms.begin();
-	
-	while (nextBpmSignature != musicScore->bpms.cend())
-	{
-		const decltype(bpmTimingPrefixSum)::const_iterator& lastSumIter = std::prev(bpmTimingPrefixSum.end());
-		const MusicalPosition& currentPos = currentBpmSignature.mp;
-		const double& currentBPM = currentBpmSignature.BPM();
-
-		const RationalNumber<64>& currentMeasureArea = GetMeasurePrefixSum((int)currentPos.measureIdx, (int)nextBpmSignature->mp.measureIdx - 1);
-		const RationalNumber<64>& currentBpmArea = currentMeasureArea - currentBpmSignature.mp.position + nextBpmSignature->mp.position;
-
-		constexpr size_t msPerCommonTimeOfBPM60 = 240000;
-		const double& msOfCurrentArea = (double)currentBpmArea * ((double)msPerCommonTimeOfBPM60 / currentBPM);
-		const double& resultTiming = lastSumIter->second.count() + msOfCurrentArea;
-		bpmTimingPrefixSum[nextBpmSignature->mp] = decltype(bpmTimingPrefixSum)::mapped_type(resultTiming);
-
-		currentBpmSignature = *nextBpmSignature;
-		++nextBpmSignature;
-	}
-
-}
-
-void PlayScene::ReleaseBpmTimingPrefixSum()
-{
-	bpmTimingPrefixSum.clear();
-}
-
-const decltype(PlayScene::bpmTimingPrefixSum)::iterator PlayScene::GetBpmTimingPoint(const decltype(PlayScene::bpmTimingPrefixSum)::key_type& val)
-{
-	return bpmTimingPrefixSum.lower_bound(val);
-}
-
-chrono::microseconds PlayScene::GetNoteTimingPoint(const Note& note)
+chrono::microseconds PlayScene::GetNoteTimingPoint(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, const Note& note)
 {
 	using namespace chrono;
-	const decltype(PlayScene::bpmTimingPrefixSum)::iterator& bpmIter = GetBpmTimingPoint(note.mp);
+	const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator& bpmIter = bpmSum.GetBpmTimingPoint(note.mp);
 	const MusicalPosition& bpmPos = bpmIter->first;
 	const MilliDouble& bpmTiming = bpmIter->second;
 
-	const RationalNumber<64>& relativePos = GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)note.mp.measureIdx - 1) + note.mp.position - bpmPos.position;
+	const RationalNumber<64>& relativePos = measureSum.GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)note.mp.measureIdx - 1) + note.mp.position - bpmPos.position;
 	const MilliDouble& resultTiming = bpmTiming + MilliDouble((double)relativePos);
 	return microseconds((microseconds::rep)duration_cast<duration<double, std::micro>>(resultTiming).count());
 
@@ -523,6 +484,7 @@ void PlayScene::LoadMusicScore()
 			ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
 			wss << val << endl;
 			wss >> musicScore->baseBpm;
+			musicScore->bpms.emplace(MusicBPM(MusicalObject(0, 0), musicScore->baseBpm));
 		}
 
 		//TODO: run Load-functions as thread
@@ -535,17 +497,17 @@ void PlayScene::LoadMusicScore()
 		const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
 		LoadPattern(patternView);
 
-
 		testLane.LoadNotes(musicScore);
+		testLane.LoadNoteTimings(measurePrefixSum, bpmTimingPrefixSum);
 
 		const Note* firstNote = musicScore->GetFirstNote();
 		constexpr chrono::milliseconds waitTime(1000);
 		if (firstNote != nullptr)
 		{
-			firstNoteTiming = GetNoteTimingPoint(*firstNote);
+			firstNoteTiming = GetNoteTimingPoint(measurePrefixSum, bpmTimingPrefixSum, *firstNote);
 			if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
 		}
-		//this_thread::sleep_for(chrono::milliseconds(3000));
+
 		DEBUG_BREAKPOINT;
 
 	}
@@ -572,29 +534,47 @@ void PlayScene::StopThread()
 	StopLoadMusicScoreThread();
 }
 
-PlayScene::~PlayScene()
-{
-	StopThread();
-	SafeDelete(musicScore);
-	ReleaseTextures();
-}
-
 void PlayScene::BeginScene()
 {
+	InitPauseOptionLayoutList();
+	InitLoadingText();
+	InitCurrentTimeText();
+
 	InitTextures();
 	InitLanes();
 	InitSprites();
+
+	ChangeStatusLoad();
 }
 
 void PlayScene::OnResize(float newW, float newH)
 {
-	transparentBlackBG.ChangeWidthToCurrentWidth(newW, newH);
+	//transparentBlackBG.ChangeWidthToCurrentWidth(newW, newH);
 	loadingText.GetWorld2d().OnParentWorldUpdate();
 	currentTimeText.GetWorld2d().OnParentWorldUpdate();
 
 	laneSprite.OnResize();
 	circleSprite.OnResize();
 	circleOverlaySprite.OnResize();
+
+	switch (sceneStatus)
+	{
+	case PlayScene::Status::Load:
+		break;
+	case PlayScene::Status::Start:
+		break;
+	case PlayScene::Status::Pause:
+		for (int i = 0; i < (int)PauseOption::MAX; ++i)
+		{
+			PauseOptLayoutList[i].GetWorld2d().OnParentWorldUpdate();
+			pauseOptSelectTriangle.GetWorld2d().OnParentWorldUpdate();
+		}
+		break;
+	case PlayScene::Status::End:
+		break;
+	default:
+		break;
+	}
 }
 
 void PlayScene::ChangeStatusLoad()
@@ -711,6 +691,10 @@ void PlayScene::UpdateOnStart(float dt)
 		circleOverlaySprite.GetWorld3d().OnParentWorldUpdate();
 	}
 
+	if (KEYBOARD.Down('A'))circleSprite.Diffuse = MyColor4::MyRed;
+	if (KEYBOARD.Down('S'))circleSprite.Diffuse = MyColor4::MyBlue;
+	circleSprite.Diffuse.w = 0.5f;
+
 #ifdef _DEBUG
 	if (KEYBOARD.Hold('1'))
 	{
@@ -729,11 +713,13 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 {
 	UpdateCurrentTimeText();
 	currentTimeText.Draw();
-
 	laneSprite.Render(deviceContext, cam);
 
-	circleSprite.Render(deviceContext, cam);
-	circleOverlaySprite.Render(deviceContext, cam);
+	//for (int i = 0; i < 600; ++i)
+	{
+		circleSprite.Render(deviceContext, cam);
+		circleOverlaySprite.Render(deviceContext, cam);
+	}
 }
 
 
@@ -762,6 +748,8 @@ void PlayScene::ChangeStatusPause()
 	TRACE(_T("Pause Time: %.6lf\n"), totalMusicTime);
 	prevSceneStatus = sceneStatus;
 	sceneStatus = Status::Pause;
+
+	InitPauseBackground();
 }
 
 void PlayScene::UpdateOnPause(float dt)
@@ -820,9 +808,8 @@ void PlayScene::UpdateOnPause(float dt)
 }
 void PlayScene::RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	RenderStatus(prevSceneStatus, deviceContext, cam);
-
 	transparentBlackBG.Render(deviceContext, cam);
+
 	for (auto& it : PauseOptLayoutList) it.Draw();
 	pauseOptSelectTriangle.Draw();
 }

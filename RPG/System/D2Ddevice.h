@@ -18,14 +18,12 @@ public:
 	~D2Ddevice();
 
 	void CreateD2DDWFactory();
-	HRESULT CreateWicFactory();
-	void ResetBackBuffer(IDXGISwapChain* swapChain);
-	void ResetBackBuffer_Release();
+	void ResetBackBufferFromSwapChain(IDXGISwapChain* swapChain);
+	void ResetBackBuffer(ID3D11Texture2D* buffer);
+	void ReleaseBackBuffer();
 
 	void BeginDraw() noexcept { d2Rtg->BeginDraw(); }
 	void EndDraw() noexcept { d2Rtg->EndDraw(); }
-
-	void GetImageDimensions(wstring_view dir,UINT* w, UINT* h) const;
 
 	ID2D1SolidColorBrush*& GetSolidBrush(const D2D1::ColorF color);
 	IDWriteTextFormat*& GetFont(const std::string name);
@@ -41,9 +39,7 @@ private:
 	Microsoft::WRL::ComPtr<IDWriteFactory> dwFactory;
 	Microsoft::WRL::ComPtr<ID2D1Factory> d2dFactory;
 	ID2D1RenderTarget* d2Rtg = nullptr;
-	IDXGISurface* pBackBuffer = nullptr;
-
-	Microsoft::WRL::ComPtr<IWICImagingFactory> pWicFactory;
+	IDXGISurface* pDxgiSurface = nullptr;
 
 //Brush
 private:
