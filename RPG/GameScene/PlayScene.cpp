@@ -13,7 +13,7 @@ constexpr float LaneWidth = 180.0f;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
-	transparentBlackBG(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2 }, false),
+	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false),
 	laneSprite(LaneWidth, 10000), circleSprite(0, 0)
 {
 	timer.Reset();
@@ -80,14 +80,19 @@ void PlayScene::InitSprites()
 	circleSprite.GetWorld3d().SetObjectScale({ (float)hitCircleTexture->width, (float)hitCircleTexture->height });
 	circleSprite.SetTexture(hitCircleTexture->textureSRV.Get());
 	circleSprite.Diffuse = MyColor4::GhostGreen;
-	circleSprite.Diffuse.w = 0.5f;
 
 	Texture* const& hitCircleOverlayTexture = textureList.find(TextureName::hitcircleoverlay)->second;
 	circleOverlaySprite.GetWorld3d().SetParentWorld(&circleSprite.GetWorld3d());
 	circleOverlaySprite.GetWorld3d().SetObjectScale({ (float)hitCircleOverlayTexture->width, (float)hitCircleOverlayTexture->height });
 	circleOverlaySprite.SetTexture(hitCircleOverlayTexture->textureSRV.Get());
-	//circleOverlaySprite.ColorMode = true;
-	circleOverlaySprite.Diffuse = { 1,1,1,1 };
+	/*
+	circles = new Sprite[600];
+	circlesOverlay = new Sprite[600];
+	for (size_t idx = 0; idx < 600; ++idx)
+	{
+		circles[idx].SetTexture()
+	}
+	*/
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -185,7 +190,7 @@ void PlayScene::InitPauseBackground()
 	D2D.EndDraw();
 
 	D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
-	transparentBlackBG.SetTexture(pauseBgSRV);
+	prevSceneSprite.SetTexture(pauseBgSRV);
 
 	App->ResetRenderTarget();
 	D2D.ReleaseBackBuffer();
@@ -564,6 +569,8 @@ void PlayScene::OnResize(float newW, float newH)
 	case PlayScene::Status::Start:
 		break;
 	case PlayScene::Status::Pause:
+		prevSceneSprite.GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(newW, newH), (float)StandardHeight });
+		InitPauseBackground();
 		for (int i = 0; i < (int)PauseOption::MAX; ++i)
 		{
 			PauseOptLayoutList[i].GetWorld2d().OnParentWorldUpdate();
@@ -647,7 +654,6 @@ void PlayScene::ChangeStatusReStart()
 	playMusicThreadRunFlag = true;
 	playMusicThread = thread(&PlayScene::PlayMusic, this);
 
-	TRACE(_T("ReStart Time: %.6lf\n"), totalMusicTime);
 	sceneStatus = Status::Start;
 }
 void PlayScene::ChangeStatusStart()
@@ -658,7 +664,6 @@ void PlayScene::ChangeStatusStart()
 	playMusicThreadRunFlag = true;
 	playMusicThread = thread(&PlayScene::PlayMusic, this);
 
-	TRACE(_T("Start Time: %.6lf\n"), totalMusicTime);
 	sceneStatus = Status::Start;
 }
 
@@ -715,10 +720,12 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	currentTimeText.Draw();
 	laneSprite.Render(deviceContext, cam);
 
-	//for (int i = 0; i < 600; ++i)
+	for (int i = 0; i < 600; ++i)
 	{
+		circleSprite.SetTexture(textureList.at(TextureName::hitCircle)->textureSRV.Get());
 		circleSprite.Render(deviceContext, cam);
-		circleOverlaySprite.Render(deviceContext, cam);
+		circleSprite.SetTexture(textureList.at(TextureName::hitcircleoverlay)->textureSRV.Get());
+		circleSprite.Render(deviceContext, cam);
 	}
 }
 
@@ -808,7 +815,7 @@ void PlayScene::UpdateOnPause(float dt)
 }
 void PlayScene::RenderOnPause(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	transparentBlackBG.Render(deviceContext, cam);
+	prevSceneSprite.Render(deviceContext, cam);
 
 	for (auto& it : PauseOptLayoutList) it.Draw();
 	pauseOptSelectTriangle.Draw();

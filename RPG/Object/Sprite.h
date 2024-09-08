@@ -3,6 +3,26 @@
 #include "System/AlignMode.h"
 #include "System/World/World3D.h"
 
+class SpriteDesc
+{
+public:
+	SpriteDesc();
+	~SpriteDesc();
+	ID3D11ShaderResourceView* const GetTexture() const { return textureSRV; }
+	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
+
+	const World3D& GetWorld3dConst() const { return world3d; }
+	World3D& GetWorld3d() { return world3d; }
+
+	XMFLOAT4 Diffuse = { 1,1,1,1 };
+	bool ColorMode = false;
+
+private:
+	World3D world3d;
+	ID3D11ShaderResourceView* textureSRV = nullptr;
+
+};
+
 class Sprite
 {
 public:
@@ -14,6 +34,7 @@ public:
 
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
 	void Render(ID3D11DeviceContext*, const Camera&);
+	void Render(ID3D11DeviceContext*, const Camera&, SpriteDesc&);
 	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, const vector<World3D>&);
 	void OnResize();
 

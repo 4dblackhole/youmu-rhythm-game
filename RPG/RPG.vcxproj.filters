@@ -177,6 +177,9 @@
     <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp">
       <Filter>MusicalObject\PrefixSum</Filter>
     </ClCompile>
+    <ClCompile Include="MusicalObject\VolumeSet.cpp">
+      <Filter>MusicalObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -313,6 +316,9 @@
     </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\VolumeSet.h">
+      <Filter>MusicalObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

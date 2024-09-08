@@ -85,7 +85,7 @@ private:
 	ID3D11RenderTargetView* pauseBgRTV = nullptr;
 	ID3D11ShaderResourceView* pauseBgSRV = nullptr;
 
-	Sprite transparentBlackBG;
+	Sprite prevSceneSprite;
 	void InitPauseBackground();
 	void ReleasePauseBackground();
 
@@ -131,9 +131,6 @@ private:
 	AccuracyRange accRange;
 	map<size_t, FMOD::Sound*> defaultHitSoundList;
 
-	double musicVolume;
-	double hitsoundVolume;
-	double masterVolume;
 
 //prefix sum for calculating timing
 private:
@@ -150,6 +147,8 @@ private:
 	Sprite laneSprite;
 	Sprite circleSprite;
 	Sprite circleOverlaySprite;
+	Sprite* circles;
+	Sprite* circlesOverlay;
 	void InitSprites();
 
 	DwLayout2D currentTimeText;
