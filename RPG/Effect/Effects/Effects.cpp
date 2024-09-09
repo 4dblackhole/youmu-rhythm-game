@@ -1,8 +1,6 @@
 #include "framework.h"
-
 #include "Effects.h"
 
-#pragma region Effect
 Effect::Effect(ID3D11Device* device, const std::tstring& filename)
 	: mFX(nullptr)
 {
@@ -35,51 +33,21 @@ Effect::~Effect()
 {
 }
 
-#pragma endregion
-
-#pragma region SpriteEffect
-SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
-	: Effect(device, filename)
-{
-	InitFxVariables();
-}
-
-SpriteEffect::SpriteEffect(ID3D11Device* device, const int resourceId)
-	: Effect(device, resourceId)
-{
-	InitFxVariables();
-}
-
-SpriteEffect::~SpriteEffect()
-{
-}
-
-void SpriteEffect::InitFxVariables()
-{
-	mTechTexture = mFX->GetTechniqueByName("TechTexture");
-	mTechColor = mFX->GetTechniqueByName("TechColor");
-
-	mfxWorld = mFX->GetVariableByName("gWorld")->AsMatrix();
-	mfxUvWorld = mFX->GetVariableByName("gUvWorld")->AsMatrix();
-	mfxView= mFX->GetVariableByName("gView")->AsMatrix();
-	mfxProj = mFX->GetVariableByName("gProj")->AsMatrix();
-	mfxTexture = mFX->GetVariableByName("gTexture")->AsShaderResource();
-	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();
-}
-
-#pragma endregion
-
-#pragma region Effects
 
 std::unique_ptr<SpriteEffect> EffectList::SpriteFX;
+std::unique_ptr<SpriteInstancedEffect> EffectList::SpriteInstancedFX;
+std::unique_ptr<InstancedTestEffect> EffectList::InstancedTestFX;
 
 void EffectList::Init(ID3D11Device* device)
 {
-	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
 	//SpriteFX.reset(new SpriteEffect(device, IDR_SHADER_SPRITE));
+
+	InstancedTestFX.reset(new InstancedTestEffect(device, L"Shader/InstancedTest.fxo"));
+	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
+	SpriteInstancedFX.reset(new SpriteInstancedEffect(device, L"Shader/SpriteInstanced.fxo"));
+
 }
 
 void EffectList::Release()
 {
 }
-#pragma endregion

@@ -23,6 +23,13 @@ private:
 
 };
 
+struct SpriteInstanceData
+{
+	XMFLOAT4X4 world;
+	XMFLOAT4X4 uvworld;
+	XMFLOAT4 Diffuse;
+};
+
 class Sprite
 {
 public:
@@ -35,13 +42,14 @@ public:
 	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
 	void Render(ID3D11DeviceContext*, const Camera&);
 	void Render(ID3D11DeviceContext*, const Camera&, SpriteDesc&);
-	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, const vector<World3D>&);
+	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, const vector<SpriteInstanceData>&);
 	void OnResize();
 
 	void ChangeWidthToCurrentWidth(float w, float h);
 
 	static void BulidBuffer(ID3D11Device*);
 	static void BuildLayout(ID3D11Device*);
+	static void BuildInstancedLayout(ID3D11Device*);
 
 	const World3D& GetWorld3dConst() const { return world3d; }
 	World3D& GetWorld3d() { return world3d; }
@@ -60,9 +68,11 @@ private:
 
 	void MakeCenterUV();
 
+public:
 	static ComPtr<ID3D11Buffer> mVB;
 	static ComPtr<ID3D11Buffer> mIB;
 	static ComPtr<ID3D11InputLayout> mInputLayout;
+	static ComPtr<ID3D11InputLayout> mInstancedInputLayout;
 
 };
 

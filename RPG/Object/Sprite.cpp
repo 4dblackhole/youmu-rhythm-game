@@ -1,60 +1,31 @@
 #include "framework.h"
 #include "Sprite.h"
+#include "Vertex.h"
 
 ComPtr<ID3D11Buffer> Sprite::mVB;
 ComPtr<ID3D11Buffer> Sprite::mIB;
 ComPtr<ID3D11InputLayout> Sprite::mInputLayout;
+ComPtr<ID3D11InputLayout> Sprite::mInstancedInputLayout;
 
-struct VertexColorTexture
+struct SpriteInstancedInputLayoutDesc
 {
-public:
-	VertexColorTexture();
-	VertexColorTexture(const VertexColorTexture&);
-	VertexColorTexture(VertexColorTexture&&) noexcept;
-	VertexColorTexture& operator=(const VertexColorTexture&);
-	VertexColorTexture& operator=(VertexColorTexture&&) noexcept;
-
-	VertexColorTexture(const XMFLOAT3&, const XMFLOAT4&, const XMFLOAT2&);
-	VertexColorTexture(XMFLOAT3&&, XMFLOAT4&&, XMFLOAT2&&) noexcept;
-
-	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
-	XMFLOAT2 Uv;
-	float Padding[2]{};
-
-	struct InputLayoutDesc
+	static constexpr UINT Length = 12;
+	static constexpr D3D11_INPUT_ELEMENT_DESC desc[Length] =
 	{
-		static constexpr UINT Length = 3;
-		static constexpr D3D11_INPUT_ELEMENT_DESC desc[Length] =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(VertexColorTexture::Pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(VertexColorTexture::Pos) + sizeof(VertexColorTexture::Color), D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 12,  D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"WORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"UVWORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"UVWORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 80, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"UVWORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 96, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"UVWORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 108, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{"DIFFUSE", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 120,  D3D11_INPUT_PER_INSTANCE_DATA, 1 }
 	};
 };
-
-VertexColorTexture::VertexColorTexture() : Pos(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f), Uv(0.0f, 0.0f) {}
-VertexColorTexture::VertexColorTexture(const VertexColorTexture& p) : Pos(p.Pos), Color(p.Color), Uv(p.Uv) {}
-VertexColorTexture::VertexColorTexture(VertexColorTexture&& p) noexcept : Pos(p.Pos), Color(p.Color), Uv(p.Uv) {}
-
-VertexColorTexture& VertexColorTexture::operator=(const VertexColorTexture& p)
-{
-	this->Pos = p.Pos;
-	this->Color = p.Color;
-	this->Uv = p.Uv;
-	return *this;
-}
-VertexColorTexture& VertexColorTexture::operator=(VertexColorTexture&& p) noexcept
-{
-	this->Pos = p.Pos;
-	this->Color = p.Color;
-	this->Uv = p.Uv;
-	return *this;
-}
-
-VertexColorTexture::VertexColorTexture(const XMFLOAT3& p, const XMFLOAT4& c, const XMFLOAT2& u) : Pos(p), Color(c), Uv(u) {}
-VertexColorTexture::VertexColorTexture(XMFLOAT3&& p, XMFLOAT4&& c, XMFLOAT2&& u) noexcept : Pos(p), Color(c), Uv(u) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -179,7 +150,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, Sprit
 	}
 }
 
-void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, const vector<World3D>& worldArr)
+void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, const vector<SpriteInstanceData>& instArr)
 {
 }
 
@@ -262,6 +233,15 @@ void Sprite::BuildLayout(ID3D11Device* device)
 	EffectList::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
 	HR(device->CreateInputLayout(VertexColorTexture::InputLayoutDesc::desc, VertexColorTexture::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
+}
+
+void Sprite::BuildInstancedLayout(ID3D11Device* device)
+{
+	// Create the input layout
+	D3DX11_PASS_DESC passDesc;
+	EffectList::SpriteInstancedFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
+	HR(device->CreateInputLayout(SpriteInstancedInputLayoutDesc::desc, SpriteInstancedInputLayoutDesc::Length, passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize, &mInstancedInputLayout));
 }
 
 void Sprite::RepeatTexture(UINT imgWidth, UINT imgHeight, float imgRate)

@@ -17,6 +17,14 @@ PlayScene::PlayScene(Music* m, Pattern* p) :
 	laneSprite(LaneWidth, 10000), circleSprite(0, 0)
 {
 	timer.Reset();
+
+	InitPauseOptionLayoutList();
+	InitLoadingText();
+	InitCurrentTimeText();
+
+	InitTextures();
+	InitLanes();
+	InitSprites();
 }
 
 PlayScene::~PlayScene()
@@ -25,6 +33,9 @@ PlayScene::~PlayScene()
 	SafeDelete(musicScore);
 	ReleaseTextures();
 	ReleasePauseBackground();
+
+	SafeDeleteArr(circles);
+	SafeDeleteArr(circlesOverlay);
 }
 
 void PlayScene::InitLanes()
@@ -85,14 +96,22 @@ void PlayScene::InitSprites()
 	circleOverlaySprite.GetWorld3d().SetParentWorld(&circleSprite.GetWorld3d());
 	circleOverlaySprite.GetWorld3d().SetObjectScale({ (float)hitCircleOverlayTexture->width, (float)hitCircleOverlayTexture->height });
 	circleOverlaySprite.SetTexture(hitCircleOverlayTexture->textureSRV.Get());
-	/*
+	
 	circles = new Sprite[600];
 	circlesOverlay = new Sprite[600];
 	for (size_t idx = 0; idx < 600; ++idx)
 	{
-		circles[idx].SetTexture()
+		circles[idx].SetTexture(hitCircleTexture->textureSRV.Get());
+		circles[idx].GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
+		circles[idx].GetWorld3d().SetObjectScale({ (float)hitCircleTexture->width, (float)hitCircleTexture->height });
+		circles[idx].GetWorld3d().SetLocalPosition({ 0,(float)idx * 10,0 });
+		circles[idx].Diffuse = MyColor4::GhostGreen;
+
+		circlesOverlay[idx].SetTexture(hitCircleOverlayTexture->textureSRV.Get());
+		circlesOverlay[idx].GetWorld3d().SetParentWorld(&circles[idx].GetWorld3d());
+		circlesOverlay[idx].GetWorld3d().SetObjectScale({ (float)hitCircleOverlayTexture->width, (float)hitCircleOverlayTexture->height });
 	}
-	*/
+	
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -541,13 +560,6 @@ void PlayScene::StopThread()
 
 void PlayScene::BeginScene()
 {
-	InitPauseOptionLayoutList();
-	InitLoadingText();
-	InitCurrentTimeText();
-
-	InitTextures();
-	InitLanes();
-	InitSprites();
 
 	ChangeStatusLoad();
 }
@@ -561,6 +573,12 @@ void PlayScene::OnResize(float newW, float newH)
 	laneSprite.OnResize();
 	circleSprite.OnResize();
 	circleOverlaySprite.OnResize();
+
+	for (int i = 0; i < 600; ++i)
+	{
+		circles[i].OnResize();
+		circlesOverlay[i].OnResize();
+	}
 
 	switch (sceneStatus)
 	{
@@ -688,12 +706,24 @@ void PlayScene::UpdateOnStart(float dt)
 	{
 		circleSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
 		circleOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+
+		for (int i = 0; i < 600; ++i)
+		{
+			circles[i].GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+			circlesOverlay[i].GetWorld3d().OnParentWorldUpdate();
+		}
 	}
 	
 	if (KEYBOARD.Hold('X'))
 	{
 		circleSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
 		circleOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+
+		for (int i = 0; i < 600; ++i)
+		{
+			circles[i].GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+			circlesOverlay[i].GetWorld3d().OnParentWorldUpdate();
+		}
 	}
 
 	if (KEYBOARD.Down('A'))circleSprite.Diffuse = MyColor4::MyRed;
@@ -720,13 +750,16 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	currentTimeText.Draw();
 	laneSprite.Render(deviceContext, cam);
 
+	circleSprite.Render(deviceContext, cam);
+	circleOverlaySprite.Render(deviceContext, cam);
+	
+	/*
 	for (int i = 0; i < 600; ++i)
 	{
-		circleSprite.SetTexture(textureList.at(TextureName::hitCircle)->textureSRV.Get());
-		circleSprite.Render(deviceContext, cam);
-		circleSprite.SetTexture(textureList.at(TextureName::hitcircleoverlay)->textureSRV.Get());
-		circleSprite.Render(deviceContext, cam);
+		circles[599-i].Render(deviceContext, cam);
+		circlesOverlay[599-i].Render(deviceContext, cam);
 	}
+	*/
 }
 
 

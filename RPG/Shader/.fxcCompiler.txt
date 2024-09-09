@@ -1,0 +1,7 @@
+fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"
+fxc /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"
+
+fxc compile for Debug: %(FullPath)
+fxc compile for Release: %(FullPath)
+
+%(RelativeDir)\%(Filename).fxo

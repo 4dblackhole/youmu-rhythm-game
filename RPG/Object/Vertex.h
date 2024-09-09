@@ -27,7 +27,7 @@ public:
 	};
 };
 
-struct VertexColor : public Vertex
+struct VertexColor
 {
 public:
 	VertexColor();
@@ -39,6 +39,7 @@ public:
 	VertexColor(const XMFLOAT3&, const XMFLOAT4&);
 	VertexColor(XMFLOAT3&&, XMFLOAT4&&) noexcept;
 
+	XMFLOAT3 Pos;
 	XMFLOAT4 Color;
 
 	struct InputLayoutDesc
@@ -47,36 +48,36 @@ public:
 		static constexpr D3D11_INPUT_ELEMENT_DESC desc[Length] =
 		{
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, sizeof(Vertex::Pos), D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 	};
 };
 
-
-struct VertexTexture : public Vertex
+struct VertexColorTexture
 {
 public:
-	VertexTexture();
-	VertexTexture(const VertexTexture&);
-	VertexTexture(VertexTexture&&) noexcept;
-	VertexTexture& operator=(const VertexTexture&);
-	VertexTexture& operator=(VertexTexture&&) noexcept;
+	VertexColorTexture();
+	VertexColorTexture(const VertexColorTexture&);
+	VertexColorTexture(VertexColorTexture&&) noexcept;
+	VertexColorTexture& operator=(const VertexColorTexture&);
+	VertexColorTexture& operator=(VertexColorTexture&&) noexcept;
 
-	VertexTexture(const XMFLOAT3&, const XMFLOAT2&);
-	VertexTexture(XMFLOAT3&&, XMFLOAT2&&) noexcept;
+	VertexColorTexture(const XMFLOAT3&, const XMFLOAT4&, const XMFLOAT2&);
+	VertexColorTexture(XMFLOAT3&&, XMFLOAT4&&, XMFLOAT2&&) noexcept;
 
+	XMFLOAT3 Pos;
+	XMFLOAT4 Color;
 	XMFLOAT2 Uv;
 	float Padding[2]{};
 
 	struct InputLayoutDesc
 	{
-		static constexpr UINT Length = 2;
+		static constexpr UINT Length = 3;
 		static constexpr D3D11_INPUT_ELEMENT_DESC desc[Length] =
 		{
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vertex::Pos), D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(VertexColorTexture::Pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(VertexColorTexture::Pos) + sizeof(VertexColorTexture::Color), D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
-
 	};
-
 };

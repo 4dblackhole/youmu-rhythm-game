@@ -49,6 +49,9 @@
     <Filter Include="MusicalObject\PrefixSum">
       <UniqueIdentifier>{60f933f9-3ca8-4870-a8a1-816f4e7a3360}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect\Effects">
+      <UniqueIdentifier>{37c681ad-8ecf-46a7-9126-6bb5081a5df2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -82,9 +85,6 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Effect\RenderStates.cpp">
-      <Filter>Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="Effect\Effects.cpp">
       <Filter>Effect</Filter>
     </ClCompile>
     <ClCompile Include="Object\Sprite.cpp">
@@ -180,6 +180,18 @@
     <ClCompile Include="MusicalObject\VolumeSet.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
+    <ClCompile Include="Effect\Effects\Effects.cpp">
+      <Filter>Effect\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\Effects\SpriteEffect.cpp">
+      <Filter>Effect\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\Effects\SpriteInstancedEffect.cpp">
+      <Filter>Effect\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\Effects\InstancedTestEffect.cpp">
+      <Filter>Effect\Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -214,9 +226,6 @@
     </ClInclude>
     <ClInclude Include="Object\Vertex.h">
       <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Effect\Effects.h">
-      <Filter>Effect</Filter>
     </ClInclude>
     <ClInclude Include="Object\Sprite.h">
       <Filter>Object</Filter>
@@ -320,9 +329,27 @@
     <ClInclude Include="MusicalObject\VolumeSet.h">
       <Filter>MusicalObject</Filter>
     </ClInclude>
+    <ClInclude Include="Effect\Effects\Effects.h">
+      <Filter>Effect\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\Effects\SpriteEffect.h">
+      <Filter>Effect\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\Effects\SpriteInstancedEffect.h">
+      <Filter>Effect\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\Effects\InstancedTestEffect.h">
+      <Filter>Effect\Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Shader\Sprite.fx">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shader\SpriteInstanced.fx">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shader\InstancedTest.fx">
       <Filter>Shader</Filter>
     </CustomBuild>
   </ItemGroup>

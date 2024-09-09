@@ -69,7 +69,7 @@ using namespace std;
 #include "System/World/World2D.h"
 #include "System/World/World3D.h"
 
-#include "Effect/Effects.h"
+#include "Effect/Effects/Effects.h"
 #include "Effect/RenderStates.h"
 
 #include "Singleton/TextureManager.h"
@@ -77,6 +77,7 @@ using namespace std;
 #include "Singleton/FmodSystem.h"
 
 #include "Object/Texture.h"
+#include "Object/Vertex.h"
 
 #include "Object/Shape2D/DwLayout2D.h"
 #include "Object/Shape2D/Triangle2D.h"
