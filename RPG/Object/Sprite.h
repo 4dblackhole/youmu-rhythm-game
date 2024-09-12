@@ -62,7 +62,7 @@ public:
 	Sprite(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 	~Sprite();
 
-	void Render(ID3D11DeviceContext*, const Camera&);
+	void Render(ID3D11DeviceContext*, const Camera&, size_t srvCount = 1);
 	//static void Render(ID3D11DeviceContext*, const Camera&, SpriteDesc&);
 	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, size_t instanceOffset, size_t instanceCount, ID3D11ShaderResourceView* srv);
 	void OnResize();

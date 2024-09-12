@@ -25,5 +25,6 @@ public:
 	ID3DX11EffectMatrixVariable* mfxProj;
 	ID3DX11EffectShaderResourceVariable* mfxTexture;
 	ID3DX11EffectVectorVariable* mfxTextureDiffuse;
+	ID3DX11EffectScalarVariable* mfxTextureID;
 
 };

@@ -58,7 +58,7 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 
 }
 
-void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
+void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, size_t srvCount)
 {
 	deviceContext->IASetInputLayout(mInputLayout.Get());
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -89,8 +89,12 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		EffectList::SpriteFX->mfxTexture->SetResource(textureSRV);
 		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 
-		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
-		deviceContext->DrawIndexed(6, 0, 0);
+		for (int i = 0; i < srvCount; ++i)
+		{
+			EffectList::SpriteFX->mfxTextureID->SetInt(i);
+			currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
+			deviceContext->DrawIndexed(6, 0, 0);
+		}
 	}
 }
 /*

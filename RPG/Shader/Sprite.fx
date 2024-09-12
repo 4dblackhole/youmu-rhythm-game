@@ -5,6 +5,7 @@ cbuffer cbPerFrame
     matrix gProj;
     matrix gUvWorld;
     float4 gTextureDiffuse;
+    uint gTextureID;
 };
 
 Texture2DArray gTexture;
@@ -73,7 +74,7 @@ VertexOut VS(VertexIn vin)
 	
     vout.Color = vin.Color;
     vout.Diffuse = gTextureDiffuse;
-    vout.TextureID = 0;
+    vout.TextureID = gTextureID;
     
     vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gUvWorld).xy;
    

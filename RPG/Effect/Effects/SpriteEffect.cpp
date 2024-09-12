@@ -30,4 +30,5 @@ void SpriteEffect::InitFxVariables()
 	mfxProj = mFX->GetVariableByName("gProj")->AsMatrix();
 	mfxTexture = mFX->GetVariableByName("gTexture")->AsShaderResource();
 	mfxTextureDiffuse = mFX->GetVariableByName("gTextureDiffuse")->AsVector();
+	mfxTextureID = mFX->GetVariableByName("gTextureID")->AsScalar();
 }

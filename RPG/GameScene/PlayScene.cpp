@@ -9,7 +9,10 @@ constexpr int LayoutDistanceY = 100;
 constexpr int TriangleOffsetX = -8;
 constexpr int TriangleOffsetY = 11;
 
+//mode related
 constexpr float LaneWidth = 180.0f;
+constexpr float CircleRadius2 = 90.0f;
+constexpr float LargeCircleRadius2 = 144.0f;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -170,23 +173,23 @@ void PlayScene::InitSprites()
 
 	Texture* const& hitCircleTexture = textureList.find(TextureName::hitCircle)->second;
 	circleSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
-	circleSprite.GetWorld3d().SetObjectScale({ (float)hitCircleTexture->width, (float)hitCircleTexture->height });
+	circleSprite.GetWorld3d().SetObjectScale(CircleRadius2);
 	circleSprite.SetTexture(hitCircleTexture->textureSRV.Get());
 	circleSprite.Diffuse = MyColor4::GhostGreen;
 
 	circles = new Sprite[600];
-	constexpr float distance = 20.0f;
+	constexpr float distance = 60.0f;
 	for (int idx = 599; idx >= 0; --idx)
 	{
 		circles[idx].SetTexture(hitCircleTexture->textureSRV.Get());
 		circles[idx].GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
-		circles[idx].GetWorld3d().SetObjectScale({ (float)hitCircleTexture->width, (float)hitCircleTexture->height });
+		circles[idx].GetWorld3d().SetObjectScale(CircleRadius2);
 		circles[idx].GetWorld3d().SetLocalPosition({ 0,(float)idx * distance,0 });
 		circles[idx].Diffuse = MyColor4::GhostGreen;
 
 		SpriteInstanceData tempInst;
 		tempInst.Diffuse = circles[idx].Diffuse;
-		tempInst.Diffuse.w = 0.5f;
+		tempInst.Diffuse.w = 0.9f;
 		tempInst.uvworld = XmFloatT4X4Identity;
 		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
 		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
@@ -833,7 +836,7 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	currentTimeText.Draw();
 	laneSprite.Render(deviceContext, cam);
 
-	circleSprite.Render(deviceContext, cam);
+	circleSprite.Render(deviceContext, cam, 2);
 	
 	Sprite::RenderInstanced(deviceContext, cam, circlesInstancedBuffer.Get(), 0, circlesInstanceList.size(), textureList.at(TextureName::hitCircle)->textureSRV.Get());
 
