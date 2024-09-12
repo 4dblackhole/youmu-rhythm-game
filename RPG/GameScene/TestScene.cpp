@@ -16,7 +16,7 @@ TestScene::~TestScene()
 void TestScene::BeginScene()
 {
 	BuildBuffer();
-	//BuildLayout();
+	BuildLayout();
 
 	BuildInstancedBuffer();
 	BuildInstancedLayout();
@@ -57,9 +57,10 @@ void TestScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	deviceContext->IASetInputLayout(mInstancedLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	UINT stride[2] = { sizeof(VertexColor),sizeof(InstancedData) };
-	UINT offset[2] = { 0, 0 };
-	ID3D11Buffer* buffers[2] = {mVB, mInstancedBuffer};
+	const size_t numBuffers = 2;
+	UINT stride[numBuffers] = { sizeof(VertexColor),sizeof(InstancedData) };
+	UINT offset[numBuffers] = { 0, 0 };
+	ID3D11Buffer* buffers[numBuffers] = {mVB, mInstancedBuffer};
 
 	ID3DX11EffectTechnique*& currentTech = EffectList::InstancedTestFX->mTechInstanced;
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -67,7 +68,7 @@ void TestScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		//buffer setting
-		deviceContext->IASetVertexBuffers(0, 2, buffers, stride, offset);
+		deviceContext->IASetVertexBuffers(0, numBuffers, buffers, stride, offset);
 		deviceContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 
 
@@ -82,7 +83,7 @@ void TestScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
-		deviceContext->DrawIndexedInstanced(6, instanceSize, 0, 0, 0);
+		deviceContext->DrawIndexedInstanced(6, instanceSize - 1, 0, 0, 0);
 	}
 
 
@@ -103,7 +104,7 @@ void TestScene::InitInstanceData()
 	for (int i = 0; i < instanceSize; ++i)
 	{
 		InstancedData temp;
-		XMStoreFloat4x4(&temp.World, XMMatrixTranslation(-270.0f + 60.0f * (i % 10), 120.0f - 60.0f * (i / 10), 0.0f));
+		XMStoreFloat4x4(&temp.World, XMMatrixTranslation(-270.0f + 20.0f * (i % 10), 120.0f - 20.0f * (i / 10), 0.0f));
 		instances.emplace_back(temp);
 	}
 }
@@ -112,10 +113,10 @@ void TestScene::BuildBuffer()
 {
 	VertexColor vertex[4] =
 	{
-		{ XMFLOAT3(-50.0f, -50.0f, 0.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)},
-		{ XMFLOAT3(50.0f, -50.0f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 0.5f) },
-		{ XMFLOAT3(-50.0f,  50.0f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 0.3f)},
-		{ XMFLOAT3(50.0f,  50.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)}
+		{ XMFLOAT3(-25.0f, -25.0f, 0.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{ XMFLOAT3(25.0f, -25.0f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(-25.0f,  25.0f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ XMFLOAT3(25.0f,  25.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)}
 	};
 
 	D3D11_BUFFER_DESC vbd{};

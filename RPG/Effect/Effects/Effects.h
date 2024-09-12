@@ -28,7 +28,6 @@ protected:
 };
 
 #include "SpriteEffect.h"
-#include "SpriteInstancedEffect.h"
 #include "InstancedTestEffect.h"
 
 class EffectList
@@ -38,6 +37,5 @@ public:
 	static void Release();
 
 	static std::unique_ptr<SpriteEffect> SpriteFX;
-	static std::unique_ptr<SpriteInstancedEffect> SpriteInstancedFX;
 	static std::unique_ptr<InstancedTestEffect> InstancedTestFX;
 };

@@ -5,30 +5,10 @@
 ComPtr<ID3D11Buffer> Sprite::mVB;
 ComPtr<ID3D11Buffer> Sprite::mIB;
 ComPtr<ID3D11InputLayout> Sprite::mInputLayout;
-ComPtr<ID3D11InputLayout> Sprite::mInstancedInputLayout;
-
-struct SpriteInstancedInputLayoutDesc
-{
-	static constexpr UINT Length = 12;
-	static constexpr D3D11_INPUT_ELEMENT_DESC desc[Length] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 12,  D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"WORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"UVWORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"UVWORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 80, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"UVWORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 96, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"UVWORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 108, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{"DIFFUSE", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 120,  D3D11_INPUT_PER_INSTANCE_DATA, 1 }
-	};
-};
+ComPtr<ID3D11InputLayout> Sprite::mInsatncedInputLayout;
 
 ///////////////////////////////////////////////////////////////////////////////
-
+/*
 SpriteDesc::SpriteDesc() : Diffuse(1, 1, 1, 1), ColorMode(false), world3d(), textureSRV(nullptr)
 {
 }
@@ -36,7 +16,7 @@ SpriteDesc::SpriteDesc() : Diffuse(1, 1, 1, 1), ColorMode(false), world3d(), tex
 SpriteDesc::~SpriteDesc()
 {
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////
 
 Sprite::Sprite()
@@ -113,7 +93,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		deviceContext->DrawIndexed(6, 0, 0);
 	}
 }
-
+/*
 void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, SpriteDesc& desc)
 {
 	deviceContext->IASetInputLayout(mInputLayout.Get());
@@ -126,7 +106,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, Sprit
 	CXMMATRIX& proj = cam.Proj();
 
 	D3DX11_TECHNIQUE_DESC techDesc;
-	ID3DX11EffectTechnique*& currentTech = ColorMode ? EffectList::SpriteFX->mTechColor : EffectList::SpriteFX->mTechTexture;
+	ID3DX11EffectTechnique*& currentTech = desc.ColorMode ? EffectList::SpriteFX->mTechColor : EffectList::SpriteFX->mTechTexture;
 	currentTech->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
@@ -149,9 +129,42 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, Sprit
 		deviceContext->DrawIndexed(6, 0, 0);
 	}
 }
-
-void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, const vector<SpriteInstanceData>& instArr)
+*/
+void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, ID3D11Buffer* instancedBuffer,
+	size_t instanceOffset, size_t instanceCount, ID3D11ShaderResourceView* srv)
 {
+	deviceContext->IASetInputLayout(Sprite::mInsatncedInputLayout.Get());
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	CXMMATRIX& view = cam.View();
+	CXMMATRIX& proj = cam.Proj();
+
+	constexpr size_t numBuffers = 2;
+	UINT stride[numBuffers] = { sizeof(VertexColorTexture), sizeof(SpriteInstanceData) };
+	UINT offset[numBuffers] = { 0, 0 };
+	ID3D11Buffer* buffers[numBuffers] = { mVB.Get(), instancedBuffer };
+
+	ID3DX11EffectTechnique*& currentTech = EffectList::SpriteFX->mTechTextureInstanced;
+	D3DX11_TECHNIQUE_DESC techDesc;
+	currentTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		//buffer setting
+		deviceContext->IASetVertexBuffers(0, numBuffers, buffers, stride, offset);
+		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		CXMMATRIX view = cam.View();
+		CXMMATRIX proj = cam.Proj();
+
+		EffectList::SpriteFX->SetView(view);
+		EffectList::SpriteFX->SetProj(proj);
+		EffectList::SpriteFX->SetTexture(srv);
+
+		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
+		deviceContext->DrawIndexedInstanced(6, (UINT)instanceCount, 0, 0, instanceOffset);
+	}
+
 }
 
 void Sprite::OnResize()
@@ -233,15 +246,11 @@ void Sprite::BuildLayout(ID3D11Device* device)
 	EffectList::SpriteFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
 	HR(device->CreateInputLayout(VertexColorTexture::InputLayoutDesc::desc, VertexColorTexture::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
-}
 
-void Sprite::BuildInstancedLayout(ID3D11Device* device)
-{
-	// Create the input layout
-	D3DX11_PASS_DESC passDesc;
-	EffectList::SpriteInstancedFX->mTechTexture->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(device->CreateInputLayout(SpriteInstancedInputLayoutDesc::desc, SpriteInstancedInputLayoutDesc::Length, passDesc.pIAInputSignature,
-		passDesc.IAInputSignatureSize, &mInstancedInputLayout));
+	EffectList::SpriteFX->mTechTextureInstanced->GetPassByIndex(0)->GetDesc(&passDesc);
+	HR(device->CreateInputLayout(SpriteInstanceData::LayoutDesc::desc, SpriteInstanceData::LayoutDesc::Length, passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize, &mInsatncedInputLayout));
+
 }
 
 void Sprite::RepeatTexture(UINT imgWidth, UINT imgHeight, float imgRate)

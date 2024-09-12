@@ -121,12 +121,13 @@ private:
 	public:
 		DECLARE_VARIABLE_STRING(LaneBackground);
 		DECLARE_VARIABLE_STRING(hitCircle);
-		DECLARE_VARIABLE_STRING(hitcircleoverlay);
 	};
 
 	map<const string, Texture*> textureList;
 	void InitTextures();
 	void ReleaseTextures();
+
+	bool LoadTextureArray(const string& keyStr, const wstring& fileName);
 
 	AccuracyRange accRange;
 	map<size_t, FMOD::Sound*> defaultHitSoundList;
@@ -146,10 +147,19 @@ public:
 private:
 	Sprite laneSprite;
 	Sprite circleSprite;
-	Sprite circleOverlaySprite;
 	Sprite* circles;
-	Sprite* circlesOverlay;
+	vector<SpriteInstanceData> circlesInstanceList;
+	ComPtr<ID3D11Buffer> circlesInstancedBuffer;
+
+	enum class SpriteTextureID
+	{
+		Circle,
+		CircleOverlay,
+		MAX
+	};
+	
 	void InitSprites();
+	void InitInstancedBuffers();
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();

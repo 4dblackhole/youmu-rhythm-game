@@ -30,6 +30,7 @@ public:
 	static D2D1_POINT_2F Resize2DtoStandardCS(float newW, float newH, float x, float y, float alignPosX = 0.0f);
 
 	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
+	static BOOL FileExists(LPCTSTR szPath);
 
 	static bool WordSeparateA(const string_view& source, const string& separator, string* first, string* second);
 	static bool WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second);
@@ -40,7 +41,6 @@ public:
 
 	template <UINT32 Bits>
 	static RationalNumber<Bits> StrToRationalNumber(const wstring_view& source);
-
 	static D2D1::Matrix3x2F XmFloat4x4To3x2(const XMFLOAT4X4 m);
 	static D2D1::Matrix3x2F WVP3Dto2D(const XMFLOAT4X4 m, float width, float height);
 

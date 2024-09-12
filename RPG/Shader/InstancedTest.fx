@@ -9,6 +9,10 @@ struct VertexIn
 {
     float3 Pos : POSITION;
     float4 Color : COLOR;
+};
+
+struct InstanceData
+{
     row_major matrix World : WORLD;
 };
 
@@ -34,12 +38,12 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 	
-VertexOut VS_Instanced(VertexIn vin)
+VertexOut VS_Instanced(VertexIn vin, InstanceData inst)
 {
     VertexOut vout;
 	
 	// Transform to world space space.
-    vout.Pos = mul(float4(vin.Pos, 1.0f), vin.World);
+    vout.Pos = mul(float4(vin.Pos, 1.0f), inst.World);
     vout.Pos = mul(vout.Pos, gView);
     vout.Pos = mul(vout.Pos, gProj);
 	

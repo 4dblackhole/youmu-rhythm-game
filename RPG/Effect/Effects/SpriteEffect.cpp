@@ -22,6 +22,7 @@ void SpriteEffect::InitFxVariables()
 {
 	mTechTexture = mFX->GetTechniqueByName("TechTexture");
 	mTechColor = mFX->GetTechniqueByName("TechColor");
+	mTechTextureInstanced = mFX->GetTechniqueByName("TechTextureInstanced");
 
 	mfxWorld = mFX->GetVariableByName("gWorld")->AsMatrix();
 	mfxUvWorld = mFX->GetVariableByName("gUvWorld")->AsMatrix();

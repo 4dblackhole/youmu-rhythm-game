@@ -186,9 +186,6 @@
     <ClCompile Include="Effect\Effects\SpriteEffect.cpp">
       <Filter>Effect\Effects</Filter>
     </ClCompile>
-    <ClCompile Include="Effect\Effects\SpriteInstancedEffect.cpp">
-      <Filter>Effect\Effects</Filter>
-    </ClCompile>
     <ClCompile Include="Effect\Effects\InstancedTestEffect.cpp">
       <Filter>Effect\Effects</Filter>
     </ClCompile>
@@ -335,18 +332,12 @@
     <ClInclude Include="Effect\Effects\SpriteEffect.h">
       <Filter>Effect\Effects</Filter>
     </ClInclude>
-    <ClInclude Include="Effect\Effects\SpriteInstancedEffect.h">
-      <Filter>Effect\Effects</Filter>
-    </ClInclude>
     <ClInclude Include="Effect\Effects\InstancedTestEffect.h">
       <Filter>Effect\Effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Shader\Sprite.fx">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Shader\SpriteInstanced.fx">
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="Shader\InstancedTest.fx">

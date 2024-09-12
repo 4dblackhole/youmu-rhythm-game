@@ -35,7 +35,6 @@ Effect::~Effect()
 
 
 std::unique_ptr<SpriteEffect> EffectList::SpriteFX;
-std::unique_ptr<SpriteInstancedEffect> EffectList::SpriteInstancedFX;
 std::unique_ptr<InstancedTestEffect> EffectList::InstancedTestFX;
 
 void EffectList::Init(ID3D11Device* device)
@@ -44,7 +43,6 @@ void EffectList::Init(ID3D11Device* device)
 
 	InstancedTestFX.reset(new InstancedTestEffect(device, L"Shader/InstancedTest.fxo"));
 	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
-	SpriteInstancedFX.reset(new SpriteInstancedEffect(device, L"Shader/SpriteInstanced.fxo"));
 
 }
 

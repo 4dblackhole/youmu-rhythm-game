@@ -53,10 +53,6 @@ fxgroup
                 // -------------------- ----- ------ -------- -------- ------- ------
                 // POSITION                 0   xyz         0     NONE   float   xyz 
                 // COLOR                    0   xyzw        1     NONE   float   xyzw
-                // WORLD                    0   xyzw        2     NONE   float       
-                // WORLD                    1   xyzw        3     NONE   float       
-                // WORLD                    2   xyzw        4     NONE   float       
-                // WORLD                    3   xyzw        5     NONE   float       
                 //
                 //
                 // Output signature:
@@ -78,14 +74,10 @@ fxgroup
                 // Initial variable locations:
                 //   v0.x <- vin.Pos.x; v0.y <- vin.Pos.y; v0.z <- vin.Pos.z; 
                 //   v1.x <- vin.Color.x; v1.y <- vin.Color.y; v1.z <- vin.Color.z; v1.w <- vin.Color.w; 
-                //   v2.x <- vin.World._m00; v2.y <- vin.World._m01; v2.z <- vin.World._m02; v2.w <- vin.World._m03; 
-                //   v3.x <- vin.World._m10; v3.y <- vin.World._m11; v3.z <- vin.World._m12; v3.w <- vin.World._m13; 
-                //   v4.x <- vin.World._m20; v4.y <- vin.World._m21; v4.z <- vin.World._m22; v4.w <- vin.World._m23; 
-                //   v5.x <- vin.World._m30; v5.y <- vin.World._m31; v5.z <- vin.World._m32; v5.w <- vin.World._m33; 
                 //   o1.x <- <VS return value>.Color.x; o1.y <- <VS return value>.Color.y; o1.z <- <VS return value>.Color.z; o1.w <- <VS return value>.Color.w; 
                 //   o0.x <- <VS return value>.Pos.x; o0.y <- <VS return value>.Pos.y; o0.z <- <VS return value>.Pos.z; o0.w <- <VS return value>.Pos.w
                 //
-                #line 26 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
+                #line 30 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // r1.x <- vout.Pos.x
@@ -93,22 +85,22 @@ fxgroup
                 dp4 r1.z, r0.xyzw, cb0[2].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[3].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 27
+                #line 31
                 dp4 r0.x, r1.xyzw, cb0[4].xyzw  // r0.x <- vout.Pos.x
                 dp4 r0.y, r1.xyzw, cb0[5].xyzw  // r0.y <- vout.Pos.y
                 dp4 r0.z, r1.xyzw, cb0[6].xyzw  // r0.z <- vout.Pos.z
                 dp4 r0.w, r1.xyzw, cb0[7].xyzw  // r0.w <- vout.Pos.w
                 
-                #line 28
+                #line 32
                 dp4 r1.x, r0.xyzw, cb0[8].xyzw  // r1.x <- vout.Pos.x
                 dp4 r1.y, r0.xyzw, cb0[9].xyzw  // r1.y <- vout.Pos.y
                 dp4 r1.z, r0.xyzw, cb0[10].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[11].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 31
+                #line 35
                 mov r0.xyzw, v1.xyzw  // r0.x <- vout.Color.x; r0.y <- vout.Color.y; r0.z <- vout.Color.z; r0.w <- vout.Color.w
                 
-                #line 34
+                #line 38
                 mov o0.xyzw, r1.xyzw
                 mov o1.xyzw, r0.xyzw
                 ret 
@@ -146,7 +138,7 @@ fxgroup
                 //   v1.x <- pin.Color.x; v1.y <- pin.Color.y; v1.z <- pin.Color.z; v1.w <- pin.Color.w; 
                 //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
                 //
-                #line 56 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
+                #line 60 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
                 mov o0.xyzw, v1.xyzw
                 ret 
                 // Approximately 2 instruction slots used
@@ -220,14 +212,14 @@ fxgroup
                 // Initial variable locations:
                 //   v0.x <- vin.Pos.x; v0.y <- vin.Pos.y; v0.z <- vin.Pos.z; 
                 //   v1.x <- vin.Color.x; v1.y <- vin.Color.y; v1.z <- vin.Color.z; v1.w <- vin.Color.w; 
-                //   v2.x <- vin.World._m00; v2.y <- vin.World._m01; v2.z <- vin.World._m02; v2.w <- vin.World._m03; 
-                //   v3.x <- vin.World._m10; v3.y <- vin.World._m11; v3.z <- vin.World._m12; v3.w <- vin.World._m13; 
-                //   v4.x <- vin.World._m20; v4.y <- vin.World._m21; v4.z <- vin.World._m22; v4.w <- vin.World._m23; 
-                //   v5.x <- vin.World._m30; v5.y <- vin.World._m31; v5.z <- vin.World._m32; v5.w <- vin.World._m33; 
+                //   v2.x <- inst.World._m00; v2.y <- inst.World._m01; v2.z <- inst.World._m02; v2.w <- inst.World._m03; 
+                //   v3.x <- inst.World._m10; v3.y <- inst.World._m11; v3.z <- inst.World._m12; v3.w <- inst.World._m13; 
+                //   v4.x <- inst.World._m20; v4.y <- inst.World._m21; v4.z <- inst.World._m22; v4.w <- inst.World._m23; 
+                //   v5.x <- inst.World._m30; v5.y <- inst.World._m31; v5.z <- inst.World._m32; v5.w <- inst.World._m33; 
                 //   o1.x <- <VS_Instanced return value>.Color.x; o1.y <- <VS_Instanced return value>.Color.y; o1.z <- <VS_Instanced return value>.Color.z; o1.w <- <VS_Instanced return value>.Color.w; 
                 //   o0.x <- <VS_Instanced return value>.Pos.x; o0.y <- <VS_Instanced return value>.Pos.y; o0.z <- <VS_Instanced return value>.Pos.z; o0.w <- <VS_Instanced return value>.Pos.w
                 //
-                #line 42 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
+                #line 46 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
                 mul r0.xyzw, v0.xxxx, v2.xyzw
                 mul r1.xyzw, v0.yyyy, v3.xyzw
                 add r0.xyzw, r0.xyzw, r1.xyzw
@@ -236,22 +228,22 @@ fxgroup
                 mul r1.xyzw, v5.xyzw, l(1.000000, 1.000000, 1.000000, 1.000000)
                 add r0.xyzw, r0.xyzw, r1.xyzw  // r0.x <- vout.Pos.x; r0.y <- vout.Pos.y; r0.z <- vout.Pos.z; r0.w <- vout.Pos.w
                 
-                #line 43
+                #line 47
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw  // r1.x <- vout.Pos.x
                 dp4 r1.y, r0.xyzw, cb0[5].xyzw  // r1.y <- vout.Pos.y
                 dp4 r1.z, r0.xyzw, cb0[6].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[7].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 44
+                #line 48
                 dp4 r0.x, r1.xyzw, cb0[8].xyzw  // r0.x <- vout.Pos.x
                 dp4 r0.y, r1.xyzw, cb0[9].xyzw  // r0.y <- vout.Pos.y
                 dp4 r0.z, r1.xyzw, cb0[10].xyzw  // r0.z <- vout.Pos.z
                 dp4 r0.w, r1.xyzw, cb0[11].xyzw  // r0.w <- vout.Pos.w
                 
-                #line 47
+                #line 51
                 mov r1.xyzw, v1.xyzw  // r1.x <- vout.Color.x; r1.y <- vout.Color.y; r1.z <- vout.Color.z; r1.w <- vout.Color.w
                 
-                #line 50
+                #line 54
                 mov o0.xyzw, r0.xyzw
                 mov o1.xyzw, r1.xyzw
                 ret 
@@ -289,7 +281,7 @@ fxgroup
                 //   v1.x <- pin.Color.x; v1.y <- pin.Color.y; v1.z <- pin.Color.z; v1.w <- pin.Color.w; 
                 //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
                 //
-                #line 56 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
+                #line 60 "D:\Projects\c++\asdf\RPG\RPG\Shader\InstancedTest.fx"
                 mov o0.xyzw, v1.xyzw
                 ret 
                 // Approximately 2 instruction slots used
