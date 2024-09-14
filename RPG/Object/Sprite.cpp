@@ -58,7 +58,7 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 
 }
 
-void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, size_t srvCount)
+void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	deviceContext->IASetInputLayout(mInputLayout.Get());
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -128,7 +128,7 @@ void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& c
 		EffectList::SpriteFX->SetTexture(srv);
 
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
-		deviceContext->DrawIndexedInstanced(6, (UINT)instanceCount, 0, 0, instanceOffset);
+		deviceContext->DrawIndexedInstanced(6, (UINT)instanceCount, 0, 0, (UINT)instanceOffset);
 	}
 
 }

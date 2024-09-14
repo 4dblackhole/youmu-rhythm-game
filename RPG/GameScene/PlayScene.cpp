@@ -11,13 +11,13 @@ constexpr int TriangleOffsetY = 11;
 
 //mode related
 constexpr float LaneWidth = 180.0f;
-constexpr float CircleRadius2 = 90.0f;
-constexpr float LargeCircleRadius2 = 144.0f;
+constexpr float CircleDiameter = 90.0f;
+constexpr float LargeCircleDiameter = 144.0f;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
 	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false),
-	laneSprite(LaneWidth, 10000), circleSprite(0, 0)
+	laneSprite(LaneWidth, 10000), noteSprite(0, 0)
 {
 	timer.Reset();
 
@@ -37,7 +37,6 @@ PlayScene::~PlayScene()
 	ReleaseTextures();
 	ReleasePauseBackground();
 
-	SafeDeleteArr(circles);
 }
 
 void PlayScene::InitLanes()
@@ -48,14 +47,49 @@ void PlayScene::InitLanes()
 	testLane.AddTargetKey(4);
 }
 
-bool PlayScene::LoadTextureArray(const string& keyStr, const wstring& fileName)
+bool PlayScene::LoadTextureArray(map<const string, Texture*>& container, const string& keyStr, const vector<LPCWSTR>& fileList)
+{
+	if (fileList.empty()) return false;
+	//Texture Array
+	vector<ID3D11Texture2D*> tempTextureList;
+	vector<LPCWSTR>::const_iterator cIter = fileList.begin();
+	while (cIter!= fileList.cend())
+	{
+		ID3D11Texture2D* tempTexture2D{};
+
+		//get file name
+		try
+		{
+			const BOOL& result = ShortCut::FileExists(*cIter);
+			if (result == FALSE) throw result;
+
+			D3DX11_IMAGE_LOAD_INFO info{};
+			info.MipLevels = 1;
+			HR(D3DX11CreateTextureFromFile(App->GetDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
+			tempTextureList.emplace_back(tempTexture2D);
+		}
+		catch (BOOL b)
+		{
+			UNREFERENCED_PARAMETER(b);
+		}
+		++cIter;
+	}
+
+	bool result = LoadTextureArrayFromResource(container, keyStr, tempTextureList);
+
+	for (auto& it : tempTextureList) ReleaseCOM(it);
+	tempTextureList.clear();
+	return result;
+}
+
+bool PlayScene::LoadTextureArrayIndexed(map<const string, Texture*>& container, const string& keyStr, const wstring& fileName)
 {	
 	//in case there is only one texture
 	if (ShortCut::FileExists(fileName.c_str()) != FALSE)
 	{
 		Texture* tempTexture = new Texture;
 		tempTexture->CreateTexture(App->GetDevice(), fileName);
-		textureList.emplace(make_pair(keyStr, tempTexture));
+		container.emplace(make_pair(keyStr, tempTexture));
 		return true;
 	}
 
@@ -82,58 +116,60 @@ bool PlayScene::LoadTextureArray(const string& keyStr, const wstring& fileName)
 		++textureIdx;
 	}
 
-	//no files
-	if (tempTextureList.empty()) return false;
-
-	bool result = true;
-	try
-	{
-		//create texture2DArr
-		D3D11_TEXTURE2D_DESC texture2Ddesc;
-		(*tempTextureList.begin())->GetDesc(&texture2Ddesc);
-		texture2Ddesc.ArraySize = (UINT)tempTextureList.size();
-		//texture2Ddesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		//texture2Ddesc.MipLevels = 1;
-		//texture2Ddesc.SampleDesc.Count = 1;
-
-		ID3D11Texture2D* texture2DArr;
-		HR(App->GetDevice()->CreateTexture2D(&texture2Ddesc, nullptr, &texture2DArr));
-
-		for (UINT i = 0; i < tempTextureList.size(); ++i) {
-			for (UINT mip = 0; mip < texture2Ddesc.MipLevels; ++mip) {
-				App->GetDeviceContext()->CopySubresourceRegion(
-					texture2DArr,
-					D3D11CalcSubresource(mip, i, texture2Ddesc.MipLevels),
-					0, 0, 0,
-					tempTextureList.at(i),
-					mip,
-					nullptr
-				);
-			}
-		}
-
-		//texture2DArr to SRV
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = texture2Ddesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		srvDesc.Texture2DArray.MipLevels = texture2Ddesc.MipLevels;
-		srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
-
-		Texture* arrTexture = new Texture;
-		HR(App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture->textureSRV));
-		arrTexture->GetDimensionFromSRV();
-		textureList.emplace(make_pair(keyStr, arrTexture));
-		ReleaseCOM(texture2DArr);
-	}
-	catch (HRESULT h)
-	{
-		UNREFERENCED_PARAMETER(h);
-		result = false;
-	}
+	bool result = LoadTextureArrayFromResource(container, keyStr, tempTextureList);
 
 	for (auto& it : tempTextureList) ReleaseCOM(it);
 	tempTextureList.clear();
+
 	return result;
+}
+
+bool PlayScene::LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, const vector<ID3D11Texture2D*>& textureList)
+{
+	//no files
+	if (textureList.empty()) return false;
+
+	//create texture2DArr
+	D3D11_TEXTURE2D_DESC texture2Ddesc;
+	(*textureList.begin())->GetDesc(&texture2Ddesc);
+	texture2Ddesc.ArraySize = (UINT)textureList.size();
+	texture2Ddesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//texture2Ddesc.MipLevels = 1;
+	//texture2Ddesc.SampleDesc.Count = 1;
+
+	ID3D11Texture2D* texture2DArr;
+	HRESULT hr = (App->GetDevice()->CreateTexture2D(&texture2Ddesc, nullptr, &texture2DArr));
+	if (FAILED(hr)) return false;
+
+	for (UINT i = 0; i < textureList.size(); ++i) {
+		for (UINT mip = 0; mip < texture2Ddesc.MipLevels; ++mip) {
+			App->GetDeviceContext()->CopySubresourceRegion(
+				texture2DArr,
+				D3D11CalcSubresource(mip, i, texture2Ddesc.MipLevels),
+				0, 0, 0,
+				textureList.at(i),
+				mip,
+				nullptr
+			);
+		}
+	}
+
+	//texture2DArr to SRV
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = texture2Ddesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MipLevels = texture2Ddesc.MipLevels;
+	srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
+
+	Texture* arrTexture = new Texture;
+	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture->textureSRV));
+	if (FAILED(hr)) return false;
+
+	Texture::UpdateDescFromSRV(*arrTexture);
+	container.emplace(make_pair(keyStr, arrTexture));
+	ReleaseCOM(texture2DArr);
+
+	return true;
 }
 
 void PlayScene::InitTextures()
@@ -146,7 +182,13 @@ void PlayScene::InitTextures()
 	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"LaneBackground.png");
 	textureList.emplace(make_pair(TextureName::LaneBackground, tempTexture));
 
-	LoadTextureArray(TextureName::hitCircle, skinDir + L"hitcircle.png");
+	LoadTextureArray(
+		textureList,
+		TextureName::note,
+		{
+			(skinDir + L"note.png").c_str(), 
+			(skinDir + L"noteoverlay.png").c_str() 
+		});
 
 }
 
@@ -170,22 +212,18 @@ void PlayScene::InitSprites()
 	laneSprite.GetWorld3d().SetParentDrawWorld();
 	laneSprite.SetTexture(laneBGTexture->textureSRV.Get());
 
-	Texture* const& hitCircleTexture = textureList.find(TextureName::hitCircle)->second;
-	circleSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
-	circleSprite.GetWorld3d().SetObjectScale(CircleRadius2);
-	circleSprite.SetTexture(hitCircleTexture->textureSRV.Get());
-	circleSprite.Diffuse = MyColor4::GhostGreen;
+	Texture* const& hitCircleTexture = textureList.find(TextureName::note)->second;
+	noteSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
+	noteSprite.GetWorld3d().SetObjectScale(CircleDiameter);
+	noteSprite.SetTexture(hitCircleTexture->textureSRV.Get());
+	noteSprite.Diffuse = MyColor4::GhostGreen;
+	noteSprite.TextureID = (UINT)SpriteTextureID::Note;
 
-	circles = new Sprite[circlesSize];
-	constexpr float distance = 20.0f;
-	for (int idx = 0; idx < circlesSize; ++idx)
-	{
-		circles[idx].SetTexture(hitCircleTexture->textureSRV.Get());
-		circles[idx].GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
-		circles[idx].GetWorld3d().SetObjectScale(CircleRadius2);
-		circles[idx].GetWorld3d().SetLocalPosition({ 0,(float)idx * distance,0 });
-		circles[idx].Diffuse = (idx % 2 == 0) ? MyColor4::MyRed : MyColor4::MyBlue;
-	}
+	noteOverlaySprite.GetWorld3d().SetParentWorld(&noteSprite.GetWorld3d());
+	noteOverlaySprite.GetWorld3d().SetObjectScale(CircleDiameter);
+	noteOverlaySprite.SetTexture(hitCircleTexture->textureSRV.Get());
+	noteOverlaySprite.Diffuse = MyColor4::White;
+	noteOverlaySprite.TextureID = (UINT)SpriteTextureID::NoteOverlay;
 
 	InitInstancedBuffer();
 }
@@ -630,7 +668,7 @@ void PlayScene::LoadMusicScoreComplete()
 
 void PlayScene::StopThread()
 {
-	STopPlayMusicThread();
+	StopPlayMusicThread();
 	StopLoadMusicScoreThread();
 }
 
@@ -647,12 +685,7 @@ void PlayScene::OnResize(float newW, float newH)
 	currentTimeText.GetWorld2d().OnParentWorldUpdate();
 
 	laneSprite.OnResize();
-	circleSprite.OnResize();
-
-	for (int i = 0; i < circlesSize; ++i)
-	{
-		circles[i].OnResize();
-	}
+	noteSprite.OnResize();
 
 	switch (sceneStatus)
 	{
@@ -723,7 +756,7 @@ void PlayScene::UpdateTotalMusicTime()
 	totalMusicTime = rhythmTimer.TotalTime() * 1000.0f + (double)(duration_cast<milliseconds>(musicTimeOffset).count());
 }
 
-void PlayScene::STopPlayMusicThread()
+void PlayScene::StopPlayMusicThread()
 {
 	playMusicThreadRunFlag = false;
 	if (playMusicThread.joinable())playMusicThread.join();
@@ -761,7 +794,7 @@ void PlayScene::ChangeStatusStart()
 
 void PlayScene::ExitStatusStart()
 {
-	STopPlayMusicThread();
+	StopPlayMusicThread();
 	music->channel->setPaused(true);
 }
 
@@ -778,29 +811,23 @@ void PlayScene::UpdateOnStart(float dt)
 
 	if (KEYBOARD.Hold('Z'))
 	{
-		//circleSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+		noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
 		
-		for (int i = 0; i < circlesSize; ++i)
-		{
-			circles[i].GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
-		}
-		circlesUpdateFlag = true;
+		noteInstancedBufferUpdateFlag = true;
 	}
 	
 	if (KEYBOARD.Hold('X'))
 	{
-		//circleSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+		noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
 		
-		for (int i = 0; i < circlesSize; ++i)
-		{
-			circles[i].GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
-		}
-		circlesUpdateFlag = true;
+		noteInstancedBufferUpdateFlag = true;
 	}
 
-	if (KEYBOARD.Down('A'))circleSprite.Diffuse = MyColor4::MyRed;
-	if (KEYBOARD.Down('S'))circleSprite.Diffuse = MyColor4::MyBlue;
-	circleSprite.Diffuse.w = 0.5f;
+	if (KEYBOARD.Down('A'))noteSprite.Diffuse = MyColor4::MyRed;
+	if (KEYBOARD.Down('S'))noteSprite.Diffuse = MyColor4::MyBlue;
+	noteSprite.Diffuse.w = 0.5f;
 
 #ifdef _DEBUG
 	if (KEYBOARD.Hold('1'))
@@ -822,17 +849,12 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	currentTimeText.Draw();
 	laneSprite.Render(deviceContext, cam);
 
-	circleSprite.TextureID = 0;
-	circleSprite.Diffuse = MyColor4::GhostGreen;
-	circleSprite.Diffuse.w = 0.5f;
-	//circleSprite.Render(deviceContext, cam, 2);
-	circleSprite.TextureID = 1;
-	circleSprite.Diffuse = MyColor4::White;
-	//circleSprite.Render(deviceContext, cam, 2);
+	noteSprite.Render(deviceContext, cam);
+	noteOverlaySprite.Render(deviceContext, cam);
 	
 	UpdateInstancedBuffer();
 
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, circlesSize* (size_t)SpriteTextureID::MAX, textureList.at(TextureName::hitCircle)->textureSRV.Get());
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, testLane.NoteTimingList().size() * (size_t)SpriteTextureID::MAX, textureList.at(TextureName::note)->textureSRV.Get());
 }
 
 
@@ -1017,40 +1039,20 @@ void PlayScene::InitInstancedBuffer()
 {
 	D3D11_BUFFER_DESC instbd{};
 	instbd.Usage = D3D11_USAGE_DYNAMIC;
-	instbd.ByteWidth = sizeof(SpriteInstanceData) * circlesSize * 2;
+	instbd.ByteWidth = UINT(sizeof(SpriteInstanceData) * instanceMaxSize);
 	instbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	//D3D11_SUBRESOURCE_DATA instinitData{};
 	//instinitData.pSysMem = &noteInstanceList[0];
 	HR(App->GetDevice()->CreateBuffer(&instbd, nullptr, &noteInstancedBuffer));
-	circlesUpdateFlag = true;
 
+	noteInstancedBufferUpdateFlag = true;
 	UpdateInstancedBuffer();
-
-	/*
-	vector<SpriteInstanceData> noteInstanceList;
-	for (int idx = 0; idx < circlesSize; ++idx)
-	{
-		SpriteInstanceData tempInst;
-		tempInst.Diffuse = circles[idx].Diffuse;
-		tempInst.Diffuse.w = 0.9f;
-		tempInst.uvworld = XmFloatT4X4Identity;
-		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
-		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
-		noteInstanceList.push_back(tempInst);
-
-		tempInst.uvworld = XmFloatT4X4Identity;
-		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
-		tempInst.Diffuse = MyColor4::White;
-		tempInst.TextureID = (UINT)SpriteTextureID::CircleOverlay;
-		noteInstanceList.push_back(tempInst);
-	}*/
 }
 
 void PlayScene::UpdateInstancedBuffer()
 {
-	
-	if (!circlesUpdateFlag) return;
+	if (!noteInstancedBufferUpdateFlag) return;
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	App->GetDeviceContext()->Map(noteInstancedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
@@ -1058,7 +1060,7 @@ void PlayScene::UpdateInstancedBuffer()
 	noteInstancedBuffer->GetDesc(&d);
 
 	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
-
+	/*
 	for (UINT i = 0; i < circlesSize; ++i)
 	{
 		SpriteInstanceData tempInst;
@@ -1067,15 +1069,15 @@ void PlayScene::UpdateInstancedBuffer()
 		tempInst.uvworld = circles[circleIdx].GetWorld3d().GetUvWorld();
 		tempInst.world = circles[circleIdx].GetWorld3d().GetTotalDrawWorld();
 		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
-		dataView[2*i] = tempInst;
+		dataView[2 * i] = tempInst;
 
 		tempInst.Diffuse = MyColor4::White;
 		tempInst.TextureID = (UINT)SpriteTextureID::CircleOverlay;
-		dataView[2*i+1] = tempInst;
+		dataView[2 * i + 1] = tempInst;
 		DEBUG_BREAKPOINT;
-	}
 
-	circlesUpdateFlag = false;
+	}
+	*/
+	noteInstancedBufferUpdateFlag = false;
 	App->GetDeviceContext()->Unmap(noteInstancedBuffer.Get(), 0);
-	
 }

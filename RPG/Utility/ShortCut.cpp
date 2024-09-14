@@ -160,14 +160,6 @@ D3D11_TEXTURE2D_DESC ShortCut::GetDescFromSRV(ID3D11ShaderResourceView*& ptr)
 	return desc;
 }
 
-BOOL ShortCut::FileExists(LPCTSTR szPath)
-{
-	DWORD dwAttrib = GetFileAttributes(szPath);
-
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-}
-
 D2D1::Matrix3x2F ShortCut::XmFloat4x4To3x2(const XMFLOAT4X4 m)
 {
 	return D2D1::Matrix3x2F(m._11, m._12, m._21, m._22, m._41, m._42);

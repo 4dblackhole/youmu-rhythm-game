@@ -28,6 +28,7 @@ public:
 	virtual void OnKeyDown(WPARAM wParam, LPARAM lParam) final {};
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {};
 
+//state machine related
 private:
 
 	enum class Status
@@ -64,6 +65,8 @@ private:
 	void ExitStatus(Status);
 	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
 	
+//pause related
+private:
 	enum class PauseOption
 	{
 		Resume,
@@ -89,6 +92,7 @@ private:
 	void InitPauseBackground();
 	void ReleasePauseBackground();
 
+//timing related
 private:
 	GameTimer timer;
 
@@ -103,13 +107,10 @@ private:
 
 	thread playMusicThread;
 	bool playMusicThreadRunFlag = false;
-	void STopPlayMusicThread();
+	void StopPlayMusicThread();
 	void PlayMusic();
 
 	void StopThread();
-
-	Music* music; //weak ptr
-	Pattern* pattern; //weak ptr
 
 //Game mode related
 private:
@@ -120,25 +121,34 @@ private:
 	{
 	public:
 		DECLARE_VARIABLE_STRING(LaneBackground);
-		DECLARE_VARIABLE_STRING(hitCircle);
+		DECLARE_VARIABLE_STRING(note);
 	};
 
 	map<const string, Texture*> textureList;
+
+	enum class SpriteTextureID
+	{
+		Note,
+		NoteOverlay,
+		MAX
+	};
+
 	void InitTextures();
 	void ReleaseTextures();
 
-	bool LoadTextureArray(const string& keyStr, const wstring& fileName);
+	bool LoadTextureArray(map<const string, Texture*>&container, const string& keyStr, const vector<LPCWSTR>& fileList);
+	bool LoadTextureArrayIndexed(map<const string, Texture*>&container, const string& keyStr, const wstring& fileName);
+
+	bool LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, 
+		const vector<ID3D11Texture2D*>& textureList);
 
 	AccuracyRange accRange;
 	map<size_t, FMOD::Sound*> defaultHitSoundList;
 
-
-//prefix sum for calculating timing
-private:
-	void InitTimeSignaturePrefixSum();
-
+	//prefix sum for calculating timing
 	MeasurePrefixSum measurePrefixSum;
 	BpmTimingPrefixSum bpmTimingPrefixSum;
+	void InitTimeSignaturePrefixSum();
 
 public:
 	//TODO: Change the owner of this function
@@ -146,18 +156,11 @@ public:
 
 private:
 	Sprite laneSprite;
-	Sprite circleSprite;
-	static constexpr size_t circlesSize = 600;
-	bool circlesUpdateFlag;
-	Sprite* circles;
+	Sprite noteSprite;
+	Sprite noteOverlaySprite;
+	bool noteInstancedBufferUpdateFlag;
+	size_t instanceMaxSize = 1024;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
-
-	enum class SpriteTextureID
-	{
-		Circle,
-		CircleOverlay,
-		MAX
-	};
 	
 	void InitSprites();
 	void InitInstancedBuffer();
@@ -170,6 +173,11 @@ private:
 	DwLayout2D loadingText;
 	DwLayout2D loadingCompleteText;
 	void InitLoadingText();
+
+//music score related
+private:
+	Music* music; //weak ptr
+	Pattern* pattern; //weak ptr
 
 	bool musicScoreLoadFlag = false;
 	MusicScore* musicScore = nullptr; //note container

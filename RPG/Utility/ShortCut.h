@@ -30,7 +30,23 @@ public:
 	static D2D1_POINT_2F Resize2DtoStandardCS(float newW, float newH, float x, float y, float alignPosX = 0.0f);
 
 	static void GetFileList(vector<wstring>& vList, const wstring& sPath, const wstring& ext, bool bAllDirectories = true);
-	static BOOL FileExists(LPCTSTR szPath);
+
+	template <typename T>
+	static BOOL FileExists(const T* szPath)
+	{
+		if constexpr (std::is_same_v<T, char>)
+		{
+			DWORD dwAttrib = GetFileAttributesA(szPath);
+			return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+				!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+		}
+		else if constexpr (std::is_same_v<T, wchar_t>)
+		{
+			DWORD dwAttrib = GetFileAttributesW(szPath);
+			return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+				!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+		}
+	}
 
 	static bool WordSeparateA(const string_view& source, const string& separator, string* first, string* second);
 	static bool WordSeparateW(const wstring_view& source, const wstring& separator, wstring* first, wstring* second);
