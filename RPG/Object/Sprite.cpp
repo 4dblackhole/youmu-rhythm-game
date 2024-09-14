@@ -88,52 +88,14 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, size_
 		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
 		EffectList::SpriteFX->mfxTexture->SetResource(textureSRV);
 		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
-
-		for (int i = 0; i < srvCount; ++i)
-		{
-			EffectList::SpriteFX->mfxTextureID->SetInt(i);
-			currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
-			deviceContext->DrawIndexed(6, 0, 0);
-		}
-	}
-}
-/*
-void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam, SpriteDesc& desc)
-{
-	deviceContext->IASetInputLayout(mInputLayout.Get());
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	UINT stride = sizeof(VertexColorTexture);
-	UINT offset = 0;
-
-	CXMMATRIX& view = cam.View();
-	CXMMATRIX& proj = cam.Proj();
-
-	D3DX11_TECHNIQUE_DESC techDesc;
-	ID3DX11EffectTechnique*& currentTech = desc.ColorMode ? EffectList::SpriteFX->mTechColor : EffectList::SpriteFX->mTechTexture;
-	currentTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
-	{
-		//buffer setting
-		deviceContext->IASetVertexBuffers(0, 1, mVB.GetAddressOf(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		// Set per object constants.
-		CXMMATRIX& world = XMLoadFloat4x4(&desc.GetWorld3d().GetTotalDrawWorld());
-		CXMMATRIX& uvWorld = XMLoadFloat4x4(&desc.GetWorld3d().GetUvWorld());
-
-		EffectList::SpriteFX->mfxWorld->SetMatrix(reinterpret_cast<const float*>(&world));
-		EffectList::SpriteFX->mfxView->SetMatrix(reinterpret_cast<const float*>(&view));
-		EffectList::SpriteFX->mfxProj->SetMatrix(reinterpret_cast<const float*>(&proj));
-		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
-		EffectList::SpriteFX->mfxTexture->SetResource(desc.GetTexture());
-		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&desc.Diffuse));
+		EffectList::SpriteFX->mfxTextureID->SetInt(TextureID);
 
 		currentTech->GetPassByIndex(p)->Apply(0, deviceContext);
 		deviceContext->DrawIndexed(6, 0, 0);
+
 	}
 }
-*/
+
 void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, ID3D11Buffer* instancedBuffer,
 	size_t instanceOffset, size_t instanceCount, ID3D11ShaderResourceView* srv)
 {

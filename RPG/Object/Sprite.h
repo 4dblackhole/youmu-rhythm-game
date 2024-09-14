@@ -3,28 +3,7 @@
 #include "System/AlignMode.h"
 #include "System/World/World3D.h"
 
-/*
-class SpriteDesc
-{
-public:
-	SpriteDesc();
-	~SpriteDesc();
-	ID3D11ShaderResourceView* const GetTexture() const { return textureSRV; }
-	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
-
-	const World3D& GetWorld3dConst() const { return world3d; }
-	World3D& GetWorld3d() { return world3d; }
-
-	XMFLOAT4 Diffuse = { 1,1,1,1 };
-	bool ColorMode = false;
-
-private:
-	World3D world3d;
-	ID3D11ShaderResourceView* textureSRV = nullptr;
-
-};
-*/
-struct SpriteInstanceData
+__declspec(align(16)) struct SpriteInstanceData
 {
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 uvworld;
@@ -63,7 +42,6 @@ public:
 	~Sprite();
 
 	void Render(ID3D11DeviceContext*, const Camera&, size_t srvCount = 1);
-	//static void Render(ID3D11DeviceContext*, const Camera&, SpriteDesc&);
 	static void RenderInstanced(ID3D11DeviceContext*, const Camera&, ID3D11Buffer*, size_t instanceOffset, size_t instanceCount, ID3D11ShaderResourceView* srv);
 	void OnResize();
 
@@ -83,6 +61,7 @@ public:
 
 	XMFLOAT4 Diffuse;
 	bool ColorMode = false;
+	UINT TextureID;
 
 private:
 	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);

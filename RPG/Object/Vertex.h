@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-struct Vertex
+__declspec(align(16)) struct Vertex
 {
 public:
 	Vertex();
@@ -27,7 +27,7 @@ public:
 	};
 };
 
-struct VertexColor
+__declspec(align(16)) struct VertexColor
 {
 public:
 	VertexColor();
@@ -53,7 +53,7 @@ public:
 	};
 };
 
-struct VertexColorTexture
+__declspec(align(16)) struct VertexColorTexture
 {
 public:
 	VertexColorTexture();

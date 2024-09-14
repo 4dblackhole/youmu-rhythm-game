@@ -28,7 +28,6 @@ PlayScene::PlayScene(Music* m, Pattern* p) :
 	InitTextures();
 	InitLanes();
 	InitSprites();
-	InitInstancedBuffers();
 }
 
 PlayScene::~PlayScene()
@@ -177,29 +176,18 @@ void PlayScene::InitSprites()
 	circleSprite.SetTexture(hitCircleTexture->textureSRV.Get());
 	circleSprite.Diffuse = MyColor4::GhostGreen;
 
-	circles = new Sprite[600];
-	constexpr float distance = 60.0f;
-	for (int idx = 599; idx >= 0; --idx)
+	circles = new Sprite[circlesSize];
+	constexpr float distance = 20.0f;
+	for (int idx = 0; idx < circlesSize; ++idx)
 	{
 		circles[idx].SetTexture(hitCircleTexture->textureSRV.Get());
 		circles[idx].GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
 		circles[idx].GetWorld3d().SetObjectScale(CircleRadius2);
 		circles[idx].GetWorld3d().SetLocalPosition({ 0,(float)idx * distance,0 });
-		circles[idx].Diffuse = MyColor4::GhostGreen;
-
-		SpriteInstanceData tempInst;
-		tempInst.Diffuse = circles[idx].Diffuse;
-		tempInst.Diffuse.w = 0.9f;
-		tempInst.uvworld = XmFloatT4X4Identity;
-		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
-		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
-		circlesInstanceList.emplace_back(tempInst);
-
-		tempInst.Diffuse = MyColor4::White;
-		tempInst.TextureID = (UINT)SpriteTextureID::CircleOverlay;
-		circlesInstanceList.emplace_back(tempInst);
+		circles[idx].Diffuse = (idx % 2 == 0) ? MyColor4::MyRed : MyColor4::MyBlue;
 	}
-	
+
+	InitInstancedBuffer();
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -296,7 +284,7 @@ void PlayScene::InitPauseBackground()
 	RenderStatus(prevSceneStatus, App->GetDeviceContext(), App->GetCamera());
 	D2D.EndDraw();
 
-	D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
+	//D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
 	prevSceneSprite.SetTexture(pauseBgSRV);
 
 	App->ResetRenderTarget();
@@ -661,7 +649,7 @@ void PlayScene::OnResize(float newW, float newH)
 	laneSprite.OnResize();
 	circleSprite.OnResize();
 
-	for (int i = 0; i < 600; ++i)
+	for (int i = 0; i < circlesSize; ++i)
 	{
 		circles[i].OnResize();
 	}
@@ -790,26 +778,24 @@ void PlayScene::UpdateOnStart(float dt)
 
 	if (KEYBOARD.Hold('Z'))
 	{
-		circleSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
-		/*
-		for (int i = 0; i < 600; ++i)
+		//circleSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+		
+		for (int i = 0; i < circlesSize; ++i)
 		{
 			circles[i].GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
-			circlesOverlay[i].GetWorld3d().OnParentWorldUpdate();
 		}
-		*/
+		circlesUpdateFlag = true;
 	}
 	
 	if (KEYBOARD.Hold('X'))
 	{
-		circleSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
-		/*
-		for (int i = 0; i < 600; ++i)
+		//circleSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+		
+		for (int i = 0; i < circlesSize; ++i)
 		{
 			circles[i].GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
-			circlesOverlay[i].GetWorld3d().OnParentWorldUpdate();
 		}
-		*/
+		circlesUpdateFlag = true;
 	}
 
 	if (KEYBOARD.Down('A'))circleSprite.Diffuse = MyColor4::MyRed;
@@ -836,10 +822,17 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	currentTimeText.Draw();
 	laneSprite.Render(deviceContext, cam);
 
-	circleSprite.Render(deviceContext, cam, 2);
+	circleSprite.TextureID = 0;
+	circleSprite.Diffuse = MyColor4::GhostGreen;
+	circleSprite.Diffuse.w = 0.5f;
+	//circleSprite.Render(deviceContext, cam, 2);
+	circleSprite.TextureID = 1;
+	circleSprite.Diffuse = MyColor4::White;
+	//circleSprite.Render(deviceContext, cam, 2);
 	
-	Sprite::RenderInstanced(deviceContext, cam, circlesInstancedBuffer.Get(), 0, circlesInstanceList.size(), textureList.at(TextureName::hitCircle)->textureSRV.Get());
+	UpdateInstancedBuffer();
 
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, circlesSize* (size_t)SpriteTextureID::MAX, textureList.at(TextureName::hitCircle)->textureSRV.Get());
 }
 
 
@@ -1020,14 +1013,69 @@ void PlayScene::EndScene()
 	SCENEMANAGER.RemoveScene(SceneManager::Name::PlayScene);
 }
 
-void PlayScene::InitInstancedBuffers()
+void PlayScene::InitInstancedBuffer()
 {
 	D3D11_BUFFER_DESC instbd{};
-	instbd.Usage = D3D11_USAGE_IMMUTABLE;
-	instbd.ByteWidth = sizeof(decltype(circlesInstanceList)::value_type) * circlesInstanceList.size();
+	instbd.Usage = D3D11_USAGE_DYNAMIC;
+	instbd.ByteWidth = sizeof(SpriteInstanceData) * circlesSize * 2;
 	instbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA instinitData{};
-	instinitData.pSysMem = &circlesInstanceList[0];
-	HR(App->GetDevice()->CreateBuffer(&instbd, &instinitData, &circlesInstancedBuffer));
+	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//D3D11_SUBRESOURCE_DATA instinitData{};
+	//instinitData.pSysMem = &noteInstanceList[0];
+	HR(App->GetDevice()->CreateBuffer(&instbd, nullptr, &noteInstancedBuffer));
+	circlesUpdateFlag = true;
 
+	UpdateInstancedBuffer();
+
+	/*
+	vector<SpriteInstanceData> noteInstanceList;
+	for (int idx = 0; idx < circlesSize; ++idx)
+	{
+		SpriteInstanceData tempInst;
+		tempInst.Diffuse = circles[idx].Diffuse;
+		tempInst.Diffuse.w = 0.9f;
+		tempInst.uvworld = XmFloatT4X4Identity;
+		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
+		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
+		noteInstanceList.push_back(tempInst);
+
+		tempInst.uvworld = XmFloatT4X4Identity;
+		tempInst.world = circles[idx].GetWorld3d().GetTotalDrawWorld();
+		tempInst.Diffuse = MyColor4::White;
+		tempInst.TextureID = (UINT)SpriteTextureID::CircleOverlay;
+		noteInstanceList.push_back(tempInst);
+	}*/
+}
+
+void PlayScene::UpdateInstancedBuffer()
+{
+	
+	if (!circlesUpdateFlag) return;
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	App->GetDeviceContext()->Map(noteInstancedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+
+	D3D11_BUFFER_DESC d;
+	noteInstancedBuffer->GetDesc(&d);
+
+	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
+
+	for (UINT i = 0; i < circlesSize; ++i)
+	{
+		SpriteInstanceData tempInst;
+		const size_t circleIdx = circlesSize - 1 - i;
+		tempInst.Diffuse = circles[circleIdx].Diffuse;
+		tempInst.uvworld = circles[circleIdx].GetWorld3d().GetUvWorld();
+		tempInst.world = circles[circleIdx].GetWorld3d().GetTotalDrawWorld();
+		tempInst.TextureID = (UINT)SpriteTextureID::Circle;
+		dataView[2*i] = tempInst;
+
+		tempInst.Diffuse = MyColor4::White;
+		tempInst.TextureID = (UINT)SpriteTextureID::CircleOverlay;
+		dataView[2*i+1] = tempInst;
+		DEBUG_BREAKPOINT;
+	}
+
+	circlesUpdateFlag = false;
+	App->GetDeviceContext()->Unmap(noteInstancedBuffer.Get(), 0);
+	
 }

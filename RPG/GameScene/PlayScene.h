@@ -147,9 +147,10 @@ public:
 private:
 	Sprite laneSprite;
 	Sprite circleSprite;
+	static constexpr size_t circlesSize = 600;
+	bool circlesUpdateFlag;
 	Sprite* circles;
-	vector<SpriteInstanceData> circlesInstanceList;
-	ComPtr<ID3D11Buffer> circlesInstancedBuffer;
+	ComPtr<ID3D11Buffer> noteInstancedBuffer;
 
 	enum class SpriteTextureID
 	{
@@ -159,7 +160,8 @@ private:
 	};
 	
 	void InitSprites();
-	void InitInstancedBuffers();
+	void InitInstancedBuffer();
+	void UpdateInstancedBuffer();
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();
