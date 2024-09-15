@@ -28,7 +28,7 @@ public:
 	Pattern* GetCurrentPattern();
 
 private:
-	void InitMusicScroll();
+	void InitMusicListScroll();
 	void CreateMusicBox();
 
 	void ChangePatternBox(size_t musicIdx);
@@ -36,6 +36,13 @@ private:
 	void LoadMusic();
 	void LoadPattern();
 
+	TextureManager textureManager;
+
+	class TextureName
+	{
+	public:
+		DECLARE_VARIABLE_STRING(MusicScroll);
+	};
 	Sprite scrollImg;
 	
 	unique_ptr<DwLayout2D> noMusicText;

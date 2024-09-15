@@ -50,8 +50,8 @@ public:
 	static void BulidBuffer(ID3D11Device*);
 	static void BuildLayout(ID3D11Device*);
 
-	void SetTexture(ID3D11ShaderResourceView* ptr) { textureSRV = ptr; }
-	ID3D11ShaderResourceView* const GetTexture() const { return textureSRV; }
+	void SetTexture(const Texture* ptr) { texture = ptr; }
+	const Texture& GetTexture() const { return *texture; }
 
 	const World3D& GetWorld3dConst() const { return world3d; }
 	World3D& GetWorld3d() { return world3d; }
@@ -61,13 +61,17 @@ public:
 
 	XMFLOAT4 Diffuse;
 	bool ColorMode = false;
-	UINT TextureID;
+
+	UINT GetTextureID(UINT id) const;
+	void SetTextureID(UINT id);
 
 private:
 	void Init(float x, float y, float w, float h, const XMFLOAT4 diffuse, const bool colormode);
 
 	World3D world3d;
-	ID3D11ShaderResourceView* textureSRV; //weak reference, never delete this pointer
+	const Texture* texture; //weak ptr
+	UINT TextureID;
+
 
 	void MakeCenterUV();
 

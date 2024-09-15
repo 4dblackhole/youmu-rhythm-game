@@ -43,6 +43,19 @@ Sprite::~Sprite()
 {
 }
 
+UINT Sprite::GetTextureID(UINT id) const
+{
+	return TextureID;
+}
+
+void Sprite::SetTextureID(UINT id)
+{
+	const UINT& arrSize = texture->arrSize;
+	if (arrSize == 0) TextureID = 0;
+	else TextureID = min(id, arrSize - 1);
+	
+}
+
 void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse, const bool colormode = false)
 {
 	this->ColorMode = colormode;
@@ -86,7 +99,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		EffectList::SpriteFX->mfxView->SetMatrix(reinterpret_cast<const float*>(&view));
 		EffectList::SpriteFX->mfxProj->SetMatrix(reinterpret_cast<const float*>(&proj));
 		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
-		EffectList::SpriteFX->mfxTexture->SetResource(textureSRV);
+		if (texture != nullptr) EffectList::SpriteFX->mfxTexture->SetResource(texture->srv.Get());
 		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 		EffectList::SpriteFX->mfxTextureID->SetInt(TextureID);
 
@@ -141,30 +154,29 @@ void Sprite::OnResize()
 void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 {
 	GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(w, h) , GetWorld3d().GetObjectScale().y });
-	MakeCenterUV();
+	if (texture != nullptr) MakeCenterUV();
 
 	DEBUG_BREAKPOINT;
 }
 
 void Sprite::MakeCenterUV()
 {
-	if (textureSRV != nullptr)
+	if (texture->srv == nullptr) return;
+
+	const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(texture->srv.Get());
+	const float& spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
+	const float& imgRate = (float)desc.Height / (float)desc.Width;
+	if (spriteRate < imgRate) //sprite is more width than img
 	{
-		const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(textureSRV);
-		const float& spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
-		const float& imgRate = (float)desc.Height / (float)desc.Width;
-		if (spriteRate < imgRate) //sprite is more width than img
-		{
-			world3d.SetUvScale({ 1.0f, (spriteRate / imgRate) });
-			const XMFLOAT2& uv = world3d.GetUvScale();
-			world3d.SetUvPosition({ 0.0f, (1.0f - uv.y) * 0.5f });
-		}
-		else
-		{
-			world3d.SetUvScale({ (imgRate / spriteRate), 1.0f });
-			const XMFLOAT2& uv = world3d.GetUvScale();
-			world3d.SetUvPosition({ (1.0f - uv.x) * 0.5f , 0.0f });
-		}
+		world3d.SetUvScale({ 1.0f, (spriteRate / imgRate) });
+		const XMFLOAT2& uv = world3d.GetUvScale();
+		world3d.SetUvPosition({ 0.0f, (1.0f - uv.y) * 0.5f });
+	}
+	else
+	{
+		world3d.SetUvScale({ (imgRate / spriteRate), 1.0f });
+		const XMFLOAT2& uv = world3d.GetUvScale();
+		world3d.SetUvPosition({ (1.0f - uv.x) * 0.5f , 0.0f });
 	}
 }
 

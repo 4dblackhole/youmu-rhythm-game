@@ -37,9 +37,8 @@ TitleScene::~TitleScene()
 
 void TitleScene::BeginScene()
 {
-	HR(D3DX11CreateShaderResourceViewFromFile(App->GetDevice(),
-		(TextureDir+L"/Title/TitleLogo_ghost.png").c_str(), 0, 0, &titleSRV, 0));
-	titleLogoImg.SetTexture(titleSRV);
+	titleSRV.CreateTexture(App->GetDevice(), TextureDir + L"/Title/TitleLogo_ghost.png");
+	titleLogoImg.SetTexture(&titleSRV);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->GetWorld2d().SetScale(12.0f);
 	keySelectTriangle->GetWorld2d().SetAlignX(AlignModeX::Mid);
@@ -61,7 +60,9 @@ void TitleScene::OnResize(float newW, float newH)
 
 void TitleScene::Update(float dt)
 {
-	if (KEYBOARD.Down(VK_ESCAPE)) SCENEMANAGER.ChangeScene(SceneManager::Name::Intro);
+	if(KEYBOARD.Hold(VK_F1)) SCENEMANAGER.ChangeScene(SceneManager::Name::test);
+
+	if (KEYBOARD.Down(VK_ESCAPE)) SCENEMANAGER.ChangeScene(SceneManager::Name::Logo);
 	if (KEYBOARD.Down(VK_UP))
 	{
 		FMODSYSTEM.Play(FmodSystem::Name::button01a);
@@ -115,7 +116,7 @@ void TitleScene::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 
 void TitleScene::EndScene()
 {
-	ReleaseCOM(titleSRV);
+	ReleaseCOM(titleSRV.GetRefSRV());
 	delete keySelectTriangle;
 	bgmChannel->stop();
 }

@@ -52,7 +52,8 @@ void LogoScene::OnKeyUp(WPARAM wParam, LPARAM lParam)
 
 void LogoScene::Init()
 {
-	fmodLogo.SetTexture(GETTEXTURE(TextureManager::Name::fmodLogo));
+	textureManager.AddTexture(App->GetDevice(), TextureName::fmodLogo, TextureDir + L"Fmod/FMOD Logo White - Black Background.png");
+	fmodLogo.SetTexture(&textureManager.GetTexture(TextureName::fmodLogo));
 }
 
 void LogoScene::Release()

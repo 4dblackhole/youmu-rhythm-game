@@ -27,6 +27,13 @@ public:
 	virtual void OnKeyUp(WPARAM wParam, LPARAM lParam) final {}
 
 private:
+	TextureManager textureManager;
+	class TextureName
+	{
+	public:
+		DECLARE_VARIABLE_STRING(test);
+		DECLARE_VARIABLE_STRING(myon);
+	};
 
 	Sprite sq;
 	Sprite sq2;

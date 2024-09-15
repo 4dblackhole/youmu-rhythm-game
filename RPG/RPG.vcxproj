@@ -190,7 +190,7 @@
     <ClCompile Include="MusicalObject\Music.cpp" />
     <ClCompile Include="MusicalObject\Note.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
-    <ClCompile Include="MusicalObject\PlayMode.cpp" />
+    <ClCompile Include="MusicalObject\PlayMode\PlayMode.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp" />
     <ClCompile Include="MusicalObject\VolumeSet.cpp" />
@@ -201,10 +201,10 @@
     <ClCompile Include="Object\Shape2D\Triangle2D.cpp" />
     <ClCompile Include="Object\Sprite.cpp" />
     <ClCompile Include="Object\Texture.cpp" />
+    <ClCompile Include="Object\TextureManager.cpp" />
     <ClCompile Include="Object\Vertex.cpp" />
     <ClCompile Include="Singleton\FmodSystem.cpp" />
     <ClCompile Include="Singleton\SceneManager.cpp" />
-    <ClCompile Include="Singleton\TextureManager.cpp" />
     <ClCompile Include="System\Camera.cpp" />
     <ClCompile Include="System\D2Ddevice.cpp" />
     <ClCompile Include="System\GameScene.cpp" />
@@ -237,7 +237,7 @@
     <ClInclude Include="MusicalObject\Music.h" />
     <ClInclude Include="MusicalObject\Note.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
-    <ClInclude Include="MusicalObject\PlayMode.h" />
+    <ClInclude Include="MusicalObject\PlayMode\PlayMode.h" />
     <ClInclude Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.h" />
     <ClInclude Include="MusicalObject\PrefixSum\MeasurePrefixSum.h" />
     <ClInclude Include="MusicalObject\VolumeSet.h" />
@@ -248,11 +248,11 @@
     <ClInclude Include="Object\Shape2D\Triangle2D.h" />
     <ClInclude Include="Object\Sprite.h" />
     <ClInclude Include="Object\Texture.h" />
+    <ClInclude Include="Object\TextureManager.h" />
     <ClInclude Include="Object\Vertex.h" />
     <ClInclude Include="Singleton\FmodSystem.h" />
     <ClInclude Include="Singleton\SceneManager.h" />
     <ClInclude Include="Singleton\SingletonBase.h" />
-    <ClInclude Include="Singleton\TextureManager.h" />
     <ClInclude Include="System\AlignMode.h" />
     <ClInclude Include="System\Camera.h" />
     <ClInclude Include="System\D2Ddevice.h" />

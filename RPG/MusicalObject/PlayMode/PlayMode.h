@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
-#include "Lane.h"
-#include "AccuracyRange.h"
+#include "../Lane.h"
+#include "../AccuracyRange.h"
 
 class PlayMode
 {

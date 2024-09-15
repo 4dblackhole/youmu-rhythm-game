@@ -28,6 +28,13 @@ private:
 
 	void UpdateLogo();
 
+	TextureManager textureManager;
+	class TextureName
+	{
+	public:
+		DECLARE_VARIABLE_STRING(fmodLogo);
+	};
+
 	Sprite fmodLogo;
 	Sprite background;
 

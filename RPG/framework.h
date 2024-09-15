@@ -72,10 +72,6 @@ using namespace std;
 #include "Effect/Effects/Effects.h"
 #include "Effect/RenderStates.h"
 
-#include "Singleton/TextureManager.h"
-#include "Singleton/SceneManager.h"
-#include "Singleton/FmodSystem.h"
-
 #include "Object/Texture.h"
 #include "Object/Vertex.h"
 
@@ -83,16 +79,17 @@ using namespace std;
 #include "Object/Shape2D/Triangle2D.h"
 #include "Object/Shape2D/Rectangle2D.h"
 
-
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Note.h"
 #include "MusicalObject/Pattern.h"
 #include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
 #include "MusicalObject/PrefixSum/BpmTimingPrefixSum.h"
 
+#include "Singleton/SceneManager.h"
+#include "Singleton/FmodSystem.h"
+
 #include "App/MainApp.h"
 extern MainApp* App;
-
 
 //all coordinates are based on these numbers.
 constexpr UINT StandardWidth = 1280;
@@ -134,6 +131,7 @@ constexpr XMFLOAT4X4 XmFloatT4X4Identity
 	0,0,0,1
 };
 
+#include "Object/TextureManager.h"
 
 #if defined(DEBUG) | defined(_DEBUG)
 

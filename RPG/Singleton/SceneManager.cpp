@@ -54,7 +54,7 @@ void SceneManager::ChangeScene(const mapSceneList::key_type& sceneName)
 SceneManager::SceneManager()
 {
 	GameScene* scene = new LogoScene;
-	InitScene(SceneManager::Name::Intro, move(scene));
+	InitScene(SceneManager::Name::Logo, move(scene));
 
 	scene = new TestScene;
 	AddScene(SceneManager::Name::test, move(scene));

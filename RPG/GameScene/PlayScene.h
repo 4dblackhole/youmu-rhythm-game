@@ -61,6 +61,8 @@ private:
 	void UpdateOnEnd(float dt);
 	void RenderOnEnd(ID3D11DeviceContext* deviceContext, const Camera& cam);
 
+	void StopThread();
+
 	void ChangeStatus(Status);
 	void ExitStatus(Status);
 	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
@@ -86,7 +88,7 @@ private:
 
 	ID3D11Texture2D* pauseBG = nullptr;
 	ID3D11RenderTargetView* pauseBgRTV = nullptr;
-	ID3D11ShaderResourceView* pauseBgSRV = nullptr;
+	Texture pauseBgTexture;
 
 	Sprite prevSceneSprite;
 	void InitPauseBackground();
@@ -109,8 +111,6 @@ private:
 	bool playMusicThreadRunFlag = false;
 	void StopPlayMusicThread();
 	void PlayMusic();
-
-	void StopThread();
 
 //Game mode related
 private:
@@ -158,11 +158,12 @@ private:
 	Sprite laneSprite;
 	Sprite noteSprite;
 	Sprite noteOverlaySprite;
+	void InitSprites();
+
 	bool noteInstancedBufferUpdateFlag;
 	size_t instanceMaxSize = 1024;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
 	
-	void InitSprites();
 	void InitInstancedBuffer();
 	void UpdateInstancedBuffer();
 

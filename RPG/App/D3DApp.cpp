@@ -476,7 +476,6 @@ bool D3DApp::InitDirect3D()
 	ReleaseCOM(dxgiFactory);
 
 	//Init singletons
-	TextureManager::GetInstance().InitTextures(md3dDevice);
 	SceneManager::GetInstance();
 	D2Ddevice::GetInstance();
 

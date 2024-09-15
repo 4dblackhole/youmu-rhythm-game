@@ -53,7 +53,7 @@ public:
 
 	static void WordSeparateW(const wstring_view& source, const wstring& separator, vector<pair<size_t, size_t>>& idxList);
 
-	static D3D11_TEXTURE2D_DESC GetDescFromSRV(ID3D11ShaderResourceView*& ptr);
+	static D3D11_TEXTURE2D_DESC GetDescFromSRV(ID3D11ShaderResourceView* ptr);
 
 	template <UINT32 Bits>
 	static RationalNumber<Bits> StrToRationalNumber(const wstring_view& source);

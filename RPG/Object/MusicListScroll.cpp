@@ -41,8 +41,7 @@ MusicListScroll::MusicListScroll() : MusicListScroll(MusicScrollCenterX, MusicSc
 MusicListScroll::MusicListScroll(float x, float y, float w, float h) :
 	scrollImg(x, y, w, h)
 {
-	InitMusicScroll();
-
+	InitMusicListScroll();
 }
 
 MusicListScroll::~MusicListScroll()
@@ -774,12 +773,13 @@ void MusicListScroll::LoadMusic()
 }
 
 
-void MusicListScroll::InitMusicScroll()
+void MusicListScroll::InitMusicListScroll()
 {
+	textureManager.AddTexture(App->GetDevice(), TextureName::MusicScroll, TextureDir + L"SelectMusic/MusicScroll.png");
 	scrollImg.GetWorld3d().SetAlignX(AlignModeX::Right);
 	scrollImg.GetWorld3d().SetAlignY(AlignModeY::Top);
 	scrollImg.GetWorld3d().SetParentDrawWorld();
-	scrollImg.SetTexture(GETTEXTURE(TextureManager::Name::MusicScroll));
+	scrollImg.SetTexture(&textureManager.GetTexture(TextureName::MusicScroll));
 
 	DWRITE_TEXT_METRICS mt;
 	LPCWSTR tempstr = L"No Music";

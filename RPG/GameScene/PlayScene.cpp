@@ -162,7 +162,7 @@ bool PlayScene::LoadTextureArrayFromResource(map<const string, Texture*>& contai
 	srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
 
 	Texture* arrTexture = new Texture;
-	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture->textureSRV));
+	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture->srv));
 	if (FAILED(hr)) return false;
 
 	Texture::UpdateDescFromSRV(*arrTexture);
@@ -210,20 +210,20 @@ void PlayScene::InitSprites()
 	laneSprite.RepeatTextureInExtraArea(laneBGTexture->width, laneBGTexture->height);
 	laneSprite.GetWorld3d().SetAlignX(AlignModeX::Left);
 	laneSprite.GetWorld3d().SetParentDrawWorld();
-	laneSprite.SetTexture(laneBGTexture->textureSRV.Get());
+	laneSprite.SetTexture(laneBGTexture);
 
 	Texture* const& hitCircleTexture = textureList.find(TextureName::note)->second;
 	noteSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
 	noteSprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteSprite.SetTexture(hitCircleTexture->textureSRV.Get());
+	noteSprite.SetTexture(hitCircleTexture);
 	noteSprite.Diffuse = MyColor4::GhostGreen;
-	noteSprite.TextureID = (UINT)SpriteTextureID::Note;
+	noteSprite.SetTextureID((UINT)SpriteTextureID::Note);
 
 	noteOverlaySprite.GetWorld3d().SetParentWorld(&noteSprite.GetWorld3d());
 	noteOverlaySprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteOverlaySprite.SetTexture(hitCircleTexture->textureSRV.Get());
+	noteOverlaySprite.SetTexture(hitCircleTexture);
 	noteOverlaySprite.Diffuse = MyColor4::White;
-	noteOverlaySprite.TextureID = (UINT)SpriteTextureID::NoteOverlay;
+	noteOverlaySprite.SetTextureID((UINT)SpriteTextureID::NoteOverlay);
 
 	InitInstancedBuffer();
 }
@@ -308,7 +308,7 @@ void PlayScene::InitPauseBackground()
 
 	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &pauseBG));
 	HR(App->GetDevice()->CreateRenderTargetView(pauseBG, nullptr, &pauseBgRTV));
-	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgSRV));
+	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgTexture.srv));
 
 	D2D.ReleaseBackBuffer();
 	D2D.ResetBackBuffer(pauseBG);
@@ -323,7 +323,7 @@ void PlayScene::InitPauseBackground()
 	D2D.EndDraw();
 
 	//D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
-	prevSceneSprite.SetTexture(pauseBgSRV);
+	prevSceneSprite.SetTexture(&pauseBgTexture);
 
 	App->ResetRenderTarget();
 	D2D.ReleaseBackBuffer();
@@ -334,7 +334,7 @@ void PlayScene::ReleasePauseBackground()
 {
 	ReleaseCOM(pauseBG);
 	ReleaseCOM(pauseBgRTV);
-	ReleaseCOM(pauseBgSRV);
+	ReleaseCOM(pauseBgTexture.GetRefSRV());
 }
 
 static constexpr LPCWSTR OffsetIdc = L"Pattern Offset";
@@ -854,7 +854,7 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	
 	UpdateInstancedBuffer();
 
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, testLane.NoteTimingList().size() * (size_t)SpriteTextureID::MAX, textureList.at(TextureName::note)->textureSRV.Get());
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, testLane.NoteTimingList().size() * (size_t)SpriteTextureID::MAX, textureList.at(TextureName::note)->GetRefSRV());
 }
 
 

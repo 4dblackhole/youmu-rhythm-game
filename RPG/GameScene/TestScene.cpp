@@ -3,8 +3,10 @@
 
 TestScene::TestScene() : sq(0.0f, 0.0f, 1280.0f, 720.0f), sq2(300, 100, 259, 224), whiteSquare(300, -100, 259, 224, MyColor4::White, true)
 {
-	sq.SetTexture(GETTEXTURE(TextureManager::Name::test));
-	sq2.SetTexture(GETTEXTURE(TextureManager::Name::myon));
+	textureManager.AddTexture(App->GetDevice(), TextureName::test, TextureDir + L"tempTexture.png");
+	textureManager.AddTexture(App->GetDevice(), TextureName::myon, TextureDir + L"myon.png");
+	sq.SetTexture(&textureManager.GetTexture(TextureName::test));
+	sq2.SetTexture(&textureManager.GetTexture(TextureName::myon));
 
 	InitInstanceData();
 }
