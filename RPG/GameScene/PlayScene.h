@@ -101,7 +101,7 @@ private:
 	GameTimer rhythmTimer;
 	chrono::microseconds musicTimeOffset{ 0 };
 	chrono::microseconds firstNoteTiming{ 0 };
-	double totalMusicTime = 0;
+	MilliDouble totalMusicTime{ 0.0 };
 	
 	template<typename DurationType>
 	void UpdateMusicTimeOffset(DurationType waitTime);
@@ -117,6 +117,9 @@ private:
 	Lane testLane;
 	void InitLanes();
 
+	AccuracyRange accRange;
+	map<size_t, FMOD::Sound*> defaultHitSoundList;
+
 	class TextureName
 	{
 	public:
@@ -128,8 +131,8 @@ private:
 
 	enum class SpriteTextureID
 	{
-		Note,
-		NoteOverlay,
+		Note, //can change color
+		NoteOverlay, //can't change color
 		MAX
 	};
 
@@ -142,30 +145,29 @@ private:
 	bool LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, 
 		const vector<ID3D11Texture2D*>& textureList);
 
-	AccuracyRange accRange;
-	map<size_t, FMOD::Sound*> defaultHitSoundList;
 
 	//prefix sum for calculating timing
 	MeasurePrefixSum measurePrefixSum;
 	BpmTimingPrefixSum bpmTimingPrefixSum;
 	void InitTimeSignaturePrefixSum();
 
-public:
-	//TODO: Change the owner of this function
-	static chrono::microseconds GetNoteTimingPoint(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, const Note& note);
+	enum class ScrollSpeedMode
+	{
+		RhythmConstant,
+		BPMconstant,
+		MAX
+	};
+	ScrollSpeedMode scrollSpeedMode = ScrollSpeedMode::RhythmConstant;
 
 private:
-	Sprite laneSprite;
 	Sprite noteSprite;
 	Sprite noteOverlaySprite;
 	void InitSprites();
 
-	bool noteInstancedBufferUpdateFlag;
-	size_t instanceMaxSize = 1024;
+	int instanceCount = 0;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
-	
 	void InitInstancedBuffer();
-	void UpdateInstancedBuffer();
+	void UpdateInstancedBuffer(Lane&);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();

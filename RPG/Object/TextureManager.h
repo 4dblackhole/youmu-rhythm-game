@@ -1,5 +1,19 @@
 #pragma once
-#include "framework.h"
+
+#include <D2D1_1.h>
+#include <dwrite.h>
+#include <D3D11.h>
+#include <D3DX11.h>
+#include <d3dcompiler.h>
+#include <effects.h>
+#include <dxgidebug.h>
+#include <DxErr.h>
+#include <dxgi.h>
+#include <DirectXMath.h>
+#include <d3dx11effect.h>
+
+#include <map>
+#include "App/MainApp.h"
 
 class TextureManager
 {
@@ -9,9 +23,9 @@ public:
 	TextureManager() {};
 	~TextureManager() {};
 
-	const ContainerType::mapped_type& GetTexture(ContainerType::key_type& str);
+	const ContainerType::mapped_type& GetTexture(const ContainerType::key_type& str);
 	void AddTexture(ID3D11Device* device, ContainerType::key_type& key, const wstring& file);
-	void RemoveTexture(ContainerType::key_type & key);
+	void RemoveTexture(const ContainerType::key_type& key);
 	void Clear();
 
 	ContainerType::mapped_type& GetNullTexture()
@@ -22,22 +36,4 @@ public:
 
 private:
 	ContainerType textureList;
-	/*
-	class Name
-	{
-	public:
-		DECLARE_VARIABLE_STRING(test);
-		DECLARE_VARIABLE_STRING(myon);
-
-		DECLARE_VARIABLE_STRING(Title);
-		DECLARE_VARIABLE_STRING(MusicScroll);
-	};
-	void TextureManager::InitTextures(ID3D11Device* device)
-	{
-		AddTexture(device, TextureDir + L"TextureNotFound.png", Name::NullImg);
-		AddTexture(device, TextureDir + L"tempTexture.png", Name::test);
-		AddTexture(device, TextureDir + L"myon.png", Name::myon);
-		AddTexture(device, TextureDir + L"SelectMusic/MusicScroll.png", Name::MusicScroll);
-	}
-	*/
 };

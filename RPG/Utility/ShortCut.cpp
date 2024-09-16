@@ -145,6 +145,7 @@ void ShortCut::WordSeparateW(const wstring_view& source, const wstring& separato
 
 D3D11_TEXTURE2D_DESC ShortCut::GetDescFromSRV(ID3D11ShaderResourceView* ptr)
 {
+	if (ptr == nullptr) return {};
 	ID3D11Resource* pResource = nullptr;
 	ptr->GetResource(&pResource);
 

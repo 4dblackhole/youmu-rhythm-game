@@ -104,6 +104,7 @@ namespace MyColorF
 }
 namespace MyColor4
 {
+	constexpr DirectX::XMFLOAT4 Blank(0, 0, 0, 0);
 	constexpr DirectX::XMFLOAT4 Black(0, 0, 0, 1);
 	constexpr DirectX::XMFLOAT4 White(1, 1, 1, 1);
 	constexpr DirectX::XMFLOAT4 MyRed(1, 56.0f/255.0f, 40.0f/255.0f, 1);
@@ -132,11 +133,3 @@ constexpr XMFLOAT4X4 XmFloatT4X4Identity
 };
 
 #include "Object/TextureManager.h"
-
-#if defined(DEBUG) | defined(_DEBUG)
-
-#define DEBUG_BREAKPOINT int asdf__ASDfdsf11 = 3
-
-#else
-#define DEBUG_BREAKPOINT
-#endif

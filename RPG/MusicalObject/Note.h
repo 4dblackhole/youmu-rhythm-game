@@ -79,8 +79,8 @@ public:
 
 	enum class DataOrder
 	{
-		Beat,
-		Key,
+		Rhythm,
+		Type,
 		Action,
 		Hitsound,
 		ExtraData,
