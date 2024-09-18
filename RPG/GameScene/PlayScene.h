@@ -124,12 +124,22 @@ private:
 	{
 	public:
 		DECLARE_VARIABLE_STRING(LaneBackground);
+		DECLARE_VARIABLE_STRING(JudgeLine);
 		DECLARE_VARIABLE_STRING(note);
 	};
 
 	map<const string, Texture*> textureList;
 
-	enum class SpriteTextureID
+	//Texture2DArray ID of Texture "note"
+	enum class NoteTextureArrID
+	{
+		Note,
+		BigNote,
+		NoteOverlay,
+		MAX
+	};
+
+	enum class NoteTextureInstanceID
 	{
 		Note, //can change color
 		NoteOverlay, //can't change color
@@ -145,12 +155,6 @@ private:
 	bool LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, 
 		const vector<ID3D11Texture2D*>& textureList);
 
-
-	//prefix sum for calculating timing
-	MeasurePrefixSum measurePrefixSum;
-	BpmTimingPrefixSum bpmTimingPrefixSum;
-	void InitTimeSignaturePrefixSum();
-
 	enum class ScrollSpeedMode
 	{
 		RhythmConstant,
@@ -164,10 +168,11 @@ private:
 	Sprite noteOverlaySprite;
 	void InitSprites();
 
+	MilliDouble instancingDebugMs{ 0 };
 	int instanceCount = 0;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
 	void InitInstancedBuffer();
-	void UpdateInstancedBuffer(Lane&);
+	void UpdateInstancedBuffer(MilliDouble currentTime, Lane&);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();

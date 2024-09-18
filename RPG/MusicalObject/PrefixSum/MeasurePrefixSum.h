@@ -1,6 +1,8 @@
 #pragma once
 #include "framework.h"
 
+class MusicalPosition;
+
 class MeasurePrefixSum
 {
 public:

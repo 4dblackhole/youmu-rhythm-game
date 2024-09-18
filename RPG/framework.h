@@ -80,10 +80,11 @@ using namespace std;
 #include "Object/Shape2D/Rectangle2D.h"
 
 #include "MusicalObject/Music.h"
-#include "MusicalObject/Note.h"
 #include "MusicalObject/Pattern.h"
-#include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
 #include "MusicalObject/PrefixSum/BpmTimingPrefixSum.h"
+#include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
+#include "MusicalObject/Note.h"
+
 
 #include "Singleton/SceneManager.h"
 #include "Singleton/FmodSystem.h"
@@ -123,6 +124,11 @@ extern const wstring SystemSoundDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";
+
+constexpr chrono::milliseconds BPM1oneBeat(60000);
+constexpr chrono::milliseconds BPM1constantMeasure(BPM1oneBeat * 4);
+
+constexpr int LaneMaxLength = 10000;
 
 constexpr XMFLOAT4X4 XmFloatT4X4Identity
 {

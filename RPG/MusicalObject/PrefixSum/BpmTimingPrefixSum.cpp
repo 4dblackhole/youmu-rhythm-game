@@ -37,7 +37,21 @@ void BpmTimingPrefixSum::ReleaseBpmTimingPrefixSum()
 	bpmTimingPrefixSum.clear();
 }
 
+double BpmTimingPrefixSum::GetCurrentBPM(const MusicalPosition& pos) const
+{
+	if (!bpmList->empty())
+	{
+		set<MusicBPM>::const_iterator it = upper_bound(bpmList->cbegin(), bpmList->cend(), (MusicBPM(pos)));
+		if (it != bpmList->cbegin())
+		{
+			--it;
+			return it->BPM();
+		}
+	}
+	return 1.0;
+}
+
 const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator BpmTimingPrefixSum::GetBpmTimingPoint(const BpmPrefixSumContainer::key_type& val) const
 {
-	return bpmTimingPrefixSum.lower_bound(val);
+	return std::prev(bpmTimingPrefixSum.upper_bound(val));
 }

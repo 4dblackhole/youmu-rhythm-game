@@ -3,6 +3,38 @@
 
 #include "GameScene/PlayScene.h"
 
+constexpr float LaneWidth = 180.0f;
+
+void Lane::Init()
+{
+	laneSprite.GetWorld3d().SetObjectScale({ LaneWidth, (float)LaneMaxLength });
+	laneSprite.GetWorld3d().SetCenterPosition({ 0, 0.5f, 0 });
+	laneSprite.GetWorld3d().SetLocalRotation({ 0, 0, -Math::PI * 0.5f });
+	laneSprite.GetWorld3d().SetLocalPosition({ LaneWidth,100,0 });
+	laneSprite.GetWorld3d().SetAlignX(AlignModeX::Left);
+	laneSprite.GetWorld3d().SetParentDrawWorld();
+	judgePosition = 72.0;
+
+	judgeLineSprite.GetWorld3d().SetParentWorld(&laneSprite.GetWorld3d());
+	judgeLineSprite.GetWorld3d().SetLocalPosition({ 0, (float)judgePosition, 0 });
+}
+
+void Lane::OnResize()
+{
+	laneSprite.OnResize();
+	judgeLineSprite.OnResize();
+}
+
+void Lane::Update(float dt)
+{
+}
+
+void Lane::Render(ID3D11DeviceContext* context, const Camera& cam)
+{
+	laneSprite.Render(context, cam);
+	judgeLineSprite.Render(context, cam);
+}
+
 void Lane::AddNoteType(size_t key)
 {
 	targetNoteTypeList.emplace(key);
@@ -30,12 +62,12 @@ void Lane::RemoveNoteDrawDesc(size_t key)
 	noteDrawDescMap.erase(key);
 }
 
-void Lane::LoadNotes(MusicScore* ptr, const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum)
+void Lane::LoadNotes(const MusicScore* score)
 {
-	assert(ptr != nullptr);
+	assert(score != nullptr);
 	
-	using NoteContainer = decltype(ptr->notesPerTypeMap);
-	NoteContainer& wholeNoteList = ptr->notesPerTypeMap;
+	using NoteContainer = decltype(score->notesPerTypeMap);
+	const NoteContainer& wholeNoteList = score->notesPerTypeMap;
 
 	//in case there is no Note which is using current key
 	/*
@@ -59,43 +91,54 @@ void Lane::LoadNotes(MusicScore* ptr, const MeasurePrefixSum& measureSum, const 
 			for (const size_t& keyType : targetNoteTypeList)
 			{
 				//MusicScore::NoteList
-				map<MusicalPosition, Note>& currentNoteList = wholeNoteList[keyType];
+				const map<MusicalPosition, Note>& currentNoteList = wholeNoteList.at(keyType);
 				totalExpectedNotes += currentNoteList.size();
 			}
 			noteList.reserve(totalExpectedNotes);
 		};
 
-	//object that contains first note of each note
-	unordered_map<size_t, NoteContainer::mapped_type::iterator> targetNoteIterList;
-	priority_queue<Note*, vector<Note*>, ShortCut::ptrHeapLess<Note>> targetNoteListTimeSort;
+	//object containing first note of each note
+	unordered_map<size_t, NoteContainer::mapped_type::const_iterator> targetNoteIterList;
+
+	priority_queue<const Note*, vector<const Note*>, ShortCut::ptrHeapLess<Note>> targetNoteListTimeSort;
 	size_t validIterCount = targetNoteTypeList.size();
 	for (const size_t& keyType : targetNoteTypeList)
 	{
-		//MusicScore::NoteList == NoteContainer::mapped_type
-		map<MusicalPosition, Note>::iterator firstNoteOfEachKeyIt = wholeNoteList[keyType].begin();
-
-		//end iterator check
-		if (firstNoteOfEachKeyIt != wholeNoteList[keyType].end())
+		try
 		{
-			targetNoteIterList.insert(make_pair(keyType, firstNoteOfEachKeyIt));
-			targetNoteListTimeSort.push(&(firstNoteOfEachKeyIt->second));
+			//MusicScore::NoteList == NoteContainer::mapped_type
+			const NoteContainer::const_iterator keyNoteList = wholeNoteList.find(keyType);
+			if (keyNoteList == wholeNoteList.cend()) throw nullptr; //there is no notes of the key type
+
+			const map<MusicalPosition, Note>::const_iterator firstNoteOfEachTypeIt = (*keyNoteList).second.begin();
+
+			//end iterator check
+			if (firstNoteOfEachTypeIt == wholeNoteList.at(keyType).cend()) throw nullptr;
+
+			targetNoteIterList.insert(make_pair(keyType, firstNoteOfEachTypeIt));
+			targetNoteListTimeSort.emplace(&(firstNoteOfEachTypeIt->second));
 		}
-		else --validIterCount;
+		catch (void* v)
+		{
+			UNREFERENCED_PARAMETER(v);
+			--validIterCount;
+		}
 	}
 
 	while (validIterCount != 0)
 	{
 		//select most earliest note
-		Note* const& mostEarliestNote = targetNoteListTimeSort.top();
+		const Note* const& mostEarliestNote = targetNoteListTimeSort.top();
 		size_t key_of_recentlyPoppedNote = mostEarliestNote->noteType;
-		chrono::microseconds timing = Lane::GetNoteTimingPoint(measureSum, bpmSum, *mostEarliestNote);
+		const chrono::microseconds& timing = Lane::GetNoteTimingPoint(*score, *mostEarliestNote);
 		noteList.push_back(NoteDesc{ mostEarliestNote, timing, true });
+
 		targetNoteListTimeSort.pop();
 
 		//add new note
-		NoteContainer::mapped_type::iterator& nextIt = targetNoteIterList[key_of_recentlyPoppedNote];
+		NoteContainer::mapped_type::const_iterator& nextIt = targetNoteIterList[key_of_recentlyPoppedNote];
 		++nextIt;
-		if (nextIt != wholeNoteList[key_of_recentlyPoppedNote].end())
+		if (nextIt != wholeNoteList.at(key_of_recentlyPoppedNote).end())
 		{
 			targetNoteListTimeSort.push(&nextIt->second);
 		}
@@ -106,23 +149,13 @@ void Lane::LoadNotes(MusicScore* ptr, const MeasurePrefixSum& measureSum, const 
 
 }
 
-void Lane::InitNoteTimingThread(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, size_t noteIdx)
-{
-	noteList[noteIdx].timing = Lane::GetNoteTimingPoint(measureSum, bpmSum, *noteList[noteIdx].note);
-}
-
-
-void Lane::InitNoteTimings(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum)
+void Lane::InitNoteTimings(const MusicScore& score)
 {
 	const size_t& noteListSize = noteList.size();
-	vector<thread> noteTimingThread;
-	noteTimingThread.reserve(noteListSize);
 	for (int noteIdx = 0; noteIdx < (int)noteListSize; ++noteIdx)
 	{
-		noteTimingThread.push_back(thread(&Lane::InitNoteTimingThread, this, measureSum, bpmSum, (size_t)noteIdx));
+		noteList[noteIdx].timing = Lane::GetNoteTimingPoint(score, *noteList[noteIdx].note);
 	}
-
-	for (thread& it : noteTimingThread) it.join();
 }
 
 void Lane::MoveNoteIterator(bool forward)
@@ -137,15 +170,30 @@ void Lane::MoveNoteIterator(bool forward)
 	}
 }
 
-chrono::microseconds Lane::GetNoteTimingPoint(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, const Note& note)
+double Lane::GetJudgePosition() const
+{
+	return judgePosition;
+}
+
+void Lane::SetJudgePosition(double val)
+{
+	judgePosition = val;
+}
+
+chrono::microseconds Lane::GetNoteTimingPoint(const MusicScore& score, const Note& note)
 {
 	using namespace chrono;
-	const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator& bpmIter = bpmSum.GetBpmTimingPoint(note.mp);
+	const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator& bpmIter = score.bpmPrefixSum.GetBpmTimingPoint(note.mp);
 	const MusicalPosition& bpmPos = bpmIter->first;
 	const MilliDouble& bpmTiming = bpmIter->second;
+	const double currentBpm = score.bpmPrefixSum.GetCurrentBPM(note.mp);
 
-	const RationalNumber<64>& relativePos = measureSum.GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)note.mp.measureIdx - 1) + note.mp.position - bpmPos.position;
-	const MilliDouble& resultTiming = bpmTiming + MilliDouble((double)relativePos);
-	return microseconds((microseconds::rep)duration_cast<duration<double, std::micro>>(resultTiming).count());
+	//position from last bpm change
+	const RationalNumber<64>& relativePos = score.measurePrefixSum.GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)note.mp.measureIdx - 1) + note.mp.position - bpmPos.position;
+	const MilliDouble& relativeTiming = MilliDouble((double)BPM1constantMeasure.count() * relativePos / currentBpm);
+
+	const MilliDouble& resultTiming = duration_cast<MilliDouble>(score.offset) + bpmTiming + relativeTiming;
+	auto result = microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
+	return microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
 
 }

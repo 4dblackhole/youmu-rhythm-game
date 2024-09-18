@@ -1,7 +1,10 @@
 #pragma once
 #include "framework.h"
 
-struct BpmTimingPrefixSum
+class MusicalPosition;
+class MeasurePrefixSum;
+
+class BpmTimingPrefixSum
 {
 public:
 	BpmTimingPrefixSum() {};
@@ -15,6 +18,7 @@ public:
 	void InitBpmTimingPrefixSum(const set<MusicBPM>* list, const MeasurePrefixSum& measurePrefixSum);
 	void ReleaseBpmTimingPrefixSum();
 
+	double GetCurrentBPM(const MusicalPosition& pos) const;
 	inline void SetBpmList(const set<MusicBPM>* ptr) { bpmList = ptr; }
 
 	const BpmPrefixSumContainer::const_iterator GetBpmTimingPoint(const BpmPrefixSumContainer::key_type& val) const;

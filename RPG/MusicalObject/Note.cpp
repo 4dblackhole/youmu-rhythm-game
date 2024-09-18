@@ -29,6 +29,12 @@ const Note* MusicScore::GetFirstNote() const
     return result;
 }
 
+void MusicScore::InitTimeSignaturePrefixSum()
+{
+    measurePrefixSum.InitMeasurePrefixSum(&measures);
+    bpmPrefixSum.InitBpmTimingPrefixSum(&bpms, measurePrefixSum);
+}
+
 void MusicBPM::SetBPM(double b)
 {
     bpm = b;

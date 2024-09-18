@@ -14,8 +14,6 @@ constexpr float LaneWidth = 180.0f;
 constexpr float CircleDiameter = 90.0f;
 constexpr float LargeCircleDiameter = 144.0f;
 
-constexpr int LaneMaxLength = 10000;
-
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
 	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false),
@@ -43,19 +41,17 @@ PlayScene::~PlayScene()
 
 void PlayScene::InitLanes()
 {
-	testLane.Sprite.GetWorld3d().SetObjectScale({ LaneWidth, LaneMaxLength });
-	testLane.HitPosition = 120.0;
-
 	testLane.AddNoteType(1);
 	testLane.AddNoteType(2);
 	testLane.AddNoteType(3);
 	testLane.AddNoteType(4);
 
-	testLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter });
-	testLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter });
-	testLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter });
-	testLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter });
+	testLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note});
+	testLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note });
+	testLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote });
+	testLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote });
 
+	testLane.Init();
 }
 
 bool PlayScene::LoadTextureArray(map<const string, Texture*>& container, const string& keyStr, const vector<LPCWSTR>& fileList)
@@ -198,8 +194,13 @@ void PlayScene::InitTextures()
 		TextureName::note,
 		{
 			(skinDir + L"note.png").c_str(), 
+			(skinDir + L"bignote.png").c_str(), 
 			(skinDir + L"noteoverlay.png").c_str() 
 		});
+
+	tempTexture = new Texture;
+	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"JudgeLine.png");
+	textureList.emplace(make_pair(TextureName::JudgeLine, tempTexture));
 
 }
 
@@ -215,26 +216,26 @@ void PlayScene::ReleaseTextures()
 void PlayScene::InitSprites()
 {
 	Texture* const& laneBGTexture = textureList.find(TextureName::LaneBackground)->second;
-	testLane.Sprite.GetWorld3d().SetCenterPosition({ 0, 0.5f, 0 });
-	testLane.Sprite.GetWorld3d().SetLocalRotation({ 0, 0, -Math::PI * 0.5f });
-	testLane.Sprite.GetWorld3d().SetLocalPosition({ LaneWidth,100,0 });
-	testLane.Sprite.RepeatTextureInExtraArea(laneBGTexture->width, laneBGTexture->height);
-	testLane.Sprite.GetWorld3d().SetAlignX(AlignModeX::Left);
-	testLane.Sprite.GetWorld3d().SetParentDrawWorld();
-	testLane.Sprite.SetTexture(laneBGTexture);
+	testLane.laneSprite.RepeatTextureInExtraArea(laneBGTexture->width, laneBGTexture->height);
+	testLane.laneSprite.SetTexture(laneBGTexture);
+
+	Texture* const& judgeLineTexture = textureList.find(TextureName::JudgeLine)->second;
+	testLane.judgeLineSprite.GetWorld3d().SetObjectScale(LargeCircleDiameter);
+	testLane.judgeLineSprite.SetTexture(judgeLineTexture);
+
 
 	Texture* const& hitCircleTexture = textureList.find(TextureName::note)->second;
-	noteSprite.GetWorld3d().SetParentWorld(&testLane.Sprite.GetWorld3d());
+	noteSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
 	noteSprite.GetWorld3d().SetObjectScale(CircleDiameter);
 	noteSprite.SetTexture(hitCircleTexture);
 	noteSprite.Diffuse = MyColor4::GhostGreen;
-	noteSprite.SetTextureID((UINT)SpriteTextureID::Note);
+	noteSprite.SetTextureID((UINT)NoteTextureArrID::Note);
 
 	noteOverlaySprite.GetWorld3d().SetParentWorld(&noteSprite.GetWorld3d());
 	noteOverlaySprite.GetWorld3d().SetObjectScale(CircleDiameter);
 	noteOverlaySprite.SetTexture(hitCircleTexture);
 	noteOverlaySprite.Diffuse = MyColor4::White;
-	noteOverlaySprite.SetTextureID((UINT)SpriteTextureID::NoteOverlay);
+	noteOverlaySprite.SetTextureID((UINT)NoteTextureArrID::NoteOverlay);
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -479,7 +480,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	musicScore->measures.emplace_back(measureLength);
 
-	InitTimeSignaturePrefixSum();
+	musicScore->InitTimeSignaturePrefixSum();
 
 }
 void PlayScene::LoadPattern(const wstring_view& content)
@@ -569,12 +570,6 @@ void PlayScene::StopLoadMusicScoreThread()
 	if (loadMusicScoreThread.joinable()) loadMusicScoreThread.join();
 }
 
-void PlayScene::InitTimeSignaturePrefixSum()
-{
-	measurePrefixSum.InitMeasurePrefixSum(&musicScore->measures);
-	bpmTimingPrefixSum.InitBpmTimingPrefixSum(&musicScore->bpms, measurePrefixSum);
-}
-
 void PlayScene::LoadMusicScore()
 {
 	musicScoreLoadFlag = false;
@@ -632,13 +627,13 @@ void PlayScene::LoadMusicScore()
 		const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
 		LoadPattern(patternView);
 
-		testLane.LoadNotes(musicScore, measurePrefixSum, bpmTimingPrefixSum);
+		testLane.LoadNotes(musicScore);
 
 		const Note* firstNote = musicScore->GetFirstNote();
 		constexpr chrono::milliseconds waitTime(1000);
 		if (firstNote != nullptr)
 		{
-			firstNoteTiming = Lane::GetNoteTimingPoint(measurePrefixSum, bpmTimingPrefixSum, *firstNote);
+			firstNoteTiming = Lane::GetNoteTimingPoint(*musicScore, *firstNote);
 			if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
 		}
 
@@ -652,6 +647,7 @@ void PlayScene::LoadMusicScore()
 		musicScore = nullptr;
 	}
 	LoadMusicScoreComplete();
+
 }
 
 void PlayScene::LoadMusicScoreComplete()
@@ -677,12 +673,21 @@ void PlayScene::BeginScene()
 
 void PlayScene::OnResize(float newW, float newH)
 {
-	//transparentBlackBG.ChangeWidthToCurrentWidth(newW, newH);
+	prevSceneSprite.GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(newW, newH), (float)StandardHeight });
+
+	for (int i = 0; i < (int)PauseOption::MAX; ++i)
+	{
+		PauseOptLayoutList[i].GetWorld2d().OnParentWorldUpdate();
+		pauseOptSelectTriangle.GetWorld2d().OnParentWorldUpdate();
+	}
+
 	loadingText.GetWorld2d().OnParentWorldUpdate();
 	currentTimeText.GetWorld2d().OnParentWorldUpdate();
 
-	testLane.Sprite.OnResize();
+	testLane.OnResize();
+
 	noteSprite.OnResize();
+	noteOverlaySprite.OnResize();
 
 	switch (sceneStatus)
 	{
@@ -691,13 +696,7 @@ void PlayScene::OnResize(float newW, float newH)
 	case PlayScene::Status::Start:
 		break;
 	case PlayScene::Status::Pause:
-		prevSceneSprite.GetWorld3d().SetObjectScale({ ShortCut::GetOrthoWidth(newW, newH), (float)StandardHeight });
 		InitPauseBackground();
-		for (int i = 0; i < (int)PauseOption::MAX; ++i)
-		{
-			PauseOptLayoutList[i].GetWorld2d().OnParentWorldUpdate();
-			pauseOptSelectTriangle.GetWorld2d().OnParentWorldUpdate();
-		}
 		break;
 	case PlayScene::Status::End:
 		break;
@@ -713,6 +712,9 @@ void PlayScene::ChangeStatusLoad()
 	timer.Reset();
 	loadMusicScoreThreadFlag = true;
 	loadMusicScoreThread = thread(&PlayScene::LoadMusicScore, this);
+
+	StopLoadMusicScoreThread();
+
 }
 
 void PlayScene::ExitStatusLoad()
@@ -810,13 +812,14 @@ void PlayScene::UpdateOnStart(float dt)
 	{
 		noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
 		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
-		
+		instancingDebugMs = MilliDouble(instancingDebugMs.count() - 400 * dt);
 	}
 	
 	if (KEYBOARD.Hold('X'))
 	{
 		noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
 		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		instancingDebugMs = MilliDouble(instancingDebugMs.count() + 400 * dt);
 		
 	}
 
@@ -842,14 +845,16 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 {
 	UpdateCurrentTimeText();
 	currentTimeText.Draw();
-	testLane.Sprite.Render(deviceContext, cam);
+
+	testLane.Render(deviceContext, cam);
 
 	noteSprite.Render(deviceContext, cam);
 	noteOverlaySprite.Render(deviceContext, cam);
 	
-	UpdateInstancedBuffer(testLane);
+	//UpdateInstancedBuffer(instancingDebugMs, testLane);
+	UpdateInstancedBuffer(totalMusicTime, testLane);
 
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, instanceCount * (size_t)SpriteTextureID::MAX, textureList.at(TextureName::note)->GetRefSRV());
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, instanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.at(TextureName::note)->GetRefSRV());
 }
 
 
@@ -1035,7 +1040,7 @@ void PlayScene::InitInstancedBuffer()
 	noteInstancedBuffer.Reset();
 	D3D11_BUFFER_DESC instbd{};
 	instbd.Usage = D3D11_USAGE_DYNAMIC;
-	instbd.ByteWidth = UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)SpriteTextureID::MAX;
+	instbd.ByteWidth = UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX;
 	instbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	//D3D11_SUBRESOURCE_DATA instinitData{};
@@ -1044,7 +1049,7 @@ void PlayScene::InitInstancedBuffer()
 
 }
 
-void PlayScene::UpdateInstancedBuffer(Lane& lane)
+void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
 {
 	using namespace chrono;
 
@@ -1058,7 +1063,7 @@ void PlayScene::UpdateInstancedBuffer(Lane& lane)
 	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
 
 	const MicroDouble& earlyBadTiming 
-		= duration_cast<MicroDouble>(totalMusicTime - MilliDouble(accRange.GetAccuracyRange(AccuracyRange::RangeName::Bad)));
+		= duration_cast<MicroDouble>(currentTime - MilliDouble(accRange.GetAccuracyRange(AccuracyRange::RangeName::Bad)));
 
 	vector<Lane::NoteDesc>::const_reverse_iterator rEndIter
 		= upper_bound(noteDescList.rbegin(), noteDescList.rend(),
@@ -1071,37 +1076,40 @@ void PlayScene::UpdateInstancedBuffer(Lane& lane)
 
 	constexpr pair<double, double> drawArea = { -256.0, (double)LaneMaxLength };
 	constexpr milliseconds quarterBeatOfBpm60(15000);
-	constexpr double distanceQuarterRhythm = CircleDiameter * 0.92;
+	constexpr double distanceQuarterRhythm = CircleDiameter * 0.8;
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 
 	instanceCount = 0;
+	vector<milliseconds> timingDebug;
 	while (rcIter != rEndIter)
 	{
 		const microseconds& noteTiming = (*rcIter).timing;
-		const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - totalMusicTime.count();
-		const double notePos = distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
+		timingDebug.emplace_back(duration_cast<milliseconds>(noteTiming));
+		const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - currentTime.count();
+		const double notePos = testLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
+		if (notePos < drawArea.second)
+		{
+			World3D tempWorld3d;
+			const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->note->noteType);
 
-		SpriteInstanceData tempInst;
+			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
+			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);
+			tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
 
-		World3D tempWorld3d;
-		const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->note->noteType);
+			SpriteInstanceData tempInst{};
+			tempInst.Diffuse = tempNoteDrawDesc.color;
+			tempInst.uvworld = tempWorld3d.GetUvWorld();
+			tempInst.world = tempWorld3d.GetTotalDrawWorld();
+			tempInst.TextureID = tempNoteDrawDesc.textureID;
+			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
 
-		tempWorld3d.SetParentWorld(&lane.Sprite.GetWorld3d());
-		tempWorld3d.SetObjectScale(tempNoteDrawDesc.diameter);
-		tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
+			tempInst.Diffuse = MyColor4::White;
+			tempInst.TextureID = (UINT)NoteTextureArrID::NoteOverlay;
+			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
 
-		tempInst.Diffuse = tempNoteDrawDesc.color;
-		tempInst.uvworld = tempWorld3d.GetUvWorld();
-		tempInst.world = tempWorld3d.GetTotalDrawWorld();
-		tempInst.TextureID = (UINT)SpriteTextureID::Note;
-		dataView[2 * instanceCount] = tempInst;
-
-		tempInst.Diffuse = MyColor4::White;
-		tempInst.TextureID = (UINT)SpriteTextureID::NoteOverlay;
-		dataView[2 * instanceCount + 1] = tempInst;
-		DEBUG_BREAKPOINT;
-
-		++instanceCount;
+			++instanceCount;
+			DEBUG_BREAKPOINT;
+		}
 		++rcIter;
 	}
 

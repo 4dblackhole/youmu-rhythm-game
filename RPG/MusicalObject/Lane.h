@@ -11,7 +11,7 @@ public:
 	struct NoteDesc
 	{
 	public:
-		Note* note; //weak ptr
+		const Note* note; //weak ptr
 		chrono::microseconds timing;
 		bool visible;
 	};
@@ -21,12 +21,18 @@ public:
 	public:
 		XMFLOAT4 color;
 		double diameter;
+		UINT textureID;
 	};
 	static constexpr NoteDrawDesc defaultNoteDrawDesc{ MyColor4::Blank, 0 };
 
 public:
 	Lane() {}
 	~Lane() {}
+
+	void Init();
+	void OnResize();
+	void Update(float dt);
+	void Render(ID3D11DeviceContext*, const Camera&);
 
 	void AddNoteType(size_t key);
 	void RemoveNoteType(size_t key);
@@ -35,7 +41,7 @@ public:
 	void AddNoteDrawDesc(size_t key, const NoteDrawDesc& desc);
 	void RemoveNoteDrawDesc(size_t key);
 
-	void LoadNotes(MusicScore* ptr, const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum);
+	void LoadNotes(const MusicScore* ptr);
 
 	const set<size_t>& GetTargetNoteTypeList() const { return targetNoteTypeList; }
 	
@@ -47,15 +53,19 @@ public:
 
 	void MoveNoteIterator(bool forward);
 
-	double HitPosition = 0.0;
+	Sprite laneSprite;
+	Sprite judgeLineSprite;
 
-	Sprite Sprite;
+public:
+	double GetJudgePosition() const;
+	void SetJudgePosition(double val);
+private:
+	double judgePosition = 0.0;
 
 private:
 	vector<NoteDesc> noteList; //weak ptr container
 
-	void InitNoteTimings(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum);
-	void InitNoteTimingThread(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, size_t noteIdx);
+	void InitNoteTimings(const MusicScore& score);
 
 	set<size_t> targetNoteTypeList;
 	map<size_t, NoteDrawDesc> noteDrawDescMap;
@@ -64,5 +74,5 @@ private:
 
 public:
 	//TODO: Change the owner of this function
-	static chrono::microseconds GetNoteTimingPoint(const MeasurePrefixSum& measureSum, const BpmTimingPrefixSum& bpmSum, const Note& note);
+	static chrono::microseconds GetNoteTimingPoint(const MusicScore& score, const Note& note);
 };

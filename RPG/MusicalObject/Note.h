@@ -6,6 +6,9 @@ class Note;
 class Measure;
 class MusicBPM;
 
+#include "PrefixSum/BpmTimingPrefixSum.h"
+#include "PrefixSum/MeasurePrefixSum.h"
+
 class MusicScore
 {
 public:
@@ -21,6 +24,11 @@ public:
 
 	//time order
 	set<MusicBPM> bpms;
+
+	BpmTimingPrefixSum bpmPrefixSum;
+	MeasurePrefixSum measurePrefixSum;
+	void InitTimeSignaturePrefixSum();
+
 	unordered_map<size_t, NoteList> notesPerTypeMap;
 
 	double baseBpm = 120.0;
@@ -61,6 +69,7 @@ class MusicalObject
 {
 public:
 	constexpr MusicalObject() : mp() {}
+	constexpr MusicalObject(const MusicalPosition& val) : mp(val) {}
 	constexpr MusicalObject(const size_t& idx, const RationalNumber<64>& pos) : mp({ idx, pos }) {}
 
 	bool operator<(const MusicalObject& v) const;

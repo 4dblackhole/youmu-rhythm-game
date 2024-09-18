@@ -47,6 +47,6 @@ RationalNumber<64> MeasurePrefixSum::GetMeasurePrefixSum(int idx) const
 	if (idx < (int)measureListSize) return measurePrefixSum[idx];
 	else
 	{
-		return measurePrefixSum[idx] + measureList->back().length * (idx - (int)measureListSize + 1);
+		return measurePrefixSum.back() + measureList->back().length * (idx - (int)measureListSize + 1);
 	}
 }
