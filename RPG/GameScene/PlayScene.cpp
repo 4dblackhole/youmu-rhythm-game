@@ -65,20 +65,16 @@ bool PlayScene::LoadTextureArray(map<const string, Texture*>& container, const s
 		ID3D11Texture2D* tempTexture2D{};
 
 		//get file name
-		try
+		do
 		{
 			const BOOL& result = ShortCut::FileExists(*cIter);
-			if (result == FALSE) throw result;
+			if (result == FALSE) break;
 
 			D3DX11_IMAGE_LOAD_INFO info{};
 			info.MipLevels = 1;
 			HR(D3DX11CreateTextureFromFile(App->GetDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
 			tempTextureList.emplace_back(tempTexture2D);
-		}
-		catch (BOOL b)
-		{
-			UNREFERENCED_PARAMETER(b);
-		}
+		} while (false);
 		++cIter;
 	}
 
@@ -424,14 +420,6 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	bool validCheck = true;
 
-	auto ReadNextLine = [&]() -> bool
-		{
-			if (endIdx == wstring::npos) return true; //last line
-			startIdx = endIdx + EndlineIdcLength;
-			endIdx = content.find(EndlineIdc, startIdx);
-			return false;
-		};
-
 	while(true)
 	{
 		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
@@ -441,7 +429,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		{
 			ParseBarLine(lineStr, measureLength, measureIdx);
 
-			if (ReadNextLine()) break;
+			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
 			else continue;
 		}
 
@@ -450,7 +438,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		{
 			ParseMeasure(lineStr, measureLength);
 
-			if (ReadNextLine()) break;
+			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
 			else continue;
 		}
 
@@ -460,7 +448,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		validCheck = ParseEffect(lineStr, signature, effectStr);
 		if (!validCheck)
 		{
-			if (ReadNextLine()) break;
+			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
 			else continue;
 		}
 
@@ -474,7 +462,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 			ParseBPM(effectValue, measureIdx, signature);
 		}
 
-		if (ReadNextLine()) break; //in case last line
+		if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break; //in case last line
 		else continue;
 	}
 
@@ -491,24 +479,17 @@ void PlayScene::LoadPattern(const wstring_view& content)
 	size_t endIdx = content.find(EndlineIdc, startIdx);
 
 	bool validCheck = true;
-	auto ReadNextLine = [&]() -> bool
-		{
-			if (endIdx == wstring::npos) return true; //last line
-			startIdx = endIdx + EndlineIdcLength;
-			endIdx = content.find(EndlineIdc, startIdx);
-			return false;
-		};
 
 	while (true)
 	{
-		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
+		const wstring_view& lineStr = content.substr(startIdx, endIdx - startIdx);
 
 		// in case bar line
 		if (lineStr.compare(BarlineIdc) == 0) //--
 		{
 			++measureIdx;
 
-			if (ReadNextLine()) break;
+			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
 			else continue;
 		}
 
@@ -533,7 +514,7 @@ void PlayScene::LoadPattern(const wstring_view& content)
 		size_t referencingMeasureIdx = min(measureIdx, musicScore->measures.size() - 1);
 		if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) //out of measure
 		{
-			if (ReadNextLine()) break;
+			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
 			else continue;
 		}
 
@@ -560,10 +541,18 @@ void PlayScene::LoadPattern(const wstring_view& content)
 		}
 
 		musicScore->notesPerTypeMap[tempNote.noteType].emplace(make_pair(tempNote.mp, tempNote));
-		if (ReadNextLine()) break; //in case last line
+		if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break; //in case last line
 		else continue;
 	}
 }
+bool PlayScene::GetNextLineIdxPair(const wstring_view& content, const wstring_view& endStr, size_t& startIdx, size_t& endIdx)
+{
+	if (endIdx == wstring::npos) return false; //last line
+	startIdx = endIdx + endStr.length();
+	endIdx = content.find(endStr, startIdx);
+	return true;
+}
+
 void PlayScene::StopLoadMusicScoreThread()
 {
 	loadMusicScoreThreadFlag = false;
@@ -578,74 +567,74 @@ void PlayScene::LoadMusicScore()
 
 	wstring uniFile = ShortCut::ReadUTF8File(fileName);
 
-	try
-	{
-		//file contents check
-		size_t offsetIdx = uniFile.find(OffsetIdc);
-		if (offsetIdx == wstring::npos) throw nullptr;
-		size_t timeSignatureIdx = uniFile.find(TimeSignatureIdc, offsetIdx);
-		if (timeSignatureIdx == wstring::npos) throw nullptr;
-		size_t patternIdx = uniFile.find(PatternIdc, timeSignatureIdx);
-		if (patternIdx == wstring::npos) throw nullptr;
-		
-		//Offset
-		size_t endIdx = uniFile.find(EndlineIdc, offsetIdx);
-		wstring_view lineStr(uniFile.c_str() + offsetIdx, endIdx - offsetIdx);
-		wstring val;
-		ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
-
-
-		using namespace chrono;
-		double offset = 0;
-		wstringstream wss;
-		wss << val << endl;
-		wss >> offset;
-		//offset in text: miliseconds unit, offset in memory: microseconds unit
-		MilliDouble offsetMili = MilliDouble(offset);
-		microseconds offsetMicro = duration_cast<microseconds>(offsetMili);
-		musicScore->offset = offsetMicro;
-
-		//Base BPM
-		size_t baseBpmIdx = uniFile.find(BaseBpmIdc, offsetIdx);
-		if (baseBpmIdx != wstring::npos) 
+	const std::function<bool(void)>& LoadMusicScoreFromFile = [&]()-> bool
 		{
-			endIdx = uniFile.find(EndlineIdc, baseBpmIdx);
-			lineStr = wstring_view(uniFile.c_str() + baseBpmIdx, endIdx - baseBpmIdx);
+			//file contents check
+			size_t offsetIdx = uniFile.find(OffsetIdc);
+			if (offsetIdx == wstring::npos) return false;
+
+			size_t timeSignatureIdx = uniFile.find(TimeSignatureIdc, offsetIdx);
+			if (timeSignatureIdx == wstring::npos) return false;
+
+			size_t patternIdx = uniFile.find(PatternIdc, timeSignatureIdx);
+			if (patternIdx == wstring::npos) return false;
+
+			//Offset
+			size_t endIdx = uniFile.find(EndlineIdc, offsetIdx);
+			wstring_view lineStr(uniFile.c_str() + offsetIdx, endIdx - offsetIdx);
+			wstring val;
 			ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
+
+
+			using namespace chrono;
+			double offset = 0;
+			wstringstream wss;
 			wss << val << endl;
-			wss >> musicScore->baseBpm;
-			musicScore->bpms.emplace(MusicBPM(MusicalObject(0, 0), musicScore->baseBpm));
-		}
+			wss >> offset;
+			//offset in text: miliseconds unit, offset in memory: microseconds unit
+			MilliDouble offsetMili = MilliDouble(offset);
+			microseconds offsetMicro = duration_cast<microseconds>(offsetMili);
+			musicScore->offset = offsetMicro;
 
-		//TODO: run Load-functions as thread
+			//Base BPM
+			size_t baseBpmIdx = uniFile.find(BaseBpmIdc, offsetIdx);
+			if (baseBpmIdx != wstring::npos)
+			{
+				endIdx = uniFile.find(EndlineIdc, baseBpmIdx);
+				lineStr = wstring_view(uniFile.c_str() + baseBpmIdx, endIdx - baseBpmIdx);
+				ShortCut::WordSeparateW(lineStr, L":", nullptr, &val);
+				wss << val << endl;
+				wss >> musicScore->baseBpm;
+				musicScore->bpms.emplace(MusicBPM(MusicalObject(0, 0), musicScore->baseBpm));
+			}
 
-		endIdx = uniFile.find(EndlineIdc, timeSignatureIdx);
-		const wstring_view timeSignatureView(uniFile.c_str() + endIdx + EndlineIdcLength, patternIdx - (endIdx + EndlineIdcLength));
-		LoadTimeSignature(timeSignatureView);
+			//TODO: run Load-functions as thread
 
-		endIdx = uniFile.find(EndlineIdc, patternIdx);
-		const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
-		LoadPattern(patternView);
+			endIdx = uniFile.find(EndlineIdc, timeSignatureIdx);
+			const wstring_view timeSignatureView(uniFile.c_str() + endIdx + EndlineIdcLength, patternIdx - (endIdx + EndlineIdcLength));
+			LoadTimeSignature(timeSignatureView);
 
-		testLane.LoadNotes(musicScore);
+			endIdx = uniFile.find(EndlineIdc, patternIdx);
+			const wstring_view patternView(uniFile.c_str() + endIdx + EndlineIdcLength);
+			LoadPattern(patternView);
 
-		const Note* firstNote = musicScore->GetFirstNote();
-		constexpr chrono::milliseconds waitTime(1000);
-		if (firstNote != nullptr)
-		{
-			firstNoteTiming = Lane::GetNoteTimingPoint(*musicScore, *firstNote);
-			if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
-		}
+			testLane.LoadNotes(musicScore);
 
-		DEBUG_BREAKPOINT;
+			const Note* firstNote = musicScore->GetFirstNote();
+			constexpr chrono::milliseconds waitTime(1000);
+			if (firstNote != nullptr)
+			{
+				firstNoteTiming = Lane::GetNoteTimingPoint(*musicScore, *firstNote);
+				if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
+			}
 
-	}
-	catch (void* p)
-	{
-		UNREFERENCED_PARAMETER(p);
-		delete musicScore;
-		musicScore = nullptr;
-	}
+			DEBUG_BREAKPOINT;
+
+			return true;
+		};
+
+	if (LoadMusicScoreFromFile() == false) SafeDelete(musicScore);
+
 	LoadMusicScoreComplete();
 
 }

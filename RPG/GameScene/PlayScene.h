@@ -199,6 +199,7 @@ private:
 
 	void LoadTimeSignature(const wstring_view& content);
 	void LoadPattern(const wstring_view& content);
+	bool GetNextLineIdxPair(const wstring_view& content, const wstring_view& endStr, size_t& startIdx, size_t& endIdx);
 
 	void ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx);
 	void ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength);
