@@ -46,10 +46,10 @@ void PlayScene::InitLanes()
 	testLane.AddNoteType(3);
 	testLane.AddNoteType(4);
 
-	testLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note});
-	testLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note });
-	testLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote });
-	testLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote });
+	testLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
+	testLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
+	testLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
+	testLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
 
 	testLane.Init();
 }
@@ -1051,8 +1051,6 @@ void PlayScene::InitInstancedBuffer()
 
 void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
 {
-	using namespace chrono;
-
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	App->GetDeviceContext()->Map(noteInstancedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
@@ -1060,18 +1058,27 @@ void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
 	noteInstancedBuffer->GetDesc(&d);
 	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
 
+	//note position check ========================================================
+	SetInstancedBufferFromNote(currentTime, lane, dataView);
+	
+	App->GetDeviceContext()->Unmap(noteInstancedBuffer.Get(), 0);
+}
+
+void PlayScene::SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
+{
+	using namespace chrono;
 	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
 
-	const MicroDouble& earlyBadTiming 
+	const MicroDouble& earlyBadTiming
 		= duration_cast<MicroDouble>(currentTime - MilliDouble(accRange.GetAccuracyRange(AccuracyRange::RangeName::Bad)));
 
 	vector<Lane::NoteDesc>::const_reverse_iterator rEndIter
 		= upper_bound(noteDescList.rbegin(), noteDescList.rend(),
-			microseconds((long long)earlyBadTiming.count()), 
+			microseconds((long long)earlyBadTiming.count()),
 			[](const microseconds& target, const Lane::NoteDesc& s) {
 				return std::greater<microseconds>()(target, s.timing);
 			});
-	
+
 	vector<Lane::NoteDesc>::const_reverse_iterator rcIter = noteDescList.rbegin();
 
 	constexpr pair<double, double> drawArea = { -256.0, (double)LaneMaxLength };
@@ -1080,18 +1087,20 @@ void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 
 	instanceCount = 0;
-	vector<milliseconds> timingDebug;
-	while (rcIter != rEndIter)
-	{
-		const microseconds& noteTiming = (*rcIter).timing;
-		timingDebug.emplace_back(duration_cast<milliseconds>(noteTiming));
-		const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - currentTime.count();
-		const double notePos = testLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
-		if (notePos < drawArea.second)
+	const auto& CopyNoteDrawDescIntoInstancedData = [&]() 
 		{
-			World3D tempWorld3d;
-			const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->note->noteType);
+			if (rcIter->visible == false) return;
 
+			const microseconds& noteTiming = (*rcIter).timing;
+			const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - currentTime.count();
+			const double notePos = testLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
+
+			//in case the note is too far
+			if (notePos >= drawArea.second) return;
+
+			//set the data from note draw desc
+			const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->note->noteType);
+			World3D tempWorld3d;
 			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
 			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);
 			tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
@@ -1104,14 +1113,15 @@ void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
 			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
 
 			tempInst.Diffuse = MyColor4::White;
-			tempInst.TextureID = (UINT)NoteTextureArrID::NoteOverlay;
+			tempInst.TextureID = tempNoteDrawDesc.textureOverlayID;
 			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
 
 			++instanceCount;
-			DEBUG_BREAKPOINT;
-		}
+		};
+
+	while (rcIter != rEndIter)
+	{
+		CopyNoteDrawDescIntoInstancedData();
 		++rcIter;
 	}
-
-	App->GetDeviceContext()->Unmap(noteInstancedBuffer.Get(), 0);
 }

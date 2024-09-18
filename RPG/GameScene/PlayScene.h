@@ -173,6 +173,7 @@ private:
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
 	void InitInstancedBuffer();
 	void UpdateInstancedBuffer(MilliDouble currentTime, Lane&);
+	void SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();
