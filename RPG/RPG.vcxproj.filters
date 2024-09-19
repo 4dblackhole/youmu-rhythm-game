@@ -55,6 +55,9 @@
     <Filter Include="MusicalObject\PlayMode">
       <UniqueIdentifier>{4a9ec331-c704-4e6a-9fe0-e805dd45c38a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\InstanceBuffer">
+      <UniqueIdentifier>{5f188596-31ee-4507-99a6-106746cc3e06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -191,6 +194,12 @@
     </ClCompile>
     <ClCompile Include="Object\TextureManager.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\InstanceBuffer\InstanceBuffer.cpp">
+      <Filter>Object\InstanceBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="defines.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -337,6 +346,12 @@
     </ClInclude>
     <ClInclude Include="Object\TextureManager.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\InstanceBuffer\InstanceBuffer.h">
+      <Filter>Object\InstanceBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

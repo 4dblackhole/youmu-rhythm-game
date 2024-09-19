@@ -1,9 +1,5 @@
 ﻿#pragma once
-#include <D2D1.h>
-#include <D3D11.h>
-#include <iostream>
-#include <tchar.h>
-#include <string>
+#include "libraries.h"
 #include "Trace.h"
 #include "RationalNumber.h"
 

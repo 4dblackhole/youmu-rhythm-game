@@ -1,13 +1,4 @@
 #pragma once
-#include <windowsx.h>
-#include <wrl.h>
-
-#include <D2D1_1.h>
-#include <dwrite.h>
-#include <dxgi.h>
-
-#include <string>
-#include <map>
 #include "Utility/ShortCut.h"
 #include "Singleton/SingletonBase.h"
 

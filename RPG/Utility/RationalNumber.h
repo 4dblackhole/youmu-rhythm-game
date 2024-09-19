@@ -1,5 +1,4 @@
 #pragma once
-#include "framework.h"
 #include "Utility/Math.h"
 
 template <UINT32 Bits>

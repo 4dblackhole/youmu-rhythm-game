@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="App\D3DApp.cpp" />
     <ClCompile Include="App\MainApp.cpp" />
+    <ClCompile Include="defines.cpp" />
     <ClCompile Include="Effect\Effects\Effects.cpp" />
     <ClCompile Include="Effect\Effects\InstancedTestEffect.cpp" />
     <ClCompile Include="Effect\Effects\SpriteEffect.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp" />
     <ClCompile Include="MusicalObject\VolumeSet.cpp" />
+    <ClCompile Include="Object\InstanceBuffer\InstanceBuffer.cpp" />
     <ClCompile Include="Object\MusicListScroll.cpp" />
     <ClCompile Include="Object\Shape2D\DwLayout2D.cpp" />
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp" />
@@ -232,6 +234,7 @@
     <ClInclude Include="GameScene\SelectMusicScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />
+    <ClInclude Include="libraries.h" />
     <ClInclude Include="MusicalObject\AccuracyRange.h" />
     <ClInclude Include="MusicalObject\Lane.h" />
     <ClInclude Include="MusicalObject\Music.h" />
@@ -241,6 +244,7 @@
     <ClInclude Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.h" />
     <ClInclude Include="MusicalObject\PrefixSum\MeasurePrefixSum.h" />
     <ClInclude Include="MusicalObject\VolumeSet.h" />
+    <ClInclude Include="Object\InstanceBuffer\InstanceBuffer.h" />
     <ClInclude Include="Object\MusicListScroll.h" />
     <ClInclude Include="Object\Shape2D\DwLayout2D.h" />
     <ClInclude Include="Object\Shape2D\Rectangle2D.h" />

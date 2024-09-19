@@ -1,5 +1,5 @@
 #pragma once
-#include "framework.h"
+#include "libraries.h"
 #include "Singleton/SingletonBase.h"
 
 #define MAX_INPUT_KEY 256

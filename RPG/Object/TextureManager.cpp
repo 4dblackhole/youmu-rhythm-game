@@ -27,3 +27,9 @@ const TextureManager::ContainerType::mapped_type& TextureManager::GetTexture(Con
 	if (it != textureList.end()) return it->second;
 	else return GetNullTexture();
 }
+
+TextureManager::ContainerType::mapped_type& TextureManager::GetNullTexture()
+{
+	static ContainerType::mapped_type nullTexture(App->GetDevice(), TextureDir + L"TextureNotFound.png");
+	return nullTexture;
+}

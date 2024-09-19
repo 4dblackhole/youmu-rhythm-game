@@ -646,7 +646,7 @@ void PlayScene::LoadMusicScoreComplete()
 	timer.Reset();
 	rhythmTimer.Reset();
 
-	InitInstancedBuffer();
+	InitInstancedBuffer(*noteInstancedBuffer.GetAddressOf(), UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
 }
 
 void PlayScene::StopThread()
@@ -841,7 +841,7 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	noteOverlaySprite.Render(deviceContext, cam);
 	
 	//UpdateInstancedBuffer(instancingDebugMs, testLane);
-	UpdateInstancedBuffer(totalMusicTime, testLane);
+	UpdateNoteInstancedBuffer(totalMusicTime, testLane);
 
 	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, instanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.at(TextureName::note)->GetRefSRV());
 }
@@ -1024,21 +1024,22 @@ void PlayScene::EndScene()
 	SCENEMANAGER.RemoveScene(SceneManager::Name::PlayScene);
 }
 
-void PlayScene::InitInstancedBuffer()
+void PlayScene::InitInstancedBuffer(ID3D11Buffer*& buffer, UINT bufLen)
 {
-	noteInstancedBuffer.Reset();
+	ReleaseCOM(buffer);
 	D3D11_BUFFER_DESC instbd{};
 	instbd.Usage = D3D11_USAGE_DYNAMIC;
-	instbd.ByteWidth = UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX;
+	instbd.ByteWidth = bufLen;
+	//instbd.ByteWidth = UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX;
 	instbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	//D3D11_SUBRESOURCE_DATA instinitData{};
 	//instinitData.pSysMem = &noteInstanceList[0];
-	HR(App->GetDevice()->CreateBuffer(&instbd, nullptr, &noteInstancedBuffer));
+	HR(App->GetDevice()->CreateBuffer(&instbd, nullptr, &buffer));
 
 }
 
-void PlayScene::UpdateInstancedBuffer(MilliDouble currentTime, Lane& lane)
+void PlayScene::UpdateNoteInstancedBuffer(MilliDouble currentTime, Lane& lane)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	App->GetDeviceContext()->Map(noteInstancedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);

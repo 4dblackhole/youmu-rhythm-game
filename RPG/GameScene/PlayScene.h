@@ -125,6 +125,7 @@ private:
 	public:
 		DECLARE_VARIABLE_STRING(LaneBackground);
 		DECLARE_VARIABLE_STRING(JudgeLine);
+		DECLARE_VARIABLE_STRING(MeasureLine);
 		DECLARE_VARIABLE_STRING(note);
 	};
 
@@ -171,8 +172,8 @@ private:
 	MilliDouble instancingDebugMs{ 0 };
 	int instanceCount = 0;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
-	void InitInstancedBuffer();
-	void UpdateInstancedBuffer(MilliDouble currentTime, Lane&);
+	void InitInstancedBuffer(ID3D11Buffer*&, UINT);
+	void UpdateNoteInstancedBuffer(MilliDouble currentTime, Lane& lane);
 	void SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	DwLayout2D currentTimeText;
