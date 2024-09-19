@@ -1,5 +1,5 @@
 #pragma once
-#include "framework.h"
+#include "libraries.h"
 
 class MusicalPosition;
 class Note;
@@ -34,6 +34,8 @@ public:
 	double baseBpm = 120.0;
 	chrono::microseconds offset{ 0 };
 
+public:
+	chrono::microseconds GetNoteTimingPoint(const MusicalPosition& note) const;
 };
 
 class Measure

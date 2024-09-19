@@ -201,6 +201,9 @@
     <ClCompile Include="defines.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Object\InstanceBuffer\SpriteInstanceBuffer.cpp">
+      <Filter>Object\InstanceBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -352,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="libraries.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\InstanceBuffer\SpriteInstanceBuffer.h">
+      <Filter>Object\InstanceBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

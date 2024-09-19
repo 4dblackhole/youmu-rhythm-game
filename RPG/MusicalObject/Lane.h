@@ -73,7 +73,4 @@ private:
 
 	vector<NoteDesc>::iterator currentNote;
 
-public:
-	//TODO: Change the owner of this function
-	static chrono::microseconds GetNoteTimingPoint(const MusicScore& score, const Note& note);
 };

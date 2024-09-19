@@ -169,12 +169,17 @@ private:
 	Sprite noteOverlaySprite;
 	void InitSprites();
 
-	MilliDouble instancingDebugMs{ 0 };
-	int instanceCount = 0;
-	ComPtr<ID3D11Buffer> noteInstancedBuffer;
+	MilliDouble debugMs{ 0 };
+
 	void InitInstancedBuffer(ID3D11Buffer*&, UINT);
-	void UpdateNoteInstancedBuffer(MilliDouble currentTime, Lane& lane);
-	void SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
+	int noteInstanceCount = 0;
+	ComPtr<ID3D11Buffer> noteInstancedBuffer;
+	void UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane, const std::function<void(MilliDouble, Lane&, SpriteInstanceData*&)>&);
+	void UpdateInstancedBuffer_Note(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
+
+	int measureLineInstanceCount = 0;
+	ComPtr<ID3D11Buffer> measureLineInstancedBuffer;
+	void UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();

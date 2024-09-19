@@ -35,6 +35,24 @@ void MusicScore::InitTimeSignaturePrefixSum()
     bpmPrefixSum.InitBpmTimingPrefixSum(&bpms, measurePrefixSum);
 }
 
+chrono::microseconds MusicScore::GetNoteTimingPoint(const MusicalPosition& mp) const
+{
+    using namespace chrono;
+    const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator& bpmIter = this->bpmPrefixSum.GetBpmTimingPoint(mp);
+    const MusicalPosition& bpmPos = bpmIter->first;
+    const MilliDouble& bpmTiming = bpmIter->second;
+    const double currentBpm = this->bpmPrefixSum.GetCurrentBPM(mp);
+
+    //position from last bpm change
+    const RationalNumber<64>& relativePos = this->measurePrefixSum.GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)mp.measureIdx - 1) + mp.position - bpmPos.position;
+    const MilliDouble& relativeTiming = MilliDouble((double)BPM1constantMeasure.count() * relativePos / currentBpm);
+
+    const MilliDouble& resultTiming = duration_cast<MilliDouble>(this->offset) + bpmTiming + relativeTiming;
+    auto result = microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
+    return microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
+
+}
+
 void MusicBPM::SetBPM(double b)
 {
     bpm = b;

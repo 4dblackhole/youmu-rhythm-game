@@ -47,6 +47,7 @@ constexpr LPCWSTR ExtPattern = L".ymp";
 
 constexpr chrono::milliseconds BPM1oneBeat(60000);
 constexpr chrono::milliseconds BPM1constantMeasure(BPM1oneBeat * 4);
+constexpr chrono::milliseconds quarterBeatOfBpm60(15000);
 
 constexpr int LaneMaxLength = 10000;
 

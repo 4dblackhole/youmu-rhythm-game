@@ -21,4 +21,5 @@ void InstanceBuffer::InitBuffer(ID3D11Device* device, UINT buflen)
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 	HR(device->CreateBuffer(&instbd, nullptr, GetAddressOf()));
+	bufferSize = buflen;
 }

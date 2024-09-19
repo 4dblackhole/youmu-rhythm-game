@@ -130,7 +130,7 @@ void Lane::LoadNotes(const MusicScore* score)
 		//select most earliest note
 		const Note* const& mostEarliestNote = targetNoteListTimeSort.top();
 		size_t key_of_recentlyPoppedNote = mostEarliestNote->noteType;
-		const chrono::microseconds& timing = Lane::GetNoteTimingPoint(*score, *mostEarliestNote);
+		const chrono::microseconds& timing = score->GetNoteTimingPoint(mostEarliestNote->mp);
 		noteList.push_back(NoteDesc{ mostEarliestNote, timing, true });
 
 		targetNoteListTimeSort.pop();
@@ -154,7 +154,7 @@ void Lane::InitNoteTimings(const MusicScore& score)
 	const size_t& noteListSize = noteList.size();
 	for (int noteIdx = 0; noteIdx < (int)noteListSize; ++noteIdx)
 	{
-		noteList[noteIdx].timing = Lane::GetNoteTimingPoint(score, *noteList[noteIdx].note);
+		noteList[noteIdx].timing = score.GetNoteTimingPoint(noteList[noteIdx].note->mp);
 	}
 }
 
@@ -178,22 +178,4 @@ double Lane::GetJudgePosition() const
 void Lane::SetJudgePosition(double val)
 {
 	judgePosition = val;
-}
-
-chrono::microseconds Lane::GetNoteTimingPoint(const MusicScore& score, const Note& note)
-{
-	using namespace chrono;
-	const BpmTimingPrefixSum::BpmPrefixSumContainer::const_iterator& bpmIter = score.bpmPrefixSum.GetBpmTimingPoint(note.mp);
-	const MusicalPosition& bpmPos = bpmIter->first;
-	const MilliDouble& bpmTiming = bpmIter->second;
-	const double currentBpm = score.bpmPrefixSum.GetCurrentBPM(note.mp);
-
-	//position from last bpm change
-	const RationalNumber<64>& relativePos = score.measurePrefixSum.GetMeasurePrefixSum((int)bpmPos.measureIdx, (int)note.mp.measureIdx - 1) + note.mp.position - bpmPos.position;
-	const MilliDouble& relativeTiming = MilliDouble((double)BPM1constantMeasure.count() * relativePos / currentBpm);
-
-	const MilliDouble& resultTiming = duration_cast<MilliDouble>(score.offset) + bpmTiming + relativeTiming;
-	auto result = microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
-	return microseconds((microseconds::rep)(duration_cast<MicroDouble>(resultTiming).count()));
-
 }

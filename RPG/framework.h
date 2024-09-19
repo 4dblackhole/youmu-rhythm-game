@@ -22,13 +22,15 @@
 #include "Effect/Effects/Effects.h"
 #include "Effect/RenderStates.h"
 
+#include "Object/InstanceBuffer/SpriteInstanceBuffer.h"
+
 #include "Object/Texture.h"
+#include "Object/TextureManager.h"
 #include "Object/Vertex.h"
 
 #include "Object/Shape2D/DwLayout2D.h"
 #include "Object/Shape2D/Triangle2D.h"
 #include "Object/Shape2D/Rectangle2D.h"
-#include "Object/TextureManager.h"
 
 
 #include "MusicalObject/Music.h"

@@ -198,6 +198,9 @@ void PlayScene::InitTextures()
 	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"JudgeLine.png");
 	textureList.emplace(make_pair(TextureName::JudgeLine, tempTexture));
 
+	tempTexture = new Texture;
+	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"MeasureLine.png");
+	textureList.emplace(make_pair(TextureName::MeasureLine, tempTexture));
 }
 
 void PlayScene::ReleaseTextures()
@@ -419,51 +422,48 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 	size_t endIdx = content.find(EndlineIdc, startIdx);
 
 	bool validCheck = true;
+	bool isReadingFile = true;
 
-	while(true)
+	const auto& ReadTimeSignatureLine = [&](const wstring_view& lineStr)
+		{
+			// in case bar line
+			if (lineStr.compare(BarlineIdc) == 0) //--
+			{
+				ParseBarLine(lineStr, measureLength, measureIdx);
+				return;
+			}
+
+			// Measure
+			if (lineStr.find(MeasureEffect + L' ') != wstring_view::npos) //#measure n/d
+			{
+				ParseMeasure(lineStr, measureLength);
+				return;
+			}
+
+			wstring effectStr;
+			RationalNumber<64> signature;
+
+			validCheck = ParseEffect(lineStr, signature, effectStr);
+			if (!validCheck) return;
+
+			//get type
+			wstring effectType;
+			wstring effectValue;
+			validCheck = ShortCut::WordSeparateW(effectStr, L" ", &effectType, &effectValue);
+			if (!validCheck) return;
+
+			if (effectType.compare(BpmEffect) == 0) //#bpm xxx
+			{
+				ParseBPM(effectValue, measureIdx, signature);
+			}
+		};
+
+	while(isReadingFile)
 	{
-		wstring_view lineStr = content.substr(startIdx, endIdx - startIdx);
-
-		// in case bar line
-		if (lineStr.compare(BarlineIdc) == 0) //--
-		{
-			ParseBarLine(lineStr, measureLength, measureIdx);
-
-			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
-			else continue;
-		}
-
-		// Measure
-		if (lineStr.find(MeasureEffect+L' ') != wstring_view::npos) //#measure n/d
-		{
-			ParseMeasure(lineStr, measureLength);
-
-			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
-			else continue;
-		}
-
-		wstring effectStr;
-		RationalNumber<64> signature;
-
-		validCheck = ParseEffect(lineStr, signature, effectStr);
-		if (!validCheck)
-		{
-			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
-			else continue;
-		}
-
-		//get type
-		wstring effectType;
-		wstring effectValue;
-		validCheck = ShortCut::WordSeparateW(effectStr, L" ", &effectType, &effectValue);
-
-		if (effectType.compare(BpmEffect) == 0) //#bpm xxx
-		{
-			ParseBPM(effectValue, measureIdx, signature);
-		}
-
-		if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break; //in case last line
-		else continue;
+		const wstring_view& lineStr = content.substr(startIdx, endIdx - startIdx);
+		
+		ReadTimeSignatureLine(lineStr);
+		isReadingFile = GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx);
 	}
 
 	musicScore->measures.emplace_back(measureLength);
@@ -473,78 +473,99 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 }
 void PlayScene::LoadPattern(const wstring_view& content)
 {
-	size_t measureIdx = 0;
 
 	size_t startIdx = 0;
 	size_t endIdx = content.find(EndlineIdc, startIdx);
 
-	bool validCheck = true;
+	bool isReadingFile = true;
+	bool isAnnotationArea = false;
+	size_t measureIdx = 0;
 
-	while (true)
+	const auto& ReadPatternLine = [&](const wstring_view& lineStr)
+		{
+			//annotation check
+			if (lineStr.substr(0, 2) == L"//") return;
+			if (lineStr.substr(0, 2) == L"/*")
+			{
+				isAnnotationArea = true;
+				return;
+			}
+			if (lineStr.substr(0, 2) == L"*/")
+			{
+				isAnnotationArea = false;
+				return;
+			}
+			if (isAnnotationArea) return;
+
+			// in case bar line
+			if (lineStr.compare(BarlineIdc) == 0) //--
+			{
+				++measureIdx;
+				return;
+			}
+
+			//note (N/D,Type,Action,Hitsound(Opt),ExtraData(Opt))
+			vector<pair<size_t, size_t>> idxArr;
+			ShortCut::WordSeparateW(lineStr, L",", idxArr);
+
+			if (idxArr.size() < (size_t)Note::DataOrder::Action + 1) //invalid string
+			{
+				return;
+			}
+
+			wstring_view noteElements[(int)Note::DataOrder::MAX];
+			for (int idx = 0; idx < idxArr.size(); ++idx)
+			{
+				if (idxArr[idx].second != wstring_view::npos)
+					noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first, idxArr[idx].second - idxArr[idx].first));
+				else
+					noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first));
+			}
+
+			wstringstream wss;
+			Note tempNote;
+			tempNote.mp.measureIdx = measureIdx;
+
+			//DataOrder::Beat
+			tempNote.mp.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Rhythm]);
+			size_t referencingMeasureIdx = min(measureIdx, musicScore->measures.size() - 1);
+
+			//out of measure
+			if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) return;
+
+			//DataOrder::Type
+			wss << noteElements[(int)Note::DataOrder::Type];
+			wss >> tempNote.noteType;
+
+			//DataOrder:Action
+			wss << noteElements[(int)Note::DataOrder::Action];
+			wss >> tempNote.actionType;
+
+			//DataOrder::Hitsound
+			if (idxArr.size() > (int)Note::DataOrder::Hitsound)
+			{
+				tempNote.hitSound = noteElements[(int)Note::DataOrder::Hitsound];
+			}
+
+			wstring asdfdsaf;
+
+			if (idxArr.size() > (int)Note::DataOrder::ExtraData)
+			{
+				tempNote.extraData = noteElements[(int)Note::DataOrder::ExtraData];
+			}
+
+			musicScore->notesPerTypeMap[tempNote.noteType].emplace(make_pair(tempNote.mp, tempNote));
+		};
+
+	while (isReadingFile)
 	{
 		const wstring_view& lineStr = content.substr(startIdx, endIdx - startIdx);
-
-		// in case bar line
-		if (lineStr.compare(BarlineIdc) == 0) //--
-		{
-			++measureIdx;
-
-			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
-			else continue;
-		}
-
-		vector<pair<size_t, size_t>> idxArr;
-		ShortCut::WordSeparateW(lineStr, L",", idxArr);
-
-		wstring_view noteElements[(int)Note::DataOrder::MAX];
-		for (int idx = 0; idx < idxArr.size(); ++idx)
-		{
-			if (idxArr[idx].second != wstring_view::npos)
-				noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first, idxArr[idx].second - idxArr[idx].first));
-			else
-				noteElements[idx] = wstring_view(lineStr.substr(idxArr[idx].first));
-		}
-
-		wstringstream wss;
-		Note tempNote;
-		tempNote.mp.measureIdx = measureIdx;
-
-		//DataOrder::Beat
-		tempNote.mp.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Rhythm]);
-		size_t referencingMeasureIdx = min(measureIdx, musicScore->measures.size() - 1);
-		if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) //out of measure
-		{
-			if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break;
-			else continue;
-		}
-
-
-		//DataOrder::Key
-		wss << noteElements[(int)Note::DataOrder::Type];
-		wss >> tempNote.noteType;
-
-		//DataOrder:Action
-		wss << noteElements[(int)Note::DataOrder::Action];
-		wss >> tempNote.actionType;
-
-		//DataOrder::Hitsound
-		if (idxArr.size() > (int)Note::DataOrder::Hitsound)
-		{
-			tempNote.hitSound = noteElements[(int)Note::DataOrder::Hitsound];
-		}
-
-		wstring asdfdsaf;
-
-		if (idxArr.size() > (int)Note::DataOrder::ExtraData)
-		{
-			tempNote.extraData= noteElements[(int)Note::DataOrder::ExtraData];
-		}
-
-		musicScore->notesPerTypeMap[tempNote.noteType].emplace(make_pair(tempNote.mp, tempNote));
-		if (!GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx)) break; //in case last line
-		else continue;
+		
+		ReadPatternLine(lineStr);
+		isReadingFile = GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx);
 	}
 }
+//returns false if it's list line
 bool PlayScene::GetNextLineIdxPair(const wstring_view& content, const wstring_view& endStr, size_t& startIdx, size_t& endIdx)
 {
 	if (endIdx == wstring::npos) return false; //last line
@@ -567,7 +588,7 @@ void PlayScene::LoadMusicScore()
 
 	wstring uniFile = ShortCut::ReadUTF8File(fileName);
 
-	const std::function<bool(void)>& LoadMusicScoreFromFile = [&]()-> bool
+	const auto& LoadMusicScoreFromFile = [&]()-> bool
 		{
 			//file contents check
 			size_t offsetIdx = uniFile.find(OffsetIdc);
@@ -624,7 +645,7 @@ void PlayScene::LoadMusicScore()
 			constexpr chrono::milliseconds waitTime(1000);
 			if (firstNote != nullptr)
 			{
-				firstNoteTiming = Lane::GetNoteTimingPoint(*musicScore, *firstNote);
+				firstNoteTiming = musicScore->GetNoteTimingPoint(firstNote->mp);
 				if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
 			}
 
@@ -647,6 +668,9 @@ void PlayScene::LoadMusicScoreComplete()
 	rhythmTimer.Reset();
 
 	InitInstancedBuffer(*noteInstancedBuffer.GetAddressOf(), UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
+
+	const size_t& maximumMeasureLineCount = testLane.NoteListConst().back().note->mp.measureIdx + 1;
+	InitInstancedBuffer(*measureLineInstancedBuffer.GetAddressOf(), UINT(sizeof(SpriteInstanceData) * maximumMeasureLineCount));
 }
 
 void PlayScene::StopThread()
@@ -801,14 +825,14 @@ void PlayScene::UpdateOnStart(float dt)
 	{
 		noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
 		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
-		instancingDebugMs = MilliDouble(instancingDebugMs.count() - 400 * dt);
+		debugMs = MilliDouble(debugMs.count() - 400 * dt);
 	}
 	
 	if (KEYBOARD.Hold('X'))
 	{
 		noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
 		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
-		instancingDebugMs = MilliDouble(instancingDebugMs.count() + 400 * dt);
+		debugMs = MilliDouble(debugMs.count() + 400 * dt);
 		
 	}
 
@@ -840,10 +864,16 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	noteSprite.Render(deviceContext, cam);
 	noteOverlaySprite.Render(deviceContext, cam);
 	
-	//UpdateInstancedBuffer(instancingDebugMs, testLane);
-	UpdateNoteInstancedBuffer(totalMusicTime, testLane);
+	UpdateInstancedBuffer(measureLineInstancedBuffer.Get(), totalMusicTime, testLane,
+		std::bind(&PlayScene::UpdateInstancedBuffer_MeasureLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, instanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.at(TextureName::note)->GetRefSRV());
+	//UpdateInstancedBuffer(instancingDebugMs, testLane);
+	UpdateInstancedBuffer(noteInstancedBuffer.Get(), totalMusicTime, testLane,
+		std::bind(&PlayScene::UpdateInstancedBuffer_Note, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+
+	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer.Get(), 0, measureLineInstanceCount, textureList.at(TextureName::MeasureLine)->GetRefSRV());
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, noteInstanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.at(TextureName::note)->GetRefSRV());
 }
 
 
@@ -1039,30 +1069,98 @@ void PlayScene::InitInstancedBuffer(ID3D11Buffer*& buffer, UINT bufLen)
 
 }
 
-void PlayScene::UpdateNoteInstancedBuffer(MilliDouble currentTime, Lane& lane)
+void PlayScene::UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane, const std::function<void(MilliDouble, Lane&, SpriteInstanceData*&)>&updateBufferFunc)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
-	App->GetDeviceContext()->Map(noteInstancedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	App->GetDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
 	D3D11_BUFFER_DESC d;
 	noteInstancedBuffer->GetDesc(&d);
 	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
 
-	//note position check ========================================================
-	SetInstancedBufferFromNote(currentTime, lane, dataView);
-	
-	App->GetDeviceContext()->Unmap(noteInstancedBuffer.Get(), 0);
+	//Update ========================================================
+	//UpdateInstancedBuffer_Note(currentTime, lane, dataView);
+	updateBufferFunc(currentTime, lane, dataView);
+
+	App->GetDeviceContext()->Unmap(instBuffer, 0);
+
 }
 
-void PlayScene::SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
+constexpr double distanceQuarterRhythm = CircleDiameter * 0.8;
+constexpr pair<double, double> laneDrawArea = { -256.0, (double)LaneMaxLength };
+
+void PlayScene::UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
 {
 	using namespace chrono;
+
+	measureLineInstanceCount = 0;
+
 	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
 
 	const MicroDouble& earlyBadTiming
 		= duration_cast<MicroDouble>(currentTime - MilliDouble(accRange.GetAccuracyRange(AccuracyRange::RangeName::Bad)));
 
-	vector<Lane::NoteDesc>::const_reverse_iterator rEndIter
+	const vector<Lane::NoteDesc>::const_iterator& frontNote
+		= lower_bound(noteDescList.begin(), noteDescList.end(),
+			microseconds((long long)earlyBadTiming.count()),
+			[](const Lane::NoteDesc& s, const microseconds& target) {
+				return std::less<microseconds>()(s.timing, target);
+			});
+
+	if (frontNote == noteDescList.cend()) return; //end of note, no need to draw measure line
+
+	const long long int& frontMeasureLineIdx = (long long int)frontNote->note->mp.measureIdx;
+
+	const Lane::NoteDesc& lastNote = noteDescList.back();
+	long long int currentMeasureLineIdx = (long long int)lastNote.note->mp.measureIdx;
+
+	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
+
+	const auto& CopyDataIntoInstancedData = [&]()
+		{
+			const MusicalPosition& measureMusicalPos{ (size_t)currentMeasureLineIdx, 0 };
+			const microseconds& lineTiming = musicScore->GetNoteTimingPoint(measureMusicalPos);
+			const double noteRelativeTiming = (double)(duration_cast<milliseconds>(lineTiming).count()) - currentTime.count();
+			const double notePos = testLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
+
+			//in case the note is too far
+			if (notePos >= laneDrawArea.second || notePos<0) return;
+
+			//set the data from note draw desc
+			World3D tempWorld3d;
+			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
+			tempWorld3d.SetObjectScale((FLOAT)lane.laneSprite.GetWorld3dConst().GetObjectScale().x);
+			tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
+
+			SpriteInstanceData tempInst{};
+			tempInst.Diffuse = MyColor4::White;
+			tempInst.uvworld = tempWorld3d.GetUvWorld();
+			tempInst.world = tempWorld3d.GetTotalDrawWorld();
+			tempInst.TextureID = 0;
+			dataView[measureLineInstanceCount] = tempInst;
+			
+			++measureLineInstanceCount;
+		};
+
+	while (frontMeasureLineIdx <= currentMeasureLineIdx)
+	{
+		CopyDataIntoInstancedData();
+		--currentMeasureLineIdx;
+	}
+}
+
+void PlayScene::UpdateInstancedBuffer_Note(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
+{
+	using namespace chrono;
+
+	noteInstanceCount = 0;
+
+	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
+
+	const MicroDouble& earlyBadTiming
+		= duration_cast<MicroDouble>(currentTime - MilliDouble(accRange.GetAccuracyRange(AccuracyRange::RangeName::Bad)));
+
+	const vector<Lane::NoteDesc>::const_reverse_iterator rEndIter
 		= upper_bound(noteDescList.rbegin(), noteDescList.rend(),
 			microseconds((long long)earlyBadTiming.count()),
 			[](const microseconds& target, const Lane::NoteDesc& s) {
@@ -1071,12 +1169,8 @@ void PlayScene::SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, 
 
 	vector<Lane::NoteDesc>::const_reverse_iterator rcIter = noteDescList.rbegin();
 
-	constexpr pair<double, double> drawArea = { -256.0, (double)LaneMaxLength };
-	constexpr milliseconds quarterBeatOfBpm60(15000);
-	constexpr double distanceQuarterRhythm = CircleDiameter * 0.8;
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 
-	instanceCount = 0;
 	const auto& CopyNoteDrawDescIntoInstancedData = [&]() 
 		{
 			if (rcIter->visible == false) return;
@@ -1086,7 +1180,7 @@ void PlayScene::SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, 
 			const double notePos = testLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
 
 			//in case the note is too far
-			if (notePos >= drawArea.second) return;
+			if (notePos >= laneDrawArea.second) return;
 
 			//set the data from note draw desc
 			const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->note->noteType);
@@ -1100,13 +1194,13 @@ void PlayScene::SetInstancedBufferFromNote(MilliDouble currentTime, Lane& lane, 
 			tempInst.uvworld = tempWorld3d.GetUvWorld();
 			tempInst.world = tempWorld3d.GetTotalDrawWorld();
 			tempInst.TextureID = tempNoteDrawDesc.textureID;
-			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
+			dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
 
 			tempInst.Diffuse = MyColor4::White;
 			tempInst.TextureID = tempNoteDrawDesc.textureOverlayID;
-			dataView[(int)NoteTextureInstanceID::MAX * instanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
+			dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
 
-			++instanceCount;
+			++noteInstanceCount;
 		};
 
 	while (rcIter != rEndIter)
