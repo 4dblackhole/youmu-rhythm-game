@@ -11,6 +11,7 @@
 #include "Utility/Math.h"
 #include "Utility/RationalNumber.h"
 #include "Utility/ShortCut.h"
+#include "Utility/StringToVirtualKeyCode.h"
 
 #include "System/Keyboard.h"
 #include "System/Camera.h"
@@ -38,7 +39,6 @@
 #include "MusicalObject/PrefixSum/BpmTimingPrefixSum.h"
 #include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
 #include "MusicalObject/Note.h"
-
 
 #include "Singleton/SceneManager.h"
 #include "Singleton/FmodSystem.h"

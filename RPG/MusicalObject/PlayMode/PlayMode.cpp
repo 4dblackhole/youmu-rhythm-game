@@ -7,4 +7,10 @@ PlayMode::PlayMode()
 
 PlayMode::~PlayMode()
 {
+	ReleaseTextures();
+}
+
+void PlayMode::ReleaseTextures()
+{
+	this->TextureList.Clear();
 }

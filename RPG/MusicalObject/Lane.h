@@ -51,7 +51,6 @@ public:
 
 	vector<NoteDesc>::iterator& CurrentNote() { return currentNote; }
 	const vector<NoteDesc>::iterator& CurrentNoteConst() const { return currentNote; }
-
 	void MoveNoteIterator(bool forward);
 
 	Sprite laneSprite;

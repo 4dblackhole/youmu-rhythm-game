@@ -25,21 +25,23 @@ PlayScene::PlayScene(Music* m, Pattern* p) :
 	InitLoadingText();
 	InitCurrentTimeText();
 
-	InitTextures();
-	InitLanes();
-	InitSprites();
+	InitTaikoModeTextures();
+	InitTaikoModeLanes();
+	InitTaikoModeSprites();
+	InitTaikoModeKeyNoteTypeMap();
+	InitTaikoModeHitSounds();
 }
 
 PlayScene::~PlayScene()
 {
 	StopThread();
 	SafeDelete(musicScore);
-	ReleaseTextures();
+	ReleaseTaikoModeTextures();
 	ReleasePauseBackground();
-
+	ReleaseTaikoModeHitSounds();
 }
 
-void PlayScene::InitLanes()
+void PlayScene::InitTaikoModeLanes()
 {
 	testLane.AddNoteType(1);
 	testLane.AddNoteType(2);
@@ -54,139 +56,57 @@ void PlayScene::InitLanes()
 	testLane.Init();
 }
 
-bool PlayScene::LoadTextureArray(map<const string, Texture*>& container, const string& keyStr, const vector<LPCWSTR>& fileList)
+void PlayScene::InitTaikoModeKeyNoteTypeMap()
 {
-	if (fileList.empty()) return false;
-	//Texture Array
-	vector<ID3D11Texture2D*> tempTextureList;
-	vector<LPCWSTR>::const_iterator cIter = fileList.begin();
-	while (cIter!= fileList.cend())
-	{
-		ID3D11Texture2D* tempTexture2D{};
+	//TODO: load from config file
 
-		//get file name
-		do
-		{
-			const BOOL& result = ShortCut::FileExists(*cIter);
-			if (result == FALSE) break;
-
-			D3DX11_IMAGE_LOAD_INFO info{};
-			info.MipLevels = 1;
-			HR(D3DX11CreateTextureFromFile(App->GetDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
-			tempTextureList.emplace_back(tempTexture2D);
-		} while (false);
-		++cIter;
-	}
-
-	bool result = LoadTextureArrayFromResource(container, keyStr, tempTextureList);
-
-	for (auto& it : tempTextureList) ReleaseCOM(it);
-	tempTextureList.clear();
-	return result;
+	ReleaseTaikoModeKeyNoteTypeMap();
+	keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("Z"));
+	keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("X"));
+	keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_2"));
+	keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_PERIOD"));
+	keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("A"));
+	keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("S"));
+	keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_7"));
+	keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_1"));
 }
 
-bool PlayScene::LoadTextureArrayIndexed(map<const string, Texture*>& container, const string& keyStr, const wstring& fileName)
-{	
-	//in case there is only one texture
-	if (ShortCut::FileExists(fileName.c_str()) != FALSE)
-	{
-		Texture* tempTexture = new Texture;
-		tempTexture->CreateTexture(App->GetDevice(), fileName);
-		container.emplace(make_pair(keyStr, tempTexture));
-		return true;
-	}
-
-	//Texture Array
-	int textureIdx = 0;
-	vector<ID3D11Texture2D*> tempTextureList;
-	while (true)
-	{
-		ID3D11Texture2D* tempTexture2D{};
-		
-		//get file name
-		const size_t& commaPos = fileName.find_last_of('.');
-		const wstring_view& ext = wstring_view(fileName.c_str() + commaPos);
-		const wstring_view& name = wstring_view(fileName.c_str(), commaPos);
-		const wstring& idxStr = L"-" + to_wstring(textureIdx);
-		const wstring& resultFileName = (wstring)name + idxStr.data() + ext.data();
-		const BOOL& result = ShortCut::FileExists(resultFileName.c_str());
-		if (result == FALSE) break;
-		
-		D3DX11_IMAGE_LOAD_INFO info{};
-		info.MipLevels = 1;
-		D3DX11CreateTextureFromFile(App->GetDevice(), resultFileName.c_str(),&info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr);
-		tempTextureList.emplace_back(tempTexture2D);
-		++textureIdx;
-	}
-
-	bool result = LoadTextureArrayFromResource(container, keyStr, tempTextureList);
-
-	for (auto& it : tempTextureList) ReleaseCOM(it);
-	tempTextureList.clear();
-
-	return result;
+void PlayScene::ReleaseTaikoModeKeyNoteTypeMap()
+{
+	keyNoteTypeMap.clear();
 }
 
-bool PlayScene::LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, const vector<ID3D11Texture2D*>& textureList)
+void PlayScene::InitTaikoModeHitSounds()
 {
-	//no files
-	if (textureList.empty()) return false;
-
-	//create texture2DArr
-	D3D11_TEXTURE2D_DESC texture2Ddesc;
-	(*textureList.begin())->GetDesc(&texture2Ddesc);
-	texture2Ddesc.ArraySize = (UINT)textureList.size();
-	texture2Ddesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	//texture2Ddesc.MipLevels = 1;
-	//texture2Ddesc.SampleDesc.Count = 1;
-
-	ID3D11Texture2D* texture2DArr;
-	HRESULT hr = (App->GetDevice()->CreateTexture2D(&texture2Ddesc, nullptr, &texture2DArr));
-	if (FAILED(hr)) return false;
-
-	for (UINT i = 0; i < textureList.size(); ++i) {
-		for (UINT mip = 0; mip < texture2Ddesc.MipLevels; ++mip) {
-			App->GetDeviceContext()->CopySubresourceRegion(
-				texture2DArr,
-				D3D11CalcSubresource(mip, i, texture2Ddesc.MipLevels),
-				0, 0, 0,
-				textureList.at(i),
-				mip,
-				nullptr
-			);
-		}
-	}
-
-	//texture2DArr to SRV
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = texture2Ddesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-	srvDesc.Texture2DArray.MipLevels = texture2Ddesc.MipLevels;
-	srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
-
-	Texture* arrTexture = new Texture;
-	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture->srv));
-	if (FAILED(hr)) return false;
-
-	Texture::UpdateDescFromSRV(*arrTexture);
-	container.emplace(make_pair(keyStr, arrTexture));
-	ReleaseCOM(texture2DArr);
-
-	return true;
-}
-
-void PlayScene::InitTextures()
-{
-	ReleaseTextures();
+	FMOD::Sound* tempSound = nullptr;
 	const wstring skinDir = SkinDir + L"test Skin/";
-	Texture* tempTexture = nullptr;
 
-	tempTexture = new Texture;
-	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"LaneBackground.png");
-	textureList.emplace(make_pair(TextureName::LaneBackground, tempTexture));
+	FMODSYSTEM.System()->createStream(ShortCut::WstringToUTF8((skinDir +L"don.wav")).c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+	defaultTaikoModeHitSoundList.insert(make_pair((size_t)DefaultHitSound::Don, tempSound));
+	FMODSYSTEM.System()->createStream(ShortCut::WstringToUTF8((skinDir + L"kat.wav")).c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+	defaultTaikoModeHitSoundList.insert(make_pair((size_t)DefaultHitSound::Kat, tempSound));
+	FMODSYSTEM.System()->createStream(ShortCut::WstringToUTF8((skinDir + L"bigdon.wav")).c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+	defaultTaikoModeHitSoundList.insert(make_pair((size_t)DefaultHitSound::BigDon, tempSound));
+	FMODSYSTEM.System()->createStream(ShortCut::WstringToUTF8((skinDir + L"bigkat.wav")).c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+	defaultTaikoModeHitSoundList.insert(make_pair((size_t)DefaultHitSound::BigKat, tempSound));
+}
 
-	LoadTextureArray(
-		textureList,
+void PlayScene::ReleaseTaikoModeHitSounds()
+{
+	for (auto& it : defaultTaikoModeHitSoundList)
+	{
+		it.second->release();
+	}
+}
+
+void PlayScene::InitTaikoModeTextures()
+{
+	ReleaseTaikoModeTextures();
+	const wstring skinDir = SkinDir + L"test Skin/";
+
+	textureList.AddTexture(App->GetDevice(), TextureName::LaneBackground, skinDir + L"LaneBackground.png");
+
+	textureList.AddTextureArr(
 		TextureName::note,
 		{
 			(skinDir + L"note.png").c_str(), 
@@ -194,45 +114,36 @@ void PlayScene::InitTextures()
 			(skinDir + L"noteoverlay.png").c_str() 
 		});
 
-	tempTexture = new Texture;
-	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"JudgeLine.png");
-	textureList.emplace(make_pair(TextureName::JudgeLine, tempTexture));
-
-	tempTexture = new Texture;
-	tempTexture->CreateTexture(App->GetDevice(), skinDir + L"MeasureLine.png");
-	textureList.emplace(make_pair(TextureName::MeasureLine, tempTexture));
+	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
+	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
 }
 
-void PlayScene::ReleaseTextures()
+void PlayScene::ReleaseTaikoModeTextures()
 {
-	for (decltype(textureList)::value_type& it : textureList)
-	{
-		SafeDelete(it.second);
-	}
-	textureList.clear();
+	textureList.Clear();
 }
 
-void PlayScene::InitSprites()
+void PlayScene::InitTaikoModeSprites()
 {
-	Texture* const& laneBGTexture = textureList.find(TextureName::LaneBackground)->second;
-	testLane.laneSprite.RepeatTextureInExtraArea(laneBGTexture->width, laneBGTexture->height);
-	testLane.laneSprite.SetTexture(laneBGTexture);
+	const Texture& laneBGTexture = textureList.GetTexture(TextureName::LaneBackground);
+	testLane.laneSprite.RepeatTextureInExtraArea(laneBGTexture.width, laneBGTexture.height);
+	testLane.laneSprite.SetTexture(&laneBGTexture);
 
-	Texture* const& judgeLineTexture = textureList.find(TextureName::JudgeLine)->second;
+	const Texture& judgeLineTexture = textureList.GetTexture(TextureName::JudgeLine);
 	testLane.judgeLineSprite.GetWorld3d().SetObjectScale(LargeCircleDiameter);
-	testLane.judgeLineSprite.SetTexture(judgeLineTexture);
+	testLane.judgeLineSprite.SetTexture(&judgeLineTexture);
 
 
-	Texture* const& hitCircleTexture = textureList.find(TextureName::note)->second;
+	const Texture& hitCircleTexture = textureList.GetTexture(TextureName::note);
 	noteSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
 	noteSprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteSprite.SetTexture(hitCircleTexture);
+	noteSprite.SetTexture(&hitCircleTexture);
 	noteSprite.Diffuse = MyColor4::GhostGreen;
 	noteSprite.SetTextureID((UINT)NoteTextureArrID::Note);
 
 	noteOverlaySprite.GetWorld3d().SetParentWorld(&noteSprite.GetWorld3d());
 	noteOverlaySprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteOverlaySprite.SetTexture(hitCircleTexture);
+	noteOverlaySprite.SetTexture(&hitCircleTexture);
 	noteOverlaySprite.Diffuse = MyColor4::White;
 	noteOverlaySprite.SetTextureID((UINT)NoteTextureArrID::NoteOverlay);
 }
@@ -354,6 +265,7 @@ static constexpr LPCWSTR EndlineIdc = L"\r\n";
 static constexpr LPCWSTR BarlineIdc = L"--";
 static constexpr LPCWSTR EffectTypeIdc = L"#";
 static constexpr LPCWSTR measureIdc = L"measure";
+static constexpr LPCWSTR measureLineVisible = L"measureLineVisible";
 static constexpr LPCWSTR BaseBpmIdc = L"Base BPM";
 static constexpr LPCWSTR bpmIdc = L"bpm";
 static constexpr LPCWSTR CommonTimeIdc = L"C";
@@ -361,11 +273,12 @@ static constexpr LPCWSTR CommonTimeIdc = L"C";
 static constexpr size_t EndlineIdcLength = 2;
 
 const wstring MeasureEffect = wstring(EffectTypeIdc) + measureIdc;
+const wstring MeasureLineVisibleEffect = wstring(EffectTypeIdc) + measureLineVisible;
 const wstring BpmEffect = wstring(EffectTypeIdc) + bpmIdc;
 
-void PlayScene::ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx)
+void PlayScene::ParseBarLine(const wstring_view& lineStr, const Measure& measureRef, size_t& measureIdx)
 {
-	musicScore->measures.emplace_back(measureLength);
+	musicScore->measures.emplace_back(measureRef);
 	++measureIdx;
 }
 void PlayScene::ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength)
@@ -423,13 +336,13 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 
 	bool validCheck = true;
 	bool isReadingFile = true;
-
+	bool lineVisible = true;
 	const auto& ReadTimeSignatureLine = [&](const wstring_view& lineStr)
 		{
 			// in case bar line
 			if (lineStr.compare(BarlineIdc) == 0) //--
 			{
-				ParseBarLine(lineStr, measureLength, measureIdx);
+				ParseBarLine(lineStr, { measureLength, lineVisible }, measureIdx);
 				return;
 			}
 
@@ -437,6 +350,17 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 			if (lineStr.find(MeasureEffect + L' ') != wstring_view::npos) //#measure n/d
 			{
 				ParseMeasure(lineStr, measureLength);
+				return;
+			}
+
+			// Measure
+			if (lineStr.find(MeasureLineVisibleEffect + L' ') != wstring_view::npos) //#measureLineVisible ON/OFF
+			{
+				const wstring_view effectType = lineStr.substr(MeasureLineVisibleEffect.length() + 1);
+				constexpr LPCWSTR effectON = L"ON";
+				constexpr LPCWSTR effectOFF = L"OFF";
+				if (effectType.find(effectON) != wstring_view::npos) lineVisible = true;
+				else if (effectType.find(effectOFF) != wstring_view::npos) lineVisible = false;
 				return;
 			}
 
@@ -466,7 +390,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		isReadingFile = GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx);
 	}
 
-	musicScore->measures.emplace_back(measureLength);
+	musicScore->measures.emplace_back(measureLength,lineVisible);
 
 	musicScore->InitTimeSignaturePrefixSum();
 
@@ -776,7 +700,10 @@ void PlayScene::StopPlayMusicThread()
 
 void PlayScene::PlayMusic()
 {
-	while (totalMusicTime.count() < 0 && playMusicThreadRunFlag); //busy wait
+	while (totalMusicTime.count() < 0 && playMusicThreadRunFlag)
+	{
+		(std::this_thread::sleep_for(std::chrono::milliseconds(1)));
+	}
 
 	music->PlayMusic();
 	UpdateTotalMusicTime();
@@ -821,39 +748,69 @@ void PlayScene::UpdateOnStart(float dt)
 		ChangeStatusPause();
 	}
 
-	if (KEYBOARD.Hold('Z'))
-	{
-		noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
-		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
-		debugMs = MilliDouble(debugMs.count() - 400 * dt);
-	}
-	
-	if (KEYBOARD.Hold('X'))
-	{
-		noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
-		noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
-		debugMs = MilliDouble(debugMs.count() + 400 * dt);
-		
-	}
-
-	if (KEYBOARD.Down('A'))noteSprite.Diffuse = MyColor4::MyRed;
-	if (KEYBOARD.Down('S'))noteSprite.Diffuse = MyColor4::MyBlue;
-	noteSprite.Diffuse.w = 0.5f;
-
 #ifdef _DEBUG
+
+	static double debugMsSpeed = 1000.0;
 	if (KEYBOARD.Hold('1'))
+	{
+		//noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		debugMs = MilliDouble(debugMs.count() - debugMsSpeed * dt);
+		noteSprite.Diffuse = MyColor4::MyRed;
+		noteSprite.Diffuse.w = 0.5f;
+	}
+
+	if (KEYBOARD.Hold('2'))
+	{
+		//noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		debugMs = MilliDouble(debugMs.count() + debugMsSpeed * dt);
+		noteSprite.Diffuse = MyColor4::MyBlue;
+		noteSprite.Diffuse.w = 0.5f;
+	}
+
+	if (KEYBOARD.Hold('3'))debugMsSpeed = max(200, debugMsSpeed - 1000.0 * dt);
+	if (KEYBOARD.Hold('4'))debugMsSpeed = min(4000, debugMsSpeed + 1000.0 * dt);
+
+	if (KEYBOARD.Hold(VK_F1))
 	{
 		ExitStatusStart();
 		ChangeStatusPause();
 	}
-	else if (KEYBOARD.Hold('2'))
+	else if (KEYBOARD.Hold(VK_F1))
 	{
 		ExitStatusStart();
 		ChangeStatusPause();
 	}
 #endif
-	
+
+
+
+	PlayTaikoModeHitSound();
+
 }
+
+void PlayScene::PlayTaikoModeHitSound()
+{
+	for (const auto& key : keyNoteTypeMap.at(LeftD)) if (KEYBOARD.Down(key)) PlayTaikoModeDonSound();
+	for (const auto& key : keyNoteTypeMap.at(RightD)) if (KEYBOARD.Down(key)) PlayTaikoModeDonSound();
+
+	for (const auto& key : keyNoteTypeMap.at(LeftK)) if (KEYBOARD.Down(key)) PlayTaikoModeKatSound();
+	for (const auto& key : keyNoteTypeMap.at(RightK)) if (KEYBOARD.Down(key)) PlayTaikoModeKatSound();
+}
+
+void PlayScene::PlayTaikoModeDonSound()
+{
+	if (testLane.CurrentNote()->note->noteType == (UINT)TaikoNoteType::BigDon) FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::BigDon), nullptr, false, nullptr);
+	else FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::Don), nullptr, false, nullptr);
+}
+
+void PlayScene::PlayTaikoModeKatSound()
+{
+	if (testLane.CurrentNote()->note->noteType == (UINT)TaikoNoteType::BigKat) FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::BigKat), nullptr, false, nullptr);
+	else FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::Kat), nullptr, false, nullptr);
+}
+
 void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
 	UpdateCurrentTimeText();
@@ -864,16 +821,14 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	noteSprite.Render(deviceContext, cam);
 	noteOverlaySprite.Render(deviceContext, cam);
 	
-	UpdateInstancedBuffer(measureLineInstancedBuffer.Get(), totalMusicTime, testLane,
-		std::bind(&PlayScene::UpdateInstancedBuffer_MeasureLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	const MilliDouble& refTime = debugMs;
+	//const MilliDouble& refTime = totalMusicTime;
 
-	//UpdateInstancedBuffer(instancingDebugMs, testLane);
-	UpdateInstancedBuffer(noteInstancedBuffer.Get(), totalMusicTime, testLane,
-		std::bind(&PlayScene::UpdateInstancedBuffer_Note, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	UpdateInstancedBuffer_MeasureLine(measureLineInstancedBuffer.Get(), musicScore->measures, refTime, testLane);
+	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer.Get(), 0, measureLineInstanceCount, textureList.GetTexture(TextureName::MeasureLine).GetRefSRV());
 
-
-	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer.Get(), 0, measureLineInstanceCount, textureList.at(TextureName::MeasureLine)->GetRefSRV());
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, noteInstanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.at(TextureName::note)->GetRefSRV());
+	UpdateInstancedBuffer_TaikoModeNote(noteInstancedBuffer.Get(), refTime, testLane);
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, noteInstanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.GetTexture(TextureName::note).GetRefSRV());
 }
 
 
@@ -1069,7 +1024,7 @@ void PlayScene::InitInstancedBuffer(ID3D11Buffer*& buffer, UINT bufLen)
 
 }
 
-void PlayScene::UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane, const std::function<void(MilliDouble, Lane&, SpriteInstanceData*&)>&updateBufferFunc)
+void PlayScene::UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	App->GetDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
@@ -1079,8 +1034,7 @@ void PlayScene::UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble curr
 	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
 
 	//Update ========================================================
-	//UpdateInstancedBuffer_Note(currentTime, lane, dataView);
-	updateBufferFunc(currentTime, lane, dataView);
+	UpdateInstancedBuffer_TaikoModeNote_Internal(currentTime, lane, dataView);
 
 	App->GetDeviceContext()->Unmap(instBuffer, 0);
 
@@ -1089,7 +1043,22 @@ void PlayScene::UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble curr
 constexpr double distanceQuarterRhythm = CircleDiameter * 0.8;
 constexpr pair<double, double> laneDrawArea = { -256.0, (double)LaneMaxLength };
 
-void PlayScene::UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
+void PlayScene::UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, MilliDouble currentTime, Lane& lane)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	App->GetDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+
+	D3D11_BUFFER_DESC d;
+	noteInstancedBuffer->GetDesc(&d);
+	SpriteInstanceData* dataView = reinterpret_cast<SpriteInstanceData*>(mappedData.pData);
+
+	//Update ========================================================
+	UpdateInstancedBuffer_MeasureLine_Internal(currentTime, measureList, lane, dataView);
+
+	App->GetDeviceContext()->Unmap(instBuffer, 0);
+}
+
+void PlayScene::UpdateInstancedBuffer_MeasureLine_Internal(MilliDouble currentTime, const vector<Measure>&measureList, Lane& lane, SpriteInstanceData*& dataView)
 {
 	using namespace chrono;
 
@@ -1118,6 +1087,13 @@ void PlayScene::UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane&
 
 	const auto& CopyDataIntoInstancedData = [&]()
 		{
+			//visible check
+			bool isVisible = true;
+			if ((int)measureList.size() <= currentMeasureLineIdx) isVisible = measureList.back().visible;
+			else isVisible = measureList.at(currentMeasureLineIdx).visible;
+
+			if (!isVisible) return;
+
 			const MusicalPosition& measureMusicalPos{ (size_t)currentMeasureLineIdx, 0 };
 			const microseconds& lineTiming = musicScore->GetNoteTimingPoint(measureMusicalPos);
 			const double noteRelativeTiming = (double)(duration_cast<milliseconds>(lineTiming).count()) - currentTime.count();
@@ -1149,7 +1125,7 @@ void PlayScene::UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane&
 	}
 }
 
-void PlayScene::UpdateInstancedBuffer_Note(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
+void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView)
 {
 	using namespace chrono;
 

@@ -192,6 +192,7 @@
     <ClCompile Include="MusicalObject\Note.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
     <ClCompile Include="MusicalObject\PlayMode\PlayMode.cpp" />
+    <ClCompile Include="MusicalObject\PlayMode\TaikoMode.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp" />
     <ClCompile Include="MusicalObject\VolumeSet.cpp" />
@@ -219,6 +220,7 @@
     <ClCompile Include="Utility\Node.cpp" />
     <ClCompile Include="Utility\RationalNumber.cpp" />
     <ClCompile Include="Utility\ShortCut.cpp" />
+    <ClCompile Include="Utility\StringToVirtualKeyCode.cpp" />
     <ClCompile Include="Utility\Trace.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +244,7 @@
     <ClInclude Include="MusicalObject\Note.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
     <ClInclude Include="MusicalObject\PlayMode\PlayMode.h" />
+    <ClInclude Include="MusicalObject\PlayMode\TaikoMode.h" />
     <ClInclude Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.h" />
     <ClInclude Include="MusicalObject\PrefixSum\MeasurePrefixSum.h" />
     <ClInclude Include="MusicalObject\VolumeSet.h" />
@@ -272,6 +275,7 @@
     <ClInclude Include="Utility\Node.h" />
     <ClInclude Include="Utility\RationalNumber.h" />
     <ClInclude Include="Utility\ShortCut.h" />
+    <ClInclude Include="Utility\StringToVirtualKeyCode.h" />
     <ClInclude Include="Utility\Trace.h" />
   </ItemGroup>
   <ItemGroup>

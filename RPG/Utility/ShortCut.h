@@ -141,3 +141,24 @@ inline RationalNumber<Bits> ShortCut::StrToRationalNumber(const wstring_view& so
 	//if (dnm == 0) return RationalNumber<Bits>(7, 22);
 	return RationalNumber<Bits>(nm, dnm);
 }
+
+#if defined(DEBUG) | defined(_DEBUG)
+
+#ifndef RUNTIME_CHECK
+#define RUNTIME_CHECK(x) { \
+const auto& ______start = std::chrono::high_resolution_clock::now(); \
+x; \
+const auto& ______end = std::chrono::high_resolution_clock::now(); \
+\
+auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(______end - ______start).count(); \
+TRACE(_T("Elapsed time: %dms\n"), elapsed); \
+}
+#endif
+
+#else
+
+#ifndef RUNTIME_CHECK
+#define RUNTIME_CHECK(x) x;
+#endif
+
+#endif

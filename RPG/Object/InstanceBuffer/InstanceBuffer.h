@@ -8,9 +8,10 @@ public:
 	virtual ~InstanceBuffer();
 
 	void InitBuffer(ID3D11Device*, UINT);
-	const UINT& GetBufferSize() const { return bufferSize; }
+
+	const UINT& GetBufferSize() const { return instanceCount; }
 
 private:
-	UINT bufferSize;
-	
+	virtual UINT GetBufferSizeFromCount(UINT count) = 0;
+	UINT instanceCount;
 };

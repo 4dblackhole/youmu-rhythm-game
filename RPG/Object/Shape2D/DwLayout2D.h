@@ -14,7 +14,7 @@
 class DwLayout2D : public Shape2D
 {
 public:
-	DwLayout2D(float size = 1.0f, D2D1::ColorF color = D2D1::ColorF::White, D2D1_SIZE_F pos = {});
+	DwLayout2D(float size = 1.0f, D2D1::ColorF color = D2D1::ColorF::White, D2D1_POINT_2F pos = {});
 	virtual ~DwLayout2D();
 
 	void SetLayout(const std::wstring text, IDWriteTextFormat* textFormat);

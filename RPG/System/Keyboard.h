@@ -1,9 +1,7 @@
 #pragma once
 #include "libraries.h"
+#include "defines.h"
 #include "Singleton/SingletonBase.h"
-
-#define MAX_INPUT_KEY 256
-#define MAX_INPUT_MOUSE 8
 
 class Keyboard : public SingletonBase<Keyboard>
 {

@@ -8,7 +8,7 @@ constexpr int MusicScrollHeight = 670;
 constexpr int MusicScrollRightX = (MusicScrollCenterX + MusicScrollWidth / 2);
 constexpr int MusicScrollTopY = (MusicScrollCenterY + MusicScrollHeight / 2);
 
-constexpr int NoMusicTextSize = 40;
+constexpr float NoMusicTextSize = 40.0f / D2Ddevice::DefaultFontSize;
 constexpr int NoMusicTextX = MusicScrollRightX - MusicScrollWidth;
 constexpr int NoMusicTextY = -MusicScrollTopY + 60; // Y axis of 3D and 2D is reverse
 
@@ -91,12 +91,14 @@ void MusicListScroll::UpdateScrollMatrix()
 
 	scrollMatrix.SetPosition({ 0, scrollYpos });
 
-	Music*& currentMusic = musicList[currentSelectMusic];
-	if (!currentMusic->patternList.empty())
+	if (!musicList.empty())
 	{
-		UpdatePatternHeightMatrix(currentSelectMusic);
+		Music*& currentMusic = musicList[currentSelectMusic];
+		if (!currentMusic->patternList.empty())
+		{
+			UpdatePatternHeightMatrix(currentSelectMusic);
+		}
 	}
-	
 	NotifyScrollMatrixUpdate();
 }
 
@@ -179,45 +181,48 @@ int MusicListScroll::GetAdjustedCurrentPatternIdx() const
 
 void MusicListScroll::Update(float dt)
 {
-	if (KEYBOARD.Down(VK_LEFT))
+
+	if (!musicList.empty())
 	{
-		if (currentSelectMusic > 0)
+		if (KEYBOARD.Down(VK_LEFT))
 		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectMusic((size_t)currentSelectMusic - 1);
+			if (currentSelectMusic > 0)
+			{
+				FMODSYSTEM.Play(FmodSystem::Name::button01a);
+				ChangeSelectMusic((size_t)currentSelectMusic - 1);
+			}
+		}
+		if (KEYBOARD.Down(VK_RIGHT))
+		{
+			if (currentSelectMusic < musicList.size() - 1)
+			{
+				FMODSYSTEM.Play(FmodSystem::Name::button01a);
+				ChangeSelectMusic((size_t)currentSelectMusic + 1);
+			}
+		}
+
+		if (KEYBOARD.Down(VK_UP))
+		{
+			currentSelectPattern = GetAdjustedCurrentPatternIdx();
+
+			if (currentSelectPattern > 0)
+			{
+				FMODSYSTEM.Play(FmodSystem::Name::button01a);
+				ChangeSelectPattern((size_t)currentSelectPattern - 1);
+			}
+		}
+
+		if (KEYBOARD.Down(VK_DOWN))
+		{
+			currentSelectPattern = GetAdjustedCurrentPatternIdx();
+
+			if (currentSelectPattern < (int)musicList[currentSelectMusic]->patternList.size() - 1)
+			{
+				FMODSYSTEM.Play(FmodSystem::Name::button01a);
+				ChangeSelectPattern((size_t)currentSelectPattern + 1);
+			}
 		}
 	}
-	if (KEYBOARD.Down(VK_RIGHT))
-	{
-		if (currentSelectMusic < musicList.size() - 1)
-		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectMusic((size_t)currentSelectMusic + 1);
-		}
-	}
-
-	if (KEYBOARD.Down(VK_UP))
-	{
-		currentSelectPattern = GetAdjustedCurrentPatternIdx();
-
-		if (currentSelectPattern > 0)
-		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectPattern((size_t)currentSelectPattern - 1);
-		}
-	}
-
-	if (KEYBOARD.Down(VK_DOWN))
-	{
-		currentSelectPattern = GetAdjustedCurrentPatternIdx();
-
-		if (currentSelectPattern < (int)musicList[currentSelectMusic]->patternList.size() - 1)
-		{
-			FMODSYSTEM.Play(FmodSystem::Name::button01a);
-			ChangeSelectPattern((size_t)currentSelectPattern + 1);
-		}
-	}
-
 }
 
 void MusicListScroll::UpdatePatternHeightMatrix(size_t musicIdx)
@@ -784,15 +789,11 @@ void MusicListScroll::InitMusicListScroll()
 	DWRITE_TEXT_METRICS mt;
 	LPCWSTR tempstr = L"No Music";
 	IDWriteTextFormat*& tempFormat = D2D.GetFont(D2Ddevice::FontName::DefaultFont);
-
 	DwLayout2D::GetLayoutMetrics(tempstr, tempFormat, &mt);
 
-
-	noMusicText.reset(new DwLayout2D(NoMusicTextSize, MyColorF::GhostGreen, { (float)NoMusicTextX + (mt.width * NoMusicTextSize / D2Ddevice::DefaultFontSize),NoMusicTextY }));
-	noMusicText->maxW= MusicScrollWidth;
+	noMusicText.reset(new DwLayout2D(NoMusicTextSize, MyColorF::GhostGreen, { (float)MusicScrollCenterX + (mt.width * NoMusicTextSize * 0.5f) , NoMusicTextY }));
 	noMusicText->GetWorld2d().SetAlignX(AlignModeX::Right);
 	noMusicText->SetLayoutRightAlign(tempstr, tempFormat);
-	noMusicText->layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 
 	LoadMusic();
 	LoadPattern();

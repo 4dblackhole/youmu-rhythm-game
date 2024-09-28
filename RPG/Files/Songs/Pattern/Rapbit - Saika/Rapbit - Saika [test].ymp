@@ -15,8 +15,10 @@ Base BPM: 140
 [Time Signature]
 0/1,#bpm 140
 #measure 1/4
+#measureLineVisible OFF
 --
 #measure 20/8
+#measureLineVisible ON
 
 1/8,#bpm 180
 2/8,#bpm 175

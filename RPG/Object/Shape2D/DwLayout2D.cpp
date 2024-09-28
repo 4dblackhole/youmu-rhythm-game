@@ -1,11 +1,12 @@
 #include "framework.h"
 #include "DwLayout2D.h"
 
-DwLayout2D::DwLayout2D(float size, D2D1::ColorF color, D2D1_SIZE_F pos)
+DwLayout2D::DwLayout2D(float size, D2D1::ColorF color, D2D1_POINT_2F pos)
 	: Shape2D(),
 	Color(color), layout(nullptr)
 {
 	GetWorld2d().SetScale(size);
+	GetWorld2d().SetPosition(pos);
 }
 
 DwLayout2D::~DwLayout2D()
@@ -26,7 +27,7 @@ void DwLayout2D::SetLayoutRightAlign(const std::wstring text, IDWriteTextFormat*
 	DWRITE_TEXT_METRICS mt;
 	GetLayoutMetrics(text, textFormat, &mt);
 
-	float sizeRate = GetWorld2d().GetScale().x;
+	const float& sizeRate = GetWorld2d().GetScale().x;
 	GetWorld2d().SetPosition({ GetWorld2d().GetPosition().x - (int)(mt.width * sizeRate),GetWorld2d().GetPosition().y });
 
 	SetLayout(text, textFormat);

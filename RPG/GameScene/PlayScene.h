@@ -115,10 +115,44 @@ private:
 //Game mode related
 private:
 	Lane testLane;
-	void InitLanes();
+	void InitTaikoModeLanes();
 
 	AccuracyRange accRange;
-	map<size_t, FMOD::Sound*> defaultHitSoundList;
+
+	enum class TaikoNoteType
+	{
+		Don = 1,
+		Kat,
+		BigDon,
+		BigKat,
+		Roll=11,
+		BigRoll,
+		Balloon,
+		MAX
+	};
+
+	map<wstring, vector<::byte>> keyNoteTypeMap;
+	DECLARE_VARIABLE_WSTRING(LeftD);
+	DECLARE_VARIABLE_WSTRING(RightD);
+	DECLARE_VARIABLE_WSTRING(LeftK);
+	DECLARE_VARIABLE_WSTRING(RightK);
+	void InitTaikoModeKeyNoteTypeMap();
+	void ReleaseTaikoModeKeyNoteTypeMap();
+
+	enum class DefaultHitSound
+	{
+		Don,
+		Kat,
+		BigDon,
+		BigKat,
+		MAX
+	};
+	map<size_t, FMOD::Sound*> defaultTaikoModeHitSoundList;
+	void InitTaikoModeHitSounds();
+	void ReleaseTaikoModeHitSounds();
+	void PlayTaikoModeHitSound();
+	void PlayTaikoModeDonSound();
+	void PlayTaikoModeKatSound();
 
 	class TextureName
 	{
@@ -129,7 +163,7 @@ private:
 		DECLARE_VARIABLE_STRING(note);
 	};
 
-	map<const string, Texture*> textureList;
+	TextureManager textureList;
 
 	//Texture2DArray ID of Texture "note"
 	enum class NoteTextureArrID
@@ -147,14 +181,8 @@ private:
 		MAX
 	};
 
-	void InitTextures();
-	void ReleaseTextures();
-
-	bool LoadTextureArray(map<const string, Texture*>&container, const string& keyStr, const vector<LPCWSTR>& fileList);
-	bool LoadTextureArrayIndexed(map<const string, Texture*>&container, const string& keyStr, const wstring& fileName);
-
-	bool LoadTextureArrayFromResource(map<const string, Texture*>& container, const string& keyStr, 
-		const vector<ID3D11Texture2D*>& textureList);
+	void InitTaikoModeTextures();
+	void ReleaseTaikoModeTextures();
 
 	enum class ScrollSpeedMode
 	{
@@ -167,19 +195,20 @@ private:
 private:
 	Sprite noteSprite;
 	Sprite noteOverlaySprite;
-	void InitSprites();
+	void InitTaikoModeSprites();
 
 	MilliDouble debugMs{ 0 };
 
 	void InitInstancedBuffer(ID3D11Buffer*&, UINT);
 	int noteInstanceCount = 0;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
-	void UpdateInstancedBuffer(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane, const std::function<void(MilliDouble, Lane&, SpriteInstanceData*&)>&);
-	void UpdateInstancedBuffer_Note(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
+	void UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane);
+	void UpdateInstancedBuffer_TaikoModeNote_Internal(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	int measureLineInstanceCount = 0;
 	ComPtr<ID3D11Buffer> measureLineInstancedBuffer;
-	void UpdateInstancedBuffer_MeasureLine(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
+	void UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, MilliDouble currentTime, Lane& lane);
+	void UpdateInstancedBuffer_MeasureLine_Internal(MilliDouble currentTime, const vector<Measure>& measureList, Lane& lane, SpriteInstanceData*& dataView);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();
@@ -207,7 +236,7 @@ private:
 	void LoadPattern(const wstring_view& content);
 	bool GetNextLineIdxPair(const wstring_view& content, const wstring_view& endStr, size_t& startIdx, size_t& endIdx);
 
-	void ParseBarLine(const wstring_view& lineStr, const RationalNumber<64>measureLength, size_t& measureIdx);
+	void ParseBarLine(const wstring_view& lineStr, const Measure& measureRef, size_t& measureIdx);
 	void ParseMeasure(const wstring_view& lineStr, RationalNumber<64>& measureLength);
 	bool ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr);
 	void ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos);

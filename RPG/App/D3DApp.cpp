@@ -478,6 +478,7 @@ bool D3DApp::InitDirect3D()
 	//Init singletons
 	SceneManager::GetInstance();
 	D2Ddevice::GetInstance();
+	StrToVK::GetInstance();
 
 	OnResize();
 	return true;

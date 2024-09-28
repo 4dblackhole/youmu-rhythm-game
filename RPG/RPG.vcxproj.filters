@@ -204,6 +204,12 @@
     <ClCompile Include="Object\InstanceBuffer\SpriteInstanceBuffer.cpp">
       <Filter>Object\InstanceBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="MusicalObject\PlayMode\TaikoMode.cpp">
+      <Filter>MusicalObject\PlayMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\StringToVirtualKeyCode.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -358,6 +364,12 @@
     </ClInclude>
     <ClInclude Include="Object\InstanceBuffer\SpriteInstanceBuffer.h">
       <Filter>Object\InstanceBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\PlayMode\TaikoMode.h">
+      <Filter>MusicalObject\PlayMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\StringToVirtualKeyCode.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

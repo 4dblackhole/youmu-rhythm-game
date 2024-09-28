@@ -2,6 +2,8 @@
 
 #ifndef DECLARE_VARIABLE_STRING
 #define DECLARE_VARIABLE_STRING(x) static constexpr LPCSTR x = #x
+#define DECLARE_VARIABLE_WSTRING(x) static constexpr LPCWSTR x = L#x
+#define DECLARE_VARIABLE_TSTRING(x) static constexpr LPCTSTR x = _T(#x)
 #endif
 
 
@@ -10,6 +12,9 @@
 #else
 #define DEBUG_BREAKPOINT
 #endif
+
+#define MAX_INPUT_KEY 256
+#define MAX_INPUT_MOUSE 8
 
 
 //all coordinates are based on these numbers.
@@ -35,6 +40,7 @@ namespace MyColor4
 
 constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;
 
+extern const wstring FileDir;
 extern const wstring SkinDir;
 extern const wstring SongDir;
 extern const wstring MusicDir;

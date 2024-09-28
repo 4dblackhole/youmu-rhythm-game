@@ -41,12 +41,13 @@ public:
 class Measure
 {
 public:
-	Measure() {};
-	Measure(const RationalNumber<64>& q) :length(q) {}
-	Measure(RationalNumber<64>&& q) noexcept :length(q) {}
+	constexpr Measure() {};
+	constexpr Measure(const Measure& val) :length(val.length), visible(val.visible) {};
+	constexpr Measure(const RationalNumber<64>& q, bool v = true) :length(q), visible(v) {}
 	~Measure() {};
 
 	RationalNumber<64> length;
+	bool visible = true;
 };
 
 class MusicalPosition
