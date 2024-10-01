@@ -94,9 +94,13 @@ private:
 	void InitPauseBackground();
 	void ReleasePauseBackground();
 
+//restart related
+private:
+	void ReSetting();
+
 //timing related
 private:
-	GameTimer timer;
+	GameTimer threadTimer;
 
 	GameTimer rhythmTimer;
 	chrono::microseconds musicTimeOffset{ 0 };
@@ -112,12 +116,16 @@ private:
 	void StopPlayMusicThread();
 	void PlayMusic();
 
+	AccuracyRange accRange;
+	inline MilliDouble GetEarlyJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
+	{
+		return refTime - accRange.GetAccuracyRange(judge);
+	}
+
 //Game mode related
 private:
 	Lane testLane;
 	void InitTaikoModeLanes();
-
-	AccuracyRange accRange;
 
 	enum class TaikoNoteType
 	{
@@ -138,6 +146,10 @@ private:
 	DECLARE_VARIABLE_WSTRING(RightK);
 	void InitTaikoModeKeyNoteTypeMap();
 	void ReleaseTaikoModeKeyNoteTypeMap();
+	void NoteProcessTaikoMode(const MilliDouble refTime);
+	void NoteProcessTaikoModeDon(const MilliDouble refTime);
+	void NoteProcessTaikoModeKat(const MilliDouble refTime);
+	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 
 	enum class DefaultHitSound
 	{
@@ -150,7 +162,6 @@ private:
 	map<size_t, FMOD::Sound*> defaultTaikoModeHitSoundList;
 	void InitTaikoModeHitSounds();
 	void ReleaseTaikoModeHitSounds();
-	void PlayTaikoModeHitSound();
 	void PlayTaikoModeDonSound();
 	void PlayTaikoModeKatSound();
 
@@ -197,18 +208,16 @@ private:
 	Sprite noteOverlaySprite;
 	void InitTaikoModeSprites();
 
-	MilliDouble debugMs{ 0 };
-
 	void InitInstancedBuffer(ID3D11Buffer*&, UINT);
 	int noteInstanceCount = 0;
 	ComPtr<ID3D11Buffer> noteInstancedBuffer;
-	void UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, MilliDouble currentTime, Lane& lane);
-	void UpdateInstancedBuffer_TaikoModeNote_Internal(MilliDouble currentTime, Lane& lane, SpriteInstanceData*& dataView);
+	void UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, const MilliDouble refTime, Lane& lane);
+	void UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble refTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	int measureLineInstanceCount = 0;
 	ComPtr<ID3D11Buffer> measureLineInstancedBuffer;
-	void UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, MilliDouble currentTime, Lane& lane);
-	void UpdateInstancedBuffer_MeasureLine_Internal(MilliDouble currentTime, const vector<Measure>& measureList, Lane& lane, SpriteInstanceData*& dataView);
+	void UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, const MilliDouble refTime, Lane& lane);
+	void UpdateInstancedBuffer_MeasureLine_Internal(const MilliDouble refTime, const vector<Measure>& measureList, Lane& lane, SpriteInstanceData*& dataView);
 
 	DwLayout2D currentTimeText;
 	void InitCurrentTimeText();
@@ -217,6 +226,13 @@ private:
 	DwLayout2D loadingText;
 	DwLayout2D loadingCompleteText;
 	void InitLoadingText();
+
+//debug related
+private:
+	MilliDouble debugMs{ 0 };
+	DwLayout2D debugText;
+	void InitDebugText();
+	void UpdateDebugText();
 
 //music score related
 private:

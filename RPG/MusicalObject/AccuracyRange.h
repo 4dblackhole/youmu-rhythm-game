@@ -17,8 +17,8 @@ public:
 
 	//ex) MaxRange=4.5 -> +-4.5ms, total range is 9ms
 	static constexpr size_t defaultAccLevel = 50;
-	static constexpr double DefaultAccRange[(int)RangeName::MAX] =
-	{ 4.5, 12.5, 23.5, 57.5, 90.0 };
+	static constexpr MilliDouble DefaultAccRange[(int)RangeName::MAX] =
+	{ MilliDouble(4.5), MilliDouble(9.5), MilliDouble(23.5), MilliDouble(54.5), MilliDouble(90.0) };
 
 public:
 	AccuracyRange(size_t level = defaultAccLevel);
@@ -26,11 +26,11 @@ public:
 
 	void ChangeAccuracyLevel(size_t level);
 
-	const double* GetAccuracyRange() const { return accRange; }
-	double GetAccuracyRange(RangeName n) const { return accRange[(int)n]; }
+	const MilliDouble* GetAccuracyRange() const { return accRange; }
+	const MilliDouble& GetAccuracyRange(RangeName n) const { return accRange[min((int)n, (int)RangeName::MAX - 1)]; }
 	const size_t GetAccuracyLevel() const { return accLevel; }
 
 private:
-	double accRange[(int)RangeName::MAX];
+	MilliDouble accRange[(int)RangeName::MAX];
 	size_t accLevel;
 };

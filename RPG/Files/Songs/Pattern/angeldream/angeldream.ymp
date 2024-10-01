@@ -6,7 +6,7 @@ Pattern Maker 2: Youmu
 Pattern Name: Dream
 Tags: test
 
-Pattern Offset: 56
+Pattern Offset: 136
 Preview Time: 1,0/1
 Base BPM: 180
 
@@ -15,12 +15,10 @@ Base BPM: 180
 [Time Signature]
 --
 --
-#measureLineVisible OFF
 --
 --
 --
 --
-#measureLineVisible ON
 
 [Pattern]
 0/8,1,0

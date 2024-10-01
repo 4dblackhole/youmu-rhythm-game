@@ -5,6 +5,7 @@
 //defines
 #include "defines.h"
 #include "Types.h"
+#include "TemplateTypes.hpp"
 
 //my headers
 #include "Utility/Node.h"

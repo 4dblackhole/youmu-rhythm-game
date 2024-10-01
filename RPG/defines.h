@@ -2,19 +2,32 @@
 
 #ifndef DECLARE_VARIABLE_STRING
 #define DECLARE_VARIABLE_STRING(x) static constexpr LPCSTR x = #x
+#endif
+
+#ifndef DECLARE_VARIABLE_WSTRING
 #define DECLARE_VARIABLE_WSTRING(x) static constexpr LPCWSTR x = L#x
+#endif
+
+#ifndef DECLARE_VARIABLE_TSTRING
 #define DECLARE_VARIABLE_TSTRING(x) static constexpr LPCTSTR x = _T(#x)
 #endif
 
 
 #if defined(DEBUG) | defined(_DEBUG)
+
+#ifndef DEBUG_BREAKPOINT
 #define DEBUG_BREAKPOINT int asdf__ASDfdsf11 = 3
+#endif
+
 #else
+#ifndef DEBUG_BREAKPOINT
 #define DEBUG_BREAKPOINT
 #endif
 
-#define MAX_INPUT_KEY 256
-#define MAX_INPUT_MOUSE 8
+#endif
+
+constexpr UINT MAX_INPUT_KEY = 256;
+constexpr UINT MAX_INPUT_MOUSE = 8;
 
 
 //all coordinates are based on these numbers.
@@ -41,12 +54,12 @@ namespace MyColor4
 constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;
 
 extern const wstring FileDir;
-extern const wstring SkinDir;
 extern const wstring SongDir;
 extern const wstring MusicDir;
 extern const wstring PatternDir;
 extern const wstring TextureDir;
 extern const wstring SystemSoundDir;
+extern const wstring SkinDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";

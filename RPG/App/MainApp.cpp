@@ -105,7 +105,7 @@ void MainApp::UpdateFPS()
 
 		WCHAR fpsStr[20];
 		swprintf_s(fpsStr, L"FPS: %.f", fps);
-		fpsLayout->SetLayout(fpsStr, D2D.GetFont(D2Ddevice::FontName::DefaultFont));
+		fpsLayout->SetText(fpsStr);
 		//frame calculation end
 		frameCnt = 0;
 		timeElapsed += calculateInterval;

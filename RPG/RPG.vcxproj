@@ -270,7 +270,9 @@
     <ClInclude Include="System\Keyboard.h" />
     <ClInclude Include="System\World\World2D.h" />
     <ClInclude Include="System\World\World3D.h" />
+    <ClInclude Include="TemplateTypes.hpp" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Utility\Interpolation.h" />
     <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\Node.h" />
     <ClInclude Include="Utility\RationalNumber.h" />

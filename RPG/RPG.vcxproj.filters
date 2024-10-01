@@ -371,6 +371,12 @@
     <ClInclude Include="Utility\StringToVirtualKeyCode.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\Interpolation.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="TemplateTypes.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Shader\Sprite.fx">

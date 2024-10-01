@@ -17,7 +17,7 @@ public:
 	
 	const Note* GetFirstNote() const;
 
-	using NoteList = map<MusicalPosition, Note>;
+	using NoteListPerType = map<MusicalPosition, Note>;
 
 	//idx - length
 	vector<Measure> measures;
@@ -29,7 +29,8 @@ public:
 	MeasurePrefixSum measurePrefixSum;
 	void InitTimeSignaturePrefixSum();
 
-	unordered_map<size_t, NoteList> notesPerTypeMap;
+	using NoteContainer = unordered_map<size_t, NoteListPerType>;
+	NoteContainer notesPerTypeMap;
 
 	double baseBpm = 120.0;
 	chrono::microseconds offset{ 0 };

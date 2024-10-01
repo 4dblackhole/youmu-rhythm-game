@@ -5,8 +5,8 @@ public:
 	GameTimer();
 	~GameTimer() {}
 
-	float TotalTime()const;
-	float DeltaTime()const;
+	float TotalTime() const;
+	float DeltaTime() const;
 
 	void Reset();
 	void Start();

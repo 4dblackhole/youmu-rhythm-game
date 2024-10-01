@@ -2,6 +2,7 @@
 #include "libraries.h"
 #include "Trace.h"
 #include "RationalNumber.h"
+#include "Interpolation.h"
 
 namespace std
 {

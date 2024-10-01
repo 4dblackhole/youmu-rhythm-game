@@ -56,22 +56,13 @@ public:
 
 	static constexpr float DefaultFontSize = 15.0f;
 public:
+	
 	void DrawTextLayout(D2D1_POINT_2F origin,
 		_In_ IDWriteTextLayout* textLayout,
 		_In_ ID2D1Brush* defaultFillBrush,
 		D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE) noexcept
 	{
-		d2Rtg->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
-	}
-	void DrawText(_In_reads_(stringLength) CONST TCHAR* string,
-		UINT32 stringLength,
-		_In_ IDWriteTextFormat* textFormat,
-		CONST D2D1_RECT_F& layoutRect,
-		_In_ ID2D1Brush* defaultFillBrush,
-		D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE,
-		DWRITE_MEASURING_MODE measuringMode = DWRITE_MEASURING_MODE_NATURAL)
-	{
-		d2Rtg->DrawText(string, stringLength, textFormat, layoutRect, defaultFillBrush, options, measuringMode);
+		D2Ddevice::GetInstance().GetRenderTarget()->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
 	}
 };
 

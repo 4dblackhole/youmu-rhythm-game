@@ -3,14 +3,12 @@
 
 void TextureManager::AddTexture(ID3D11Device* device, ContainerType::key_type& key, const wstring& file)
 {
-	Texture tempTexture;
-	tempTexture.CreateTexture(device, file);
-	textureList.emplace(make_pair(key, std::move(tempTexture)));
+	textureList[key].CreateTexture(device, file);
 }
 
 void TextureManager::AddTexture(ContainerType::key_type& key, ContainerType::mapped_type& texture)
 {
-	textureList.emplace(make_pair(key, std::move(texture)));
+	textureList[key] = std::move(texture);
 }
 
 void TextureManager::RemoveTexture(ContainerType::key_type& key)

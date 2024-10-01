@@ -1,4 +1,5 @@
 #pragma once
+#include "TemplateTypes.hpp"
 #include "Utility/Math.h"
 
 template <UINT32 Bits>
@@ -179,8 +180,7 @@ public:
 		return !(*this == r);
 	}
 
-	template <typename T,
-		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+	template <std::integral T>
 	RationalNumber& operator=(const T& val) noexcept
 	{
 		this->numerator = val;
@@ -188,8 +188,7 @@ public:
 		return *this;
 	}
 
-	template <typename T,
-		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+	template <std::integral T>
 	RationalNumber& operator=(T&& val) noexcept
 	{
 		this->numerator = val;
@@ -197,36 +196,31 @@ public:
 		return *this;
 	}
 
-	template <typename T,
-		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+	template <std::integral T>
 	RationalNumber operator*(const T& value) const
 	{
 		return (*this) * RationalNumber(value);
 	}
 
-	template <typename Flt,
-		typename std::enable_if_t<std::is_floating_point<Flt>::value>* = nullptr>
+	template <std::floating_point Flt>
 	friend Flt operator*(Flt value, const RationalNumber& myVal)
 	{
 		return value * (Flt)myVal.numerator / (Flt)myVal.denominator;
 	}
 
-	template <typename T,
-		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+	template <std::integral T>
 	constexpr bool operator==(const T& value) const
 	{
 		return ((*this).numerator - (value * ((*this).denominator))) == 0;
 	}
 
-	template <typename T,
-		typename std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+	template <std::integral T>
 	constexpr bool operator!=(const T& value) const
 	{
 		return !(*this == value);
 	}
 
-	template <typename Flt,
-		typename std::enable_if_t<std::is_floating_point<Flt>::value>* = nullptr>
+	template <std::floating_point Flt>
 	operator Flt() const { return (Flt)numerator / (Flt)denominator; }
 
 private:
