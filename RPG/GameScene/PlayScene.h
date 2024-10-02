@@ -121,6 +121,10 @@ private:
 	{
 		return refTime - accRange.GetAccuracyRange(judge);
 	}
+	inline MilliDouble GetLateJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
+	{
+		return refTime + accRange.GetAccuracyRange(judge);
+	}
 
 //Game mode related
 private:
@@ -231,6 +235,7 @@ private:
 private:
 	MilliDouble debugMs{ 0 };
 	DwLayout2D debugText;
+	chrono::milliseconds differenceFromTime{};
 	void InitDebugText();
 	void UpdateDebugText();
 

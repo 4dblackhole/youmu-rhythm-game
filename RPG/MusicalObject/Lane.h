@@ -79,7 +79,7 @@ private:
 	void ResetNoteVisible();
 
 	set<size_t> targetNoteTypeList;
-	void RemoveDuplicatedTargetKey(const MusicScore::NoteContainer& wholeNoteList);
+	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);
 	void CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList);
 
 	map<size_t, NoteDrawDesc> noteDrawDescMap;

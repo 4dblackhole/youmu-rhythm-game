@@ -62,7 +62,7 @@ void PlayScene::InitTaikoModeLanes()
 	testLane.laneSprite.GetWorld3d().SetLocalPosition({ LaneWidth,100,0 });
 	testLane.laneSprite.GetWorld3d().SetAlignX(AlignModeX::Left);
 	testLane.laneSprite.GetWorld3d().SetParentDrawWorld();
-	testLane.SetJudgePosition(72.0);
+	testLane.SetJudgePosition(120.0);
 
 	testLane.judgeLineSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
 	testLane.judgeLineSprite.GetWorld3d().SetLocalPosition({ 0, (float)testLane.GetJudgePosition(), 0});
@@ -766,25 +766,23 @@ void PlayScene::ExitStatusStart()
 
 void PlayScene::UpdateDebugText()
 {
-	if (testLane.NoteList().cend() == testLane.CurrentNoteConst())
+	if (testLane.CurrentNoteConst() == testLane.NoteList().cend())
 	{
 		debugText.SetText(L"No Target Note");
 		return;
 	}
-	else
-	{
-		wstring tempstr = L"debug.";
-		debugText.SetText(tempstr);
-	}
-	
-	testLane.CurrentNoteConst()->note->noteType;
+
+	const Note& note = *testLane.CurrentNoteConst()->note;
+	wstringstream wss;
+	wss << L"Measure: " << note.mp.measureIdx << " Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
+		<< L" Type: " << note.noteType << L" diff: " << differenceFromTime.count();
+	debugText.SetText(wss.str());
 }
 
 void PlayScene::UpdateOnStart(float dt)
 {
 	rhythmTimer.Tick();
 	UpdateTotalMusicTime();
-	UpdateDebugText();
 
 	if (KEYBOARD.Down(VK_ESCAPE))
 	{
@@ -813,8 +811,22 @@ void PlayScene::UpdateOnStart(float dt)
 		noteSprite.Diffuse.w = 0.5f;
 	}
 
-	if (KEYBOARD.Hold('3'))debugMsSpeed = max(200, debugMsSpeed - 4000.0 * dt);
-	if (KEYBOARD.Hold('4'))debugMsSpeed = min(4000, debugMsSpeed + 4000.0 * dt);
+	if (KEYBOARD.Down('3'))
+	{
+		//noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
+		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		debugMs = MilliDouble(debugMs.count() - 1.0); 
+	}
+
+	if (KEYBOARD.Down('4'))
+	{
+		//noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
+		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		debugMs = MilliDouble(debugMs.count() + 1.0);
+	}
+
+	if (KEYBOARD.Hold(VK_OEM_MINUS))debugMsSpeed = max(200, debugMsSpeed - 4000.0 * dt);
+	if (KEYBOARD.Hold(VK_OEM_PLUS))debugMsSpeed = min(4000, debugMsSpeed + 4000.0 * dt);
 
 	if (KEYBOARD.Hold(VK_F1))
 	{
@@ -828,7 +840,12 @@ void PlayScene::UpdateOnStart(float dt)
 	}
 #endif
 
+#ifdef _DEBUG
 	const MilliDouble& refTime = debugMs;
+#else
+	const MilliDouble& refTime = totalMusicTime;
+#endif 
+
 
 	NoteProcessTaikoMode(refTime);
 	//PlayTaikoModeHitSound();
@@ -837,7 +854,7 @@ void PlayScene::UpdateOnStart(float dt)
 
 void PlayScene::NoteProcessTaikoMode(const MilliDouble refTime)
 {
-	MoveTargetNote(refTime, AccuracyRange::RangeName::Great);
+	MoveTargetNote(refTime, AccuracyRange::RangeName::Good);
 
 	for (const auto& key : keyNoteTypeMap.at(LeftD)) if (KEYBOARD.Down(key)) NoteProcessTaikoModeDon(refTime);
 	for (const auto& key : keyNoteTypeMap.at(RightD)) if (KEYBOARD.Down(key)) NoteProcessTaikoModeDon(refTime);
@@ -865,28 +882,54 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	using namespace chrono;
 
 	const vector<Lane::NoteDesc>& noteDescList = testLane.NoteListConst();
-	const MilliDouble& judgePriorityMs = accRange.GetAccuracyRange(judgepriority);
+
+	const microseconds noteWholeJudgeAreaMs = microseconds((microseconds::rep)duration_cast<MicroDouble>
+		(GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::MAX)).count());
+
 	const microseconds earlyJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(GetEarlyJudgeTiming(refTime, judgepriority)).count());
 
-	const vector<Lane::NoteDesc>::const_iterator targetNoteCIter
-		= lower_bound
-		(
-			(vector<Lane::NoteDesc>::const_iterator)currentNote,
-			testLane.NoteListConst().cend(),
-			earlyJudgeTimeUs,
-			Lane::NoteDesc::CompareLowerBound<microseconds,std::less<>>
-		);
+	const microseconds lateJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
+		(GetLateJudgeTiming(refTime, judgepriority)).count());
 
-	while (currentNote != targetNoteCIter)
-	{
-		//Miss note
-		[&]()
+	//MoveCurrentNoteIterWithLowerBound
+	[&]()
+		{
+			vector<Lane::NoteDesc>::iterator targetNoteIter;
+			const vector<Lane::NoteDesc>::iterator& targetNotePriorityIter
+				= lower_bound
+				(
+					testLane.NoteList().begin(),
+					testLane.NoteList().end(),
+					earlyJudgeTimeUs,
+					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
+				);
+
+			if (targetNotePriorityIter->timing <= lateJudgeTimeUs)
 			{
-				//currentNote->visible = false;
-			}();
-		++currentNote;
+				targetNoteIter = targetNotePriorityIter;
+				return;
+			}
+
+			const vector<Lane::NoteDesc>::iterator& targetNoteWholeAreaIter
+				= lower_bound
+				(
+					testLane.NoteList().begin(),
+					testLane.NoteList().end(),
+					noteWholeJudgeAreaMs,
+					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
+				);
+			targetNoteIter = targetNoteWholeAreaIter;
+			
+			currentNote = targetNoteIter;
+
+		}();
+
+	if (testLane.CurrentNoteConst() == testLane.NoteList().cend())
+	{
+		differenceFromTime = milliseconds(milliseconds::rep(refTime.count())) - duration_cast<milliseconds>(currentNote->timing);
 	}
+	UpdateDebugText();
 }
 
 void PlayScene::PlayTaikoModeDonSound()
@@ -925,9 +968,12 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 
 	noteSprite.Render(deviceContext, cam);
 	noteOverlaySprite.Render(deviceContext, cam);
-	
+
+#ifdef _DEBUG
 	const MilliDouble& refTime = debugMs;
-	//const MilliDouble& refTime = totalMusicTime;
+#else
+	const MilliDouble& refTime = totalMusicTime;
+#endif 
 
 	UpdateInstancedBuffer_MeasureLine(measureLineInstancedBuffer.Get(), musicScore->measures, refTime, testLane);
 	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer.Get(), 0, measureLineInstanceCount, textureList.GetTexture(TextureName::MeasureLine).GetRefSRV());

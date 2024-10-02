@@ -61,7 +61,7 @@ void Lane::LoadNotes(const MusicScore* score)
 	//noteType[1] - Note[N] List
 	const MusicScore::NoteContainer& wholeNoteList = score->notesPerTypeMap;
 
-	RemoveDuplicatedTargetKey(wholeNoteList);
+	RemoveUnusedNoteType(wholeNoteList);
 	CalculateTotalExpectedNotes(wholeNoteList);
 
 	//object containing first note of each note
@@ -124,18 +124,23 @@ void Lane::AddNoteDescFromNote(const MusicScore* score, const Note* const& targe
 	noteList.emplace_back(NoteDesc{ targetNote, timing, true });
 }
 
-void Lane::RemoveDuplicatedTargetKey(const MusicScore::NoteContainer& wholeNoteList)
+void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)
 {
-	//in case there is no Note which is using current key
+	//in case there is no Note which is using current type
 	/*
-	if musicscroll is using 0~7key and there is keytype 8 in the list,
-	you should remove the number 8 from the list
+	when musicscroll is using 0~7key and there is keytype 8 in the list,
+	i decided to remove the number 8 from the list
 	*/
-	for (const size_t& keyType : targetNoteTypeList)
+	vector<size_t> deleteTypeList;
+	deleteTypeList.reserve(targetNoteTypeList.size());
+	for (const size_t& noteType : targetNoteTypeList)
 	{
-		MusicScore::NoteContainer::const_iterator it = wholeNoteList.find(keyType);
-		if (it == wholeNoteList.cend()) RemoveNoteType(keyType);
+		MusicScore::NoteContainer::const_iterator it = wholeNoteList.find(noteType);
+		if (it == wholeNoteList.cend()) deleteTypeList.emplace_back(noteType);
 	}
+
+	for (const size_t& noteType : deleteTypeList) RemoveNoteType(noteType);
+	
 }
 
 void Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList)
