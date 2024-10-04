@@ -94,7 +94,7 @@ void Lane::LoadNotes(const MusicScore* score)
 	{
 		//select most earliest note
 		const Note* const& mostEarliestNote = targetNoteListTimeSort.top();
-		AddNoteDescFromNote(score, mostEarliestNote);
+		AddNoteDescFromNoteTaikoMode(score, mostEarliestNote);
 
 		//add new note
 		const size_t& key_of_recentlyPoppedNote = mostEarliestNote->noteType; 
@@ -114,14 +114,19 @@ void Lane::LoadNotes(const MusicScore* score)
 
 void Lane::ResetNoteVisible()
 {
-	for (auto& it : noteList)it.visible = true;
+	for (auto& it : noteList)it.isPassed = true;
 }
 
-void Lane::AddNoteDescFromNote(const MusicScore* score, const Note* const& targetNote)
+void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote)
 {
 	const size_t& key_of_recentlyPoppedNote = targetNote->noteType;
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
-	noteList.emplace_back(NoteDesc{ targetNote, timing, true });
+
+	int hitcount = 1;
+	if (targetNote->noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote->noteType == (int)PlayScene::TaikoNoteType::BigKat)
+		hitcount = (int)PlayScene::HitCount::BigNote;
+	
+	noteList.emplace_back(NoteDesc{ targetNote, timing, true, hitcount });
 }
 
 void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)

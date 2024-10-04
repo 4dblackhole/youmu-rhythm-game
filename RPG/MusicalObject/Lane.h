@@ -13,7 +13,8 @@ public:
 	public:
 		const Note* note; //weak ptr
 		const chrono::microseconds timing;
-		bool visible;
+		bool isPassed = true;
+		int hitCount = 1;
 
 		template <typename MemberType, typename Comparator = std::less<MemberType>>
 		static bool CompareLowerBound(const NoteDesc& s, const MemberType& v)
@@ -74,8 +75,8 @@ private:
 	double judgePosition = 0.0;
 
 private:
-	vector<NoteDesc> noteList; //weak ptr container
-	void AddNoteDescFromNote(const MusicScore* score, const Note* const& targetNote);
+	vector<NoteDesc> noteList;
+	void AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote);
 	void ResetNoteVisible();
 
 	set<size_t> targetNoteTypeList;

@@ -30,6 +30,15 @@ public:
 	const MilliDouble& GetAccuracyRange(RangeName n) const { return accRange[min((int)n, (int)RangeName::MAX - 1)]; }
 	const size_t GetAccuracyLevel() const { return accLevel; }
 
+	inline MilliDouble GetEarlyJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
+	{
+		return refTime - GetAccuracyRange(judge);
+	}
+	inline MilliDouble GetLateJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
+	{
+		return refTime + GetAccuracyRange(judge);
+	}
+
 private:
 	MilliDouble accRange[(int)RangeName::MAX];
 	size_t accLevel;

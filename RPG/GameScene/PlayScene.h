@@ -117,20 +117,14 @@ private:
 	void PlayMusic();
 
 	AccuracyRange accRange;
-	inline MilliDouble GetEarlyJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
-	{
-		return refTime - accRange.GetAccuracyRange(judge);
-	}
-	inline MilliDouble GetLateJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
-	{
-		return refTime + accRange.GetAccuracyRange(judge);
-	}
 
 //Game mode related
 private:
 	Lane testLane;
 	void InitTaikoModeLanes();
 
+public:
+	//TODO: move these enums to PlayMode class
 	enum class TaikoNoteType
 	{
 		Don = 1,
@@ -143,6 +137,15 @@ private:
 		MAX
 	};
 
+	enum class HitCount
+	{
+		NoCount,
+		Note,
+		BigNote,
+		MAX
+	};
+
+private:
 	map<wstring, vector<::byte>> keyNoteTypeMap;
 	DECLARE_VARIABLE_WSTRING(LeftD);
 	DECLARE_VARIABLE_WSTRING(RightD);
@@ -150,9 +153,9 @@ private:
 	DECLARE_VARIABLE_WSTRING(RightK);
 	void InitTaikoModeKeyNoteTypeMap();
 	void ReleaseTaikoModeKeyNoteTypeMap();
-	void NoteProcessTaikoMode(const MilliDouble refTime);
-	void NoteProcessTaikoModeDon(const MilliDouble refTime);
-	void NoteProcessTaikoModeKat(const MilliDouble refTime);
+	void NoteProcessTaikoMode(const MilliDouble& refTime);
+	void NoteProcessTaikoModeDon(const MilliDouble& refTime);
+	void NoteProcessTaikoModeKat(const MilliDouble& refTime);
 	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 
 	enum class DefaultHitSound
@@ -166,8 +169,9 @@ private:
 	map<size_t, FMOD::Sound*> defaultTaikoModeHitSoundList;
 	void InitTaikoModeHitSounds();
 	void ReleaseTaikoModeHitSounds();
-	void PlayTaikoModeDonSound();
-	void PlayTaikoModeKatSound();
+	void PlayTaikoModeDonSound(const MilliDouble& refTime);
+	void PlayTaikoModeKatSound(const MilliDouble& refTime);
+	bool CheckNoteType(const MilliDouble& refTime, UINT targetType, int targetHitCount);
 
 	class TextureName
 	{
