@@ -116,7 +116,7 @@ private:
 	void StopPlayMusicThread();
 	void PlayMusic();
 
-	AccuracyRange accRange;
+	const AccuracyRange accRange;
 
 //Game mode related
 private:
@@ -153,9 +153,9 @@ private:
 	DECLARE_VARIABLE_WSTRING(RightK);
 	void InitTaikoModeKeyNoteTypeMap();
 	void ReleaseTaikoModeKeyNoteTypeMap();
-	void NoteProcessTaikoMode(const MilliDouble& refTime);
-	void NoteProcessTaikoModeDon(const MilliDouble& refTime);
-	void NoteProcessTaikoModeKat(const MilliDouble& refTime);
+	void NoteUpdateTaikoMode(const MilliDouble& refTime);
+	void NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UINT>& targetTypeList);
+	bool CheckNoteType(const MilliDouble& refTime, const vector<UINT>& targetTypeList);
 	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 
 	enum class DefaultHitSound
@@ -171,7 +171,7 @@ private:
 	void ReleaseTaikoModeHitSounds();
 	void PlayTaikoModeDonSound(const MilliDouble& refTime);
 	void PlayTaikoModeKatSound(const MilliDouble& refTime);
-	bool CheckNoteType(const MilliDouble& refTime, UINT targetType, int targetHitCount);
+	bool CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT targetType, int targetHitCount);
 
 	class TextureName
 	{

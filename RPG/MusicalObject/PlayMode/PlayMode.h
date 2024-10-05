@@ -15,4 +15,6 @@ public:
 	vector<Lane*> LaneList;
 	AccuracyRange AccRange;
 	TextureManager TextureList;
+
+	int Combo = 0;
 };

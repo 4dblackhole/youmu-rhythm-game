@@ -15,3 +15,10 @@ void AccuracyRange::ChangeAccuracyLevel(size_t level)
 	}
 	accLevel = level;
 }
+
+bool AccuracyRange::RangeCheck(const MilliDouble refTime, const chrono::microseconds& noteTime, const AccuracyRange::RangeName& judge) const
+{
+	//out of range
+	if (noteTime < GetEarlyJudgeTiming(refTime, judge) || noteTime > GetLateJudgeTiming(refTime, judge)) return false;
+	else return true;
+}

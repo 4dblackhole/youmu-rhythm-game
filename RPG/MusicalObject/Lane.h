@@ -11,11 +11,28 @@ public:
 	struct NoteDesc
 	{
 	public:
+		NoteDesc(const Note* p = nullptr, const chrono::microseconds t = chrono::microseconds(0), bool pass = false, bool inaccurate = false, int hitC = 1);
+		~NoteDesc() {}
+
+		const Note* NoteRef() const { return note; }
+		const chrono::microseconds& Timing() const { return timing; }
+
+		bool& IsPassed() { return isPassed; }
+		bool& IsInaccurate() { return isInaccurate; }
+		int& HitCount() { return hitCount; }
+
+		const bool& IsPassedConst() const { return isPassed; }
+		const bool& IsInaccurateConst() const { return isInaccurate; }
+		const int& HitCountConst() const { return hitCount; }
+
+	private:
 		const Note* note; //weak ptr
 		const chrono::microseconds timing;
-		bool isPassed = true;
-		int hitCount = 1;
+		bool isPassed;
+		bool isInaccurate;
+		int hitCount;
 
+	public:
 		template <typename MemberType, typename Comparator = std::less<MemberType>>
 		static bool CompareLowerBound(const NoteDesc& s, const MemberType& v)
 		{
@@ -27,6 +44,8 @@ public:
 		{
 			return Comparator()(v, s.timing);
 		}
+
+		static constexpr int DefaultHitCount = 1;
 	};
 	
 	struct NoteDrawDesc
@@ -65,6 +84,9 @@ public:
 	vector<NoteDesc>::iterator& CurrentNote() { return currentNote; }
 	const vector<NoteDesc>::const_iterator& CurrentNoteConst() const { return currentNote; }
 
+	void MoveCurrentNoteForward();
+	void MoveCurrentNoteBackward();
+
 	Sprite laneSprite;
 	Sprite judgeLineSprite;
 
@@ -77,7 +99,10 @@ private:
 private:
 	vector<NoteDesc> noteList;
 	void AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote);
-	void ResetNoteVisible();
+	void SetNotePassStatus(bool v);
+	void SetNoteInaccurate(bool v);
+	void InitNoteHitCount();
+	int GetNoteHitCountFromType(const Note& targetNote);
 
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);

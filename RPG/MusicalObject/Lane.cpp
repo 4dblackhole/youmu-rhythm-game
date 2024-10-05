@@ -5,9 +5,16 @@
 
 constexpr float LaneWidth = 180.0f;
 
+Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass, bool inaccurate, int hitC)
+	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCount(hitC)
+{
+}
+
 void Lane::Reset()
 {
-	ResetNoteVisible();
+	SetNotePassStatus(false);
+	SetNoteInaccurate(false);
+	InitNoteHitCount();
 	currentNote = noteList.begin();
 }
 
@@ -112,9 +119,32 @@ void Lane::LoadNotes(const MusicScore* score)
 
 }
 
-void Lane::ResetNoteVisible()
+void Lane::SetNotePassStatus(bool v)
 {
-	for (auto& it : noteList)it.isPassed = true;
+	for (auto& it : noteList) it.IsPassed() = v;
+}
+
+void Lane::SetNoteInaccurate(bool v)
+{
+	for (auto& it : noteList) it.IsInaccurate() = v;
+}
+
+void Lane::InitNoteHitCount()
+{
+	for (NoteDesc& it : noteList)
+	{
+		const Note* const& targetNote = it.NoteRef();
+		it.HitCount() = GetNoteHitCountFromType(*targetNote);
+	}
+}
+
+int Lane::GetNoteHitCountFromType(const Note& targetNote)
+{
+	int hitcount = NoteDesc::DefaultHitCount;
+	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote.noteType == (int)PlayScene::TaikoNoteType::BigKat)
+		hitcount = (int)PlayScene::HitCount::BigNote;
+
+	return hitcount;
 }
 
 void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote)
@@ -122,11 +152,7 @@ void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* con
 	const size_t& key_of_recentlyPoppedNote = targetNote->noteType;
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
 
-	int hitcount = 1;
-	if (targetNote->noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote->noteType == (int)PlayScene::TaikoNoteType::BigKat)
-		hitcount = (int)PlayScene::HitCount::BigNote;
-	
-	noteList.emplace_back(NoteDesc{ targetNote, timing, true, hitcount });
+	noteList.emplace_back(NoteDesc{ targetNote, timing, false, false, GetNoteHitCountFromType(*targetNote) });
 }
 
 void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)
@@ -159,6 +185,17 @@ void Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNot
 		totalExpectedNotes += currentNoteList.size();
 	}
 	noteList.reserve(totalExpectedNotes);
+}
+
+void Lane::MoveCurrentNoteForward()
+{
+	currentNote->IsPassed() = true;
+	++currentNote;
+}
+
+void Lane::MoveCurrentNoteBackward()
+{
+	(currentNote--)->IsPassed() = false;
 }
 
 double Lane::GetJudgePosition() const

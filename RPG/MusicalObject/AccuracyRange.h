@@ -38,6 +38,7 @@ public:
 	{
 		return refTime + GetAccuracyRange(judge);
 	}
+	bool RangeCheck(const MilliDouble refTime, const chrono::microseconds& noteTime, const AccuracyRange::RangeName& judge) const;
 
 private:
 	MilliDouble accRange[(int)RangeName::MAX];
