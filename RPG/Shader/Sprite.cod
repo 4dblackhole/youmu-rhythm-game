@@ -19,10 +19,10 @@ cbuffer cbPerFrame
 Texture2DArray gTexture;
 SamplerState samAnisotropic
 {
-    Filter   = uint(ANISOTROPIC /* 85 */);
-    MaxAnisotropy = uint(4);
-    AddressU = uint(WRAP /* 1 */);
-    AddressV = uint(WRAP /* 1 */);
+    Filter   = uint(MIN_MAG_MIP_LINEAR /* 21 */);
+    AddressU = uint(CLAMP /* 3 */);
+    AddressV = uint(CLAMP /* 3 */);
+    AddressW = uint(CLAMP /* 3 */);
 };
 
 //
@@ -137,7 +137,7 @@ fxgroup
                 //   o1.x <- <VS_Instanced return value>.Color.x; o1.y <- <VS_Instanced return value>.Color.y; o1.z <- <VS_Instanced return value>.Color.z; o1.w <- <VS_Instanced return value>.Color.w; 
                 //   o0.x <- <VS_Instanced return value>.Pos.x; o0.y <- <VS_Instanced return value>.Pos.y; o0.z <- <VS_Instanced return value>.Pos.z; o0.w <- <VS_Instanced return value>.Pos.w
                 //
-                #line 51 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 52 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mul r0.xyzw, v0.xxxx, v3.xyzw
                 mul r1.xyzw, v0.yyyy, v4.xyzw
                 add r0.xyzw, r0.xyzw, r1.xyzw
@@ -146,28 +146,28 @@ fxgroup
                 mul r1.xyzw, v6.xyzw, l(1.000000, 1.000000, 1.000000, 1.000000)
                 add r0.xyzw, r0.xyzw, r1.xyzw  // r0.x <- vout.Pos.x; r0.y <- vout.Pos.y; r0.z <- vout.Pos.z; r0.w <- vout.Pos.w
                 
-                #line 52
+                #line 53
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw  // r1.x <- vout.Pos.x
                 dp4 r1.y, r0.xyzw, cb0[5].xyzw  // r1.y <- vout.Pos.y
                 dp4 r1.z, r0.xyzw, cb0[6].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[7].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 53
+                #line 54
                 dp4 r0.x, r1.xyzw, cb0[8].xyzw  // r0.x <- vout.Pos.x
                 dp4 r0.y, r1.xyzw, cb0[9].xyzw  // r0.y <- vout.Pos.y
                 dp4 r0.z, r1.xyzw, cb0[10].xyzw  // r0.z <- vout.Pos.z
                 dp4 r0.w, r1.xyzw, cb0[11].xyzw  // r0.w <- vout.Pos.w
                 
-                #line 55
+                #line 56
                 mov r1.xyzw, v1.xyzw  // r1.x <- vout.Color.x; r1.y <- vout.Color.y; r1.z <- vout.Color.z; r1.w <- vout.Color.w
                 
-                #line 57
+                #line 58
                 mov r2.xyzw, v11.xyzw  // r2.x <- vout.Diffuse.x; r2.y <- vout.Diffuse.y; r2.z <- vout.Diffuse.z; r2.w <- vout.Diffuse.w
                 
-                #line 58
+                #line 59
                 mov r3.x, v12.x  // r3.x <- vout.TextureID
                 
-                #line 60
+                #line 61
                 mul r3.yz, v2.xxxx, v7.xxyx
                 mul r4.xy, v2.yyyy, v8.xyxx
                 add r3.yz, r3.yyzy, r4.xxyx
@@ -176,7 +176,7 @@ fxgroup
                 mul r4.xy, v10.xyxx, l(1.000000, 1.000000, 0.000000, 0.000000)
                 add r3.yz, r3.yyzy, r4.xxyx  // r3.y <- vout.Tex.x; r3.z <- vout.Tex.y
                 
-                #line 62
+                #line 63
                 mov o0.xyzw, r0.xyzw
                 mov o1.xyzw, r1.xyzw
                 mov o3.xyzw, r2.xyzw
@@ -236,7 +236,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Texture return value>.x; o0.y <- <PS_Texture return value>.y; o0.z <- <PS_Texture return value>.z; o0.w <- <PS_Texture return value>.w
                 //
-                #line 86 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 87 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 utof r0.z, v4.x
                 mov r0.xy, v2.xyxx
                 sample_indexable(texture2darray)(float,float,float,float) r0.xyzw, r0.xyzx, t0.xyzw, s0
@@ -323,7 +323,7 @@ fxgroup
                 //   o1.x <- <VS return value>.Color.x; o1.y <- <VS return value>.Color.y; o1.z <- <VS return value>.Color.z; o1.w <- <VS return value>.Color.w; 
                 //   o0.x <- <VS return value>.Pos.x; o0.y <- <VS return value>.Pos.y; o0.z <- <VS return value>.Pos.z; o0.w <- <VS return value>.Pos.w
                 //
-                #line 71 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 72 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // r1.x <- vout.Pos.x
@@ -331,34 +331,34 @@ fxgroup
                 dp4 r1.z, r0.xyzw, cb0[2].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[3].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 72
+                #line 73
                 dp4 r0.x, r1.xyzw, cb0[4].xyzw  // r0.x <- vout.Pos.x
                 dp4 r0.y, r1.xyzw, cb0[5].xyzw  // r0.y <- vout.Pos.y
                 dp4 r0.z, r1.xyzw, cb0[6].xyzw  // r0.z <- vout.Pos.z
                 dp4 r0.w, r1.xyzw, cb0[7].xyzw  // r0.w <- vout.Pos.w
                 
-                #line 73
+                #line 74
                 dp4 r1.x, r0.xyzw, cb0[8].xyzw  // r1.x <- vout.Pos.x
                 dp4 r1.y, r0.xyzw, cb0[9].xyzw  // r1.y <- vout.Pos.y
                 dp4 r1.z, r0.xyzw, cb0[10].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[11].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 75
+                #line 76
                 mov r0.xyzw, v1.xyzw  // r0.x <- vout.Color.x; r0.y <- vout.Color.y; r0.z <- vout.Color.z; r0.w <- vout.Color.w
                 
-                #line 76
+                #line 77
                 mov r2.xyzw, cb0[16].xyzw  // r2.x <- vout.Diffuse.x; r2.y <- vout.Diffuse.y; r2.z <- vout.Diffuse.z; r2.w <- vout.Diffuse.w
                 
-                #line 77
+                #line 78
                 mov r3.x, cb0[17].x  // r3.x <- vout.TextureID
                 
-                #line 79
+                #line 80
                 mov r4.xy, v2.xyxx
                 mov r4.zw, l(0,0,0,1.000000)
                 dp4 r5.x, r4.xyzw, cb0[12].xyzw  // r5.x <- vout.Tex.x
                 dp4 r5.y, r4.xyzw, cb0[13].xyzw  // r5.y <- vout.Tex.y
                 
-                #line 81
+                #line 82
                 mov o0.xyzw, r1.xyzw
                 mov o1.xyzw, r0.xyzw
                 mov o3.xyzw, r2.xyzw
@@ -418,7 +418,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Texture return value>.x; o0.y <- <PS_Texture return value>.y; o0.z <- <PS_Texture return value>.z; o0.w <- <PS_Texture return value>.w
                 //
-                #line 86 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 87 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 utof r0.z, v4.x
                 mov r0.xy, v2.xyxx
                 sample_indexable(texture2darray)(float,float,float,float) r0.xyzw, r0.xyzx, t0.xyzw, s0
@@ -505,7 +505,7 @@ fxgroup
                 //   o1.x <- <VS return value>.Color.x; o1.y <- <VS return value>.Color.y; o1.z <- <VS return value>.Color.z; o1.w <- <VS return value>.Color.w; 
                 //   o0.x <- <VS return value>.Pos.x; o0.y <- <VS return value>.Pos.y; o0.z <- <VS return value>.Pos.z; o0.w <- <VS return value>.Pos.w
                 //
-                #line 71 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 72 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // r1.x <- vout.Pos.x
@@ -513,34 +513,34 @@ fxgroup
                 dp4 r1.z, r0.xyzw, cb0[2].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[3].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 72
+                #line 73
                 dp4 r0.x, r1.xyzw, cb0[4].xyzw  // r0.x <- vout.Pos.x
                 dp4 r0.y, r1.xyzw, cb0[5].xyzw  // r0.y <- vout.Pos.y
                 dp4 r0.z, r1.xyzw, cb0[6].xyzw  // r0.z <- vout.Pos.z
                 dp4 r0.w, r1.xyzw, cb0[7].xyzw  // r0.w <- vout.Pos.w
                 
-                #line 73
+                #line 74
                 dp4 r1.x, r0.xyzw, cb0[8].xyzw  // r1.x <- vout.Pos.x
                 dp4 r1.y, r0.xyzw, cb0[9].xyzw  // r1.y <- vout.Pos.y
                 dp4 r1.z, r0.xyzw, cb0[10].xyzw  // r1.z <- vout.Pos.z
                 dp4 r1.w, r0.xyzw, cb0[11].xyzw  // r1.w <- vout.Pos.w
                 
-                #line 75
+                #line 76
                 mov r0.xyzw, v1.xyzw  // r0.x <- vout.Color.x; r0.y <- vout.Color.y; r0.z <- vout.Color.z; r0.w <- vout.Color.w
                 
-                #line 76
+                #line 77
                 mov r2.xyzw, cb0[16].xyzw  // r2.x <- vout.Diffuse.x; r2.y <- vout.Diffuse.y; r2.z <- vout.Diffuse.z; r2.w <- vout.Diffuse.w
                 
-                #line 77
+                #line 78
                 mov r3.x, cb0[17].x  // r3.x <- vout.TextureID
                 
-                #line 79
+                #line 80
                 mov r4.xy, v2.xyxx
                 mov r4.zw, l(0,0,0,1.000000)
                 dp4 r5.x, r4.xyzw, cb0[12].xyzw  // r5.x <- vout.Tex.x
                 dp4 r5.y, r4.xyzw, cb0[13].xyzw  // r5.y <- vout.Tex.y
                 
-                #line 81
+                #line 82
                 mov o0.xyzw, r1.xyzw
                 mov o1.xyzw, r0.xyzw
                 mov o3.xyzw, r2.xyzw
@@ -588,7 +588,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Color return value>.x; o0.y <- <PS_Color return value>.y; o0.z <- <PS_Color return value>.z; o0.w <- <PS_Color return value>.w
                 //
-                #line 92 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 93 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mul o0.xyzw, v1.xyzw, v3.xyzw
                 ret 
                 // Approximately 2 instruction slots used

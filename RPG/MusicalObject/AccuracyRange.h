@@ -3,6 +3,7 @@
 
 class AccuracyRange
 {
+
 public:
 	enum class RangeName
 	{
@@ -13,12 +14,27 @@ public:
 		Bad, //not played incorrectly but inaccurate
 		MAX
 	};
+public:
 
+	struct Info
+	{
+		AccuracyRange::RangeName id;
+		MilliDouble range{};
+		double percentage{};
+		XMFLOAT4 color = MyColor4::White;
+	};
+	static constexpr AccuracyRange::Info NoAccInfo{ RangeName::MAX, MilliDouble(0.0), 0, {0,0,0,0} };
 
 	//ex) MaxRange=4.5 -> +-4.5ms, total range is 9ms
 	static constexpr size_t defaultAccLevel = 50;
-	static constexpr MilliDouble DefaultAccRange[(int)RangeName::MAX] =
-	{ MilliDouble(4.5), MilliDouble(9.5), MilliDouble(23.5), MilliDouble(54.5), MilliDouble(90.0) };
+	static constexpr AccuracyRange::Info DefaultAccInfo[(int)RangeName::MAX] =
+	{
+		{ RangeName::Max, MilliDouble(4.5), 1.0, MyColor4::White },
+		{ RangeName::Perfect, MilliDouble(9.5), 0.99, {0.375, 0.875, 1, 1} },
+		{ RangeName::Great, MilliDouble(23.5), 0.9,{0.15625,1,0.15625,1} },
+		{ RangeName::Good, MilliDouble(54.5), 0, {1,0.75,0.125,1} },
+		{ RangeName::Bad, MilliDouble(90.0), 0, {0.25,0.09375,1,1}  }
+	};
 
 public:
 	AccuracyRange(size_t level = defaultAccLevel);
@@ -26,8 +42,8 @@ public:
 
 	void ChangeAccuracyLevel(size_t level);
 
-	const MilliDouble* GetAccuracyRange() const { return accRange; }
-	const MilliDouble& GetAccuracyRange(RangeName n) const { return accRange[min((int)n, (int)RangeName::MAX - 1)]; }
+	const MilliDouble& GetAccuracyRange(RangeName n) const { return accRange[min((int)n, (int)RangeName::MAX - 1)].range; }
+	const double& GetAccuracyPercentage(RangeName n) const { return accRange[min((int)n, (int)RangeName::MAX - 1)].percentage; }
 	const size_t GetAccuracyLevel() const { return accLevel; }
 
 	inline MilliDouble GetEarlyJudgeTiming(const MilliDouble refTime, const AccuracyRange::RangeName& judge) const
@@ -39,8 +55,13 @@ public:
 		return refTime + GetAccuracyRange(judge);
 	}
 	bool RangeCheck(const MilliDouble refTime, const chrono::microseconds& noteTime, const AccuracyRange::RangeName& judge) const;
+	const AccuracyRange::Info* GetRangeInfo(const MilliDouble refTime, const chrono::microseconds& noteTime) const;
 
 private:
-	MilliDouble accRange[(int)RangeName::MAX];
+	AccuracyRange::Info accRange[(int)RangeName::MAX];
 	size_t accLevel;
+
+	void InitAccuracyDefaultValue();
+
+	const AccuracyRange::Info* GetRangeInfoBinarySearch(const MilliDouble refTime, const chrono::microseconds& noteTime,int left, int right) const;
 };

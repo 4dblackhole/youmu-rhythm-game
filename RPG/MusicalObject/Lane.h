@@ -89,6 +89,10 @@ public:
 
 	Sprite laneSprite;
 	Sprite judgeLineSprite;
+	Sprite laneLightSprite;
+	static constexpr double laneLightFadeSpeed = 8.0;
+
+	void ChangeLaneLightColor(const XMFLOAT4& color = MyColor4::White);
 
 public:
 	double GetJudgePosition() const;

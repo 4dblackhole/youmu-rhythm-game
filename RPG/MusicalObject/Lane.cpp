@@ -26,11 +26,13 @@ void Lane::OnResize()
 
 void Lane::Update(float dt)
 {
+	if (laneLightSprite.Diffuse.w > 0)laneLightSprite.Diffuse.w = max(0.0f, laneLightSprite.Diffuse.w - dt * laneLightFadeSpeed);
 }
 
 void Lane::Render(ID3D11DeviceContext* context, const Camera& cam)
 {
 	laneSprite.Render(context, cam);
+	laneLightSprite.Render(context, cam);
 	judgeLineSprite.Render(context, cam);
 }
 
@@ -195,7 +197,13 @@ void Lane::MoveCurrentNoteForward()
 
 void Lane::MoveCurrentNoteBackward()
 {
-	(currentNote--)->IsPassed() = false;
+	--currentNote;
+	currentNote->IsPassed() = false;
+}
+
+void Lane::ChangeLaneLightColor(const XMFLOAT4& color)
+{
+	laneLightSprite.Diffuse = color;
 }
 
 double Lane::GetJudgePosition() const

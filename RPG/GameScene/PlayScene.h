@@ -177,6 +177,7 @@ private:
 	{
 	public:
 		DECLARE_VARIABLE_STRING(LaneBackground);
+		DECLARE_VARIABLE_STRING(LaneLight);
 		DECLARE_VARIABLE_STRING(JudgeLine);
 		DECLARE_VARIABLE_STRING(MeasureLine);
 		DECLARE_VARIABLE_STRING(note);
@@ -212,8 +213,6 @@ private:
 	ScrollSpeedMode scrollSpeedMode = ScrollSpeedMode::RhythmConstant;
 
 private:
-	Sprite noteSprite;
-	Sprite noteOverlaySprite;
 	void InitTaikoModeSprites();
 
 	void InitInstancedBuffer(ID3D11Buffer*&, UINT);

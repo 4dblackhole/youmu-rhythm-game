@@ -12,11 +12,12 @@ Texture2DArray gTexture;
 
 SamplerState samAnisotropic
 {
-    Filter = ANISOTROPIC;
-    MaxAnisotropy = 4;
+    Filter = MIN_MAG_MIP_LINEAR;
+    //MaxAnisotropy = 4;
 
-    AddressU = WRAP;
-    AddressV = WRAP;
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+    AddressW = CLAMP;
 };
 
 struct VertexIn

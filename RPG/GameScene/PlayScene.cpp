@@ -14,12 +14,14 @@ constexpr float LaneWidth = 180.0f;
 constexpr float CircleDiameter = 90.0f;
 constexpr float LargeCircleDiameter = 144.0f;
 
-#define REFTIME_DEBUG
+constexpr double JudgeLinePosition = 80.0;
+
+#define REFTIME_DEBUG2
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
-	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false),
-	noteSprite(0, 0)
+	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false)
+	//,noteSprite(0, 0)
 {
 	threadTimer.Reset();
 
@@ -56,18 +58,6 @@ void PlayScene::InitTaikoModeLanes()
 	testLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
 	testLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
 
-	//testLane.Init();
-
-	testLane.laneSprite.GetWorld3d().SetObjectScale({ LaneWidth, (float)LaneMaxLength });
-	testLane.laneSprite.GetWorld3d().SetCenterPosition({ 0, 0.5f, 0 });
-	testLane.laneSprite.GetWorld3d().SetLocalRotation({ 0, 0, -Math::PI * 0.5f });
-	testLane.laneSprite.GetWorld3d().SetLocalPosition({ LaneWidth,100,0 });
-	testLane.laneSprite.GetWorld3d().SetAlignX(AlignModeX::Left);
-	testLane.laneSprite.GetWorld3d().SetParentDrawWorld();
-	testLane.SetJudgePosition(120.0);
-
-	testLane.judgeLineSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
-	testLane.judgeLineSprite.GetWorld3d().SetLocalPosition({ 0, (float)testLane.GetJudgePosition(), 0});
 }
 
 void PlayScene::InitTaikoModeKeyNoteTypeMap()
@@ -119,17 +109,18 @@ void PlayScene::InitTaikoModeTextures()
 	const wstring skinDir = SkinDir + L"test Skin/";
 
 	textureList.AddTexture(App->GetDevice(), TextureName::LaneBackground, skinDir + L"LaneBackground.png");
+	textureList.AddTexture(App->GetDevice(), TextureName::LaneLight, skinDir + L"LaneLight.png");
+	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
+	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
 
 	textureList.AddTextureArr(
 		TextureName::note,
 		{
-			(skinDir + L"note.png").c_str(), 
-			(skinDir + L"bignote.png").c_str(), 
-			(skinDir + L"noteoverlay.png").c_str() 
+			(skinDir + L"note.png").c_str(),
+			(skinDir + L"bignote.png").c_str(),
+			(skinDir + L"noteoverlay.png").c_str()
 		});
 
-	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
-	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
 }
 
 void PlayScene::ReleaseTaikoModeTextures()
@@ -139,27 +130,34 @@ void PlayScene::ReleaseTaikoModeTextures()
 
 void PlayScene::InitTaikoModeSprites()
 {
+	//TODO: move this function to Lane class
+
+	//testLane.Init();
+
 	const Texture& laneBGTexture = textureList.GetTexture(TextureName::LaneBackground);
-	testLane.laneSprite.RepeatTextureInExtraArea(laneBGTexture.width, laneBGTexture.height);
+	testLane.laneSprite.GetWorld3d().SetObjectScale({ LaneWidth, (float)LaneMaxLength });
+	testLane.laneSprite.GetWorld3d().SetCenterPosition({ 0, 0.5f, 0 });
+	testLane.laneSprite.GetWorld3d().SetLocalRotation({ 0, 0, -Math::PI * 0.5f });
+	testLane.laneSprite.GetWorld3d().SetLocalPosition({ LaneWidth,100,0 });
+	testLane.laneSprite.GetWorld3d().SetAlignX(AlignModeX::Left);
+	testLane.laneSprite.GetWorld3d().SetParentDrawWorld();
 	testLane.laneSprite.SetTexture(&laneBGTexture);
+	testLane.laneSprite.RepeatTextureInExtraArea(laneBGTexture.width, laneBGTexture.height);
+	testLane.SetJudgePosition(JudgeLinePosition);
+
+	const Texture& laneLightTexture = textureList.GetTexture(TextureName::LaneLight);
+	testLane.laneLightSprite.GetWorld3d().SetObjectScale({ LaneWidth,laneLightTexture.height * LaneWidth / laneLightTexture.width });
+	testLane.laneLightSprite.Diffuse.w = 0;
+	testLane.laneLightSprite.GetWorld3d().SetCenterPosition({ 0, 0.5f, 0 });
+	testLane.laneLightSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
+	testLane.laneLightSprite.SetTexture(&laneLightTexture);
 
 	const Texture& judgeLineTexture = textureList.GetTexture(TextureName::JudgeLine);
+	testLane.judgeLineSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
+	testLane.judgeLineSprite.GetWorld3d().SetLocalPosition({ 0, (float)testLane.GetJudgePosition(), 0 });
 	testLane.judgeLineSprite.GetWorld3d().SetObjectScale(LargeCircleDiameter);
 	testLane.judgeLineSprite.SetTexture(&judgeLineTexture);
 
-
-	const Texture& hitCircleTexture = textureList.GetTexture(TextureName::note);
-	noteSprite.GetWorld3d().SetParentWorld(&testLane.laneSprite.GetWorld3d());
-	noteSprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteSprite.SetTexture(&hitCircleTexture);
-	noteSprite.Diffuse = MyColor4::GhostGreen;
-	noteSprite.SetTextureID((UINT)NoteTextureArrID::Note);
-
-	noteOverlaySprite.GetWorld3d().SetParentWorld(&noteSprite.GetWorld3d());
-	noteOverlaySprite.GetWorld3d().SetObjectScale(CircleDiameter);
-	noteOverlaySprite.SetTexture(&hitCircleTexture);
-	noteOverlaySprite.Diffuse = MyColor4::White;
-	noteOverlaySprite.SetTextureID((UINT)NoteTextureArrID::NoteOverlay);
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -652,8 +650,8 @@ void PlayScene::OnResize(float newW, float newH)
 
 	testLane.OnResize();
 
-	noteSprite.OnResize();
-	noteOverlaySprite.OnResize();
+	//noteSprite.OnResize();
+	//noteOverlaySprite.OnResize();
 
 	switch (sceneStatus)
 	{
@@ -800,17 +798,17 @@ void PlayScene::UpdateOnStart(float dt)
 		//noteSprite.GetWorld3d().MoveLocalPosition(0, -400 * dt, 0);
 		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
 		debugMs = MilliDouble(debugMs.count() - debugMsSpeed * dt);
-		noteSprite.Diffuse = MyColor4::MyRed;
-		noteSprite.Diffuse.w = 0.5f;
+		//noteSprite.Diffuse = MyColor4::MyRed;
+		//noteSprite.Diffuse.w = 0.5f;
 	}
 
 	if (KEYBOARD.Hold('2'))
 	{
 		//noteSprite.GetWorld3d().MoveLocalPosition(0, 400 * dt, 0);
 		//noteOverlaySprite.GetWorld3d().OnParentWorldUpdate();
+		//noteSprite.Diffuse = MyColor4::MyBlue;
+		//noteSprite.Diffuse.w = 0.5f;
 		debugMs = MilliDouble(debugMs.count() + debugMsSpeed * dt);
-		noteSprite.Diffuse = MyColor4::MyBlue;
-		noteSprite.Diffuse.w = 0.5f;
 	}
 
 	if (KEYBOARD.Down('3'))
@@ -848,6 +846,7 @@ void PlayScene::UpdateOnStart(float dt)
 	const MilliDouble& refTime = totalMusicTime;
 #endif 
 
+	testLane.Update(dt);
 	NoteUpdateTaikoMode(refTime);
 	//PlayTaikoModeHitSound();
 
@@ -863,6 +862,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		{
 			PlayTaikoModeDonSound(refTime);
 			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Don, (UINT)TaikoNoteType::BigDon });
+		
 		}
 	}
 	for (const auto& key : keyNoteTypeMap.at(RightD))
@@ -871,6 +871,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		{
 			PlayTaikoModeDonSound(refTime);
 			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Don, (UINT)TaikoNoteType::BigDon });
+			
 		}
 	}
 	for (const auto& key : keyNoteTypeMap.at(LeftK))
@@ -879,6 +880,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		{
 			PlayTaikoModeKatSound(refTime);
 			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Kat, (UINT)TaikoNoteType::BigKat });
+	
 		}
 	}
 	for (const auto& key : keyNoteTypeMap.at(RightK))
@@ -887,6 +889,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		{
 			PlayTaikoModeKatSound(refTime);
 			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Kat, (UINT)TaikoNoteType::BigKat });
+		
 		}
 	}
 }
@@ -894,12 +897,17 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UINT>& targetTypeList)
 {
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return;
+	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
 
 	const bool typeCheck = CheckNoteType(refTime, targetTypeList);
+	testLane.laneLightSprite.Diffuse = MyColor4::White;
 	if (typeCheck)
 	{
-		Lane::NoteDesc& currentNote = *testLane.CurrentNote();
-		if (accRange.RangeCheck(refTime, currentNote.Timing(), AccuracyRange::RangeName::Good))
+		const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime,currentNote.Timing());
+		if (range == &AccuracyRange::NoAccInfo) return; //out of range
+
+		testLane.laneLightSprite.Diffuse = range->color;
+		if (range->id < AccuracyRange::RangeName::Bad) //Max ~ Good Judge
 		{
 			--currentNote.HitCount();
 			if (currentNote.HitCountConst() <= 0)
@@ -916,6 +924,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UI
 	else
 	{
 		/* wrong key input */
+		currentNote.IsInaccurate() = true;
 	}
 }
 
@@ -954,14 +963,14 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	const microseconds lateJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(accRange.GetLateJudgeTiming(refTime, judgepriority)).count());
 
+	vector<Lane::NoteDesc>::iterator targetNoteIter;
 	//MoveCurrentNoteIterWithLowerBound
 	[&]()
 		{
-			vector<Lane::NoteDesc>::iterator targetNoteIter;
 			const vector<Lane::NoteDesc>::iterator& targetNotePriorityIter
 				= lower_bound
 				(
-					currentNote,
+					testLane.NoteList().begin(),
 					testLane.NoteList().end(),
 					earlyJudgeTimeUs,
 					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
@@ -979,21 +988,21 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 			const vector<Lane::NoteDesc>::iterator& targetNoteWholeAreaIter
 				= lower_bound
 				(
-					currentNote,
+					testLane.NoteList().begin(),
 					testLane.NoteList().end(),
 					noteWholeJudgeAreaMs,
 					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
 				);
 			targetNoteIter = targetNoteWholeAreaIter;
 			
-			while (currentNote < targetNoteIter)
-			{
-				//note Miss
-				testLane.MoveCurrentNoteForward();
-			}
-			//currentNote = targetNoteIter;
 
 		}();
+
+	while (currentNote < targetNoteIter)
+	{
+		//note Miss
+		testLane.MoveCurrentNoteForward();
+	}
 
 	if (testLane.CurrentNoteConst() != testLane.NoteList().cend())
 	{
@@ -1040,8 +1049,8 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 
 	testLane.Render(deviceContext, cam);
 
-	noteSprite.Render(deviceContext, cam);
-	noteOverlaySprite.Render(deviceContext, cam);
+	//noteSprite.Render(deviceContext, cam);
+	//noteOverlaySprite.Render(deviceContext, cam);
 
 #ifdef REFTIME_DEBUG
 	const MilliDouble& refTime = debugMs;
