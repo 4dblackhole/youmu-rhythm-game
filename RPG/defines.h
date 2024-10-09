@@ -57,6 +57,7 @@ extern const wstring FileDir;
 extern const wstring SongDir;
 extern const wstring MusicDir;
 extern const wstring PatternDir;
+extern const wstring AssetDir;
 extern const wstring TextureDir;
 extern const wstring SystemSoundDir;
 extern const wstring SkinDir;

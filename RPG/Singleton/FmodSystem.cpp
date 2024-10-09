@@ -116,10 +116,12 @@ void FmodSystem::InitSounds()
 {
     FMOD::Sound* tempSound;
 
-    _system->createStream("../Assets/Hitsounds/System/button01a.mp3", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    const string& systemSoundDirU8 = ShortCut::WstringToUTF8(SystemSoundDir);
+
+    _system->createStream((systemSoundDirU8 + "button01a.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
     defaultSoundList.emplace(make_pair(Name::button01a, make_pair(tempSound, nullptr)));
 
-    _system->createStream("../Assets/Hitsounds/System/select05.mp3", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    _system->createStream((systemSoundDirU8 + "select05.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
     defaultSoundList.emplace(make_pair(Name::select05, make_pair(tempSound, nullptr)));
 
 }

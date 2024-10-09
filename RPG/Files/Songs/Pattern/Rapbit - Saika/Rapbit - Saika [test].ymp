@@ -10,6 +10,10 @@ Pattern Offset: 1045.5227
 Preview Time: 1045
 Base BPM: 140
 
+[Difficulty]
+Mode: Taiko
+JudgeLevel: 50
+
 [HitSounds]
 
 [Time Signature]

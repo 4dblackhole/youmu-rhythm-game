@@ -26,7 +26,7 @@ void Lane::OnResize()
 
 void Lane::Update(float dt)
 {
-	if (laneLightSprite.Diffuse.w > 0)laneLightSprite.Diffuse.w = max(0.0f, laneLightSprite.Diffuse.w - dt * laneLightFadeSpeed);
+	if (laneLightSprite.Diffuse.w > 0)laneLightSprite.Diffuse.w = max(0.0f, laneLightSprite.Diffuse.w - (float)(dt * laneLightFadeSpeed));
 }
 
 void Lane::Render(ID3D11DeviceContext* context, const Camera& cam)

@@ -26,6 +26,7 @@ using namespace DirectX;
 //STL
 #include <assert.h>
 #include <chrono>
+#include <codecvt>
 #include <fstream>
 #include <functional>
 #include <malloc.h>

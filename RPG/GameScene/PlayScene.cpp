@@ -892,40 +892,39 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		
 		}
 	}
+
+	UpdateDebugText();
 }
 
 void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UINT>& targetTypeList)
 {
+	testLane.laneLightSprite.Diffuse = MyColor4::White; //default LaneLight Color
+
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return;
 	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
 
-	const bool typeCheck = CheckNoteType(refTime, targetTypeList);
-	testLane.laneLightSprite.Diffuse = MyColor4::White;
-	if (typeCheck)
-	{
-		const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime,currentNote.Timing());
-		if (range == &AccuracyRange::NoAccInfo) return; //out of range
+	const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime, currentNote.Timing());
+	if (range == &AccuracyRange::NoAccInfo) return; //out of range
 
-		testLane.laneLightSprite.Diffuse = range->color;
-		if (range->id < AccuracyRange::RangeName::Bad) //Max ~ Good Judge
-		{
-			--currentNote.HitCount();
-			if (currentNote.HitCountConst() <= 0)
-			{
-				testLane.MoveCurrentNoteForward();
-			}
-		}
-		else
-		{
-			/* BAD JUDGE */
-			currentNote.IsInaccurate() = true;
-		}
-	}
-	else
+	testLane.laneLightSprite.Diffuse = range->color;
+
+	if (range->id > AccuracyRange::RangeName::Good) //BAD JUDGE
 	{
-		/* wrong key input */
 		currentNote.IsInaccurate() = true;
+		return;
 	}
+
+	if (!CheckNoteType(refTime, targetTypeList)) // wrong note type
+	{
+		testLane.laneLightSprite.Diffuse = MyColor4::MyRed;
+		currentNote.IsInaccurate() = true;
+		return;
+	}
+
+	// Hit successed, MAX ~ GOOD Judge
+	--currentNote.HitCount();
+	if (currentNote.HitCountConst() <= 0) testLane.MoveCurrentNoteForward();
+	
 }
 
 bool PlayScene::CheckNoteType(const MilliDouble& refTime, const vector<UINT>& targetTypeList)
@@ -1008,7 +1007,6 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	{
 		differenceFromTime = milliseconds(milliseconds::rep(refTime.count())) - duration_cast<milliseconds>(currentNote->Timing());
 	}
-	UpdateDebugText();
 }
 
 bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT targetType, int targetHitCount)

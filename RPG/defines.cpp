@@ -10,7 +10,8 @@ const wstring FileDir = L"./Files/";
 const wstring SongDir = FileDir + L"Songs/";
 const wstring MusicDir = SongDir + L"Music/";
 const wstring PatternDir = SongDir + L"Pattern/";
-const wstring TextureDir = L"../Assets/Textures/";
-const wstring SystemSoundDir = L"../Assets/Hitsounds/System/";
+const wstring AssetDir = L"Assets/";
+const wstring TextureDir = AssetDir + L"Textures/";
+const wstring SystemSoundDir = AssetDir + L"Hitsounds/System/";
 
 const wstring SkinDir = FileDir + L"Skins/";

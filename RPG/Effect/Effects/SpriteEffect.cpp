@@ -8,12 +8,6 @@ SpriteEffect::SpriteEffect(ID3D11Device* device, const std::tstring& filename)
 	InitFxVariables();
 }
 
-SpriteEffect::SpriteEffect(ID3D11Device* device, const int resourceId)
-	: Effect(device, resourceId)
-{
-	InitFxVariables();
-}
-
 SpriteEffect::~SpriteEffect()
 {
 }

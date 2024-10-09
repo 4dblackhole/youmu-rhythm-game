@@ -13,20 +13,8 @@ Effect::Effect(ID3D11Device* device, const std::tstring& filename)
 	fin.read(&compiledShader[0], size);
 	fin.close();
 
-	HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size,
-		0, device, &mFX));
-}
+	HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, device, &mFX));
 
-Effect::Effect(ID3D11Device* device, const int resourceId)
-{
-	HRSRC hRes = FindResource(nullptr, MAKEINTRESOURCE(resourceId), RT_RCDATA);
-	assert(hRes != nullptr);
-
-	HGLOBAL hResData = LoadResource(nullptr, hRes);
-	assert(hResData != nullptr);
-
-	void* pShaderData = LockResource(hResData);
-	DWORD shaderSize = SizeofResource(nullptr, hRes);
 }
 
 Effect::~Effect()

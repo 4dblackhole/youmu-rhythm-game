@@ -6,9 +6,13 @@ Pattern Maker 2: Youmu
 Pattern Name: Dream
 Tags: test
 
-Pattern Offset: 136
+Pattern Offset: 104
 Preview Time: 1,0/1
 Base BPM: 180
+
+[Difficulty]
+Mode: Taiko
+JudgeLevel: 50
 
 [HitSounds]
 

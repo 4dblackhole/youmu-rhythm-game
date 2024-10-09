@@ -17,7 +17,6 @@ public:
 
 	static std::wstring UTF8ToWstring(const std::string& buf);
 	static std::string WstringToUTF8(const std::wstring& buf);
-
 	static std::wstring ReadUTF8File(const std::wstring& fileName);
 
 	static void TraceTimingPoint();

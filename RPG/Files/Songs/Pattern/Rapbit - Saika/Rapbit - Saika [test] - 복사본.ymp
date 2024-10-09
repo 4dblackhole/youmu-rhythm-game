@@ -9,6 +9,10 @@ Tags: test
 Pattern Offset: 1045
 Preview Time: 1,0/1
 
+[Difficulty]
+Mode: Taiko
+JudgeLevel: 50
+
 [Time Signature]
 0/1,#bpm 140
 #measure 1/4

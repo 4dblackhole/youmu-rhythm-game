@@ -4,7 +4,6 @@ class SpriteEffect : public Effect
 {
 public:
 	SpriteEffect(ID3D11Device* device, const std::tstring& filename);
-	SpriteEffect(ID3D11Device* device, const int resourceId);
 	~SpriteEffect();
 
 	void SetWorld(DirectX::CXMMATRIX& M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }

@@ -16,7 +16,6 @@ class Effect
 {
 public:
 	Effect(ID3D11Device* device, const std::tstring& filename);
-	Effect(ID3D11Device* device, const int resourceId);
 	virtual ~Effect();
 
 private:
