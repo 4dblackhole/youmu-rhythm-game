@@ -195,6 +195,7 @@
     <ClCompile Include="MusicalObject\PlayMode\TaikoMode.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.cpp" />
     <ClCompile Include="MusicalObject\PrefixSum\MeasurePrefixSum.cpp" />
+    <ClCompile Include="MusicalObject\ScorePercentage.cpp" />
     <ClCompile Include="MusicalObject\VolumeSet.cpp" />
     <ClCompile Include="Object\InstanceBuffer\InstanceBuffer.cpp" />
     <ClCompile Include="Object\InstanceBuffer\SpriteInstanceBuffer.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="MusicalObject\PlayMode\TaikoMode.h" />
     <ClInclude Include="MusicalObject\PrefixSum\BpmTimingPrefixSum.h" />
     <ClInclude Include="MusicalObject\PrefixSum\MeasurePrefixSum.h" />
+    <ClInclude Include="MusicalObject\ScorePercentage.h" />
     <ClInclude Include="MusicalObject\VolumeSet.h" />
     <ClInclude Include="Object\InstanceBuffer\InstanceBuffer.h" />
     <ClInclude Include="Object\InstanceBuffer\SpriteInstanceBuffer.h" />

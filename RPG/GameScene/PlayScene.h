@@ -8,6 +8,7 @@
 #include "MusicalObject/Note.h"
 #include "MusicalObject/Lane.h"
 #include "MusicalObject/AccuracyRange.h"
+#include "MusicalObject/ScorePercentage.h"
 
 class PlayScene : public GameScene
 {
@@ -154,8 +155,8 @@ private:
 	void InitTaikoModeKeyNoteTypeMap();
 	void ReleaseTaikoModeKeyNoteTypeMap();
 	void NoteUpdateTaikoMode(const MilliDouble& refTime);
-	void NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UINT>& targetTypeList);
-	bool CheckNoteType(const MilliDouble& refTime, const vector<UINT>& targetTypeList);
+	void NoteProcessTaikoMode(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList);
+	bool CheckNoteType(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList);
 	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 
 	enum class DefaultHitSound
@@ -239,6 +240,7 @@ private:
 	MilliDouble debugMs{ 0 };
 	DwLayout2D debugText;
 	chrono::milliseconds differenceFromTime{};
+	double gainedScoreDebug{};
 	void InitDebugText();
 	void UpdateDebugText();
 

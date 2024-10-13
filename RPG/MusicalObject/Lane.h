@@ -25,11 +25,14 @@ public:
 		const bool& IsInaccurateConst() const { return isInaccurate; }
 		const int& HitCountConst() const { return hitCount; }
 
+		void ResetHitCount() { hitCount = maxHitcount; };
+
 	private:
 		const Note* note; //weak ptr
 		const chrono::microseconds timing;
 		bool isPassed;
 		bool isInaccurate;
+		const int maxHitcount;
 		int hitCount;
 
 	public:

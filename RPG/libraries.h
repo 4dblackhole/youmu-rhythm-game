@@ -24,6 +24,7 @@ using namespace DirectX;
 
 
 //STL
+#include <array>
 #include <assert.h>
 #include <chrono>
 #include <codecvt>
@@ -35,6 +36,7 @@ using namespace DirectX;
 #include <memory.h>
 #include <mutex>
 #include <set>
+#include <span>
 #include <sstream>
 #include <stdlib.h>
 #include <stack>

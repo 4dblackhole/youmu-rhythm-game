@@ -16,7 +16,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG2
+#define REFTIME_DEBUG3
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -775,7 +775,8 @@ void PlayScene::UpdateDebugText()
 	const Note& note = *testLane.CurrentNoteConst()->NoteRef();
 	wstringstream wss;
 	wss << L"Measure: " << note.mp.measureIdx << " Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
-		<< L" Type: " << note.noteType <<L" HitCount: "<< testLane.CurrentNoteConst()->HitCountConst() << L" diff: " << differenceFromTime.count();
+		<< L" Type: " << note.noteType << L" HitCount: " << testLane.CurrentNoteConst()->HitCountConst() << L" diff: " << differenceFromTime.count()
+		<< L"\nScore:" << gainedScoreDebug;
 	debugText.SetText(wss.str());
 }
 
@@ -856,12 +857,15 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 {
 	MoveTargetNote(refTime, AccuracyRange::RangeName::Good);
 
+	constexpr UINT donList[] = {(UINT)TaikoNoteType::Don, (UINT)TaikoNoteType::BigDon};
+	constexpr UINT katList[] = {(UINT)TaikoNoteType::Kat, (UINT)TaikoNoteType::BigKat};
+
 	for (const auto& key : keyNoteTypeMap.at(LeftD))
 	{
 		if (KEYBOARD.Down(key))
 		{
 			PlayTaikoModeDonSound(refTime);
-			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Don, (UINT)TaikoNoteType::BigDon });
+			NoteProcessTaikoMode(refTime, donList);
 		
 		}
 	}
@@ -870,7 +874,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		if (KEYBOARD.Down(key))
 		{
 			PlayTaikoModeDonSound(refTime);
-			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Don, (UINT)TaikoNoteType::BigDon });
+			NoteProcessTaikoMode(refTime, donList);
 			
 		}
 	}
@@ -879,7 +883,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		if (KEYBOARD.Down(key))
 		{
 			PlayTaikoModeKatSound(refTime);
-			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Kat, (UINT)TaikoNoteType::BigKat });
+			NoteProcessTaikoMode(refTime, katList);
 	
 		}
 	}
@@ -888,7 +892,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		if (KEYBOARD.Down(key))
 		{
 			PlayTaikoModeKatSound(refTime);
-			NoteProcessTaikoMode(refTime, { (UINT)TaikoNoteType::Kat, (UINT)TaikoNoteType::BigKat });
+			NoteProcessTaikoMode(refTime, katList);
 		
 		}
 	}
@@ -896,7 +900,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 	UpdateDebugText();
 }
 
-void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UINT>& targetTypeList)
+void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList)
 {
 	testLane.laneLightSprite.Diffuse = MyColor4::White; //default LaneLight Color
 
@@ -904,9 +908,11 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UI
 	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
 
 	const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime, currentNote.Timing());
-	if (range == &AccuracyRange::NoAccInfo) return; //out of range
+	if (range == nullptr) return; //out of range
 
-	testLane.laneLightSprite.Diffuse = range->color;
+	const AccuracyRange::ScoreInfo& sInfo = range->GetInterpolatedScoreInfo(refTime, currentNote.Timing());
+	testLane.laneLightSprite.Diffuse = sInfo.color;
+	gainedScoreDebug = sInfo.percentage;
 
 	if (range->id > AccuracyRange::RangeName::Good) //BAD JUDGE
 	{
@@ -927,7 +933,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const vector<UI
 	
 }
 
-bool PlayScene::CheckNoteType(const MilliDouble& refTime, const vector<UINT>& targetTypeList)
+bool PlayScene::CheckNoteType(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList)
 {
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return false;
 	Lane::NoteDesc& currentNote = *testLane.CurrentNote();

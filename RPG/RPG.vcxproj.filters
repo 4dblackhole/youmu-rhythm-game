@@ -210,6 +210,9 @@
     <ClCompile Include="Utility\StringToVirtualKeyCode.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="MusicalObject\ScorePercentage.cpp">
+      <Filter>MusicalObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -376,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="TemplateTypes.hpp">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\ScorePercentage.h">
+      <Filter>MusicalObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

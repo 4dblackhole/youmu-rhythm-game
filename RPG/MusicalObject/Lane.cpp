@@ -6,7 +6,7 @@
 constexpr float LaneWidth = 180.0f;
 
 Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass, bool inaccurate, int hitC)
-	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCount(hitC)
+	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCount(hitC), maxHitcount(hitC)
 {
 }
 
@@ -123,21 +123,18 @@ void Lane::LoadNotes(const MusicScore* score)
 
 void Lane::SetNotePassStatus(bool v)
 {
-	for (auto& it : noteList) it.IsPassed() = v;
+	for (NoteDesc& it : noteList) it.IsPassed() = v;
 }
 
 void Lane::SetNoteInaccurate(bool v)
 {
-	for (auto& it : noteList) it.IsInaccurate() = v;
+	for (NoteDesc& it : noteList) it.IsInaccurate() = v;
 }
 
 void Lane::InitNoteHitCount()
 {
-	for (NoteDesc& it : noteList)
-	{
-		const Note* const& targetNote = it.NoteRef();
-		it.HitCount() = GetNoteHitCountFromType(*targetNote);
-	}
+	for (NoteDesc& it : noteList) it.ResetHitCount();
+	
 }
 
 int Lane::GetNoteHitCountFromType(const Note& targetNote)

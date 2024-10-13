@@ -16,12 +16,21 @@ public:
 	};
 public:
 
-	struct Info
+	struct ScoreInfo
 	{
-		AccuracyRange::RangeName id;
-		MilliDouble range{};
 		double percentage{};
 		XMFLOAT4 color = MyColor4::White;
+	};
+
+	struct Info
+	{
+		AccuracyRange::RangeName id = RangeName::MAX;
+		MilliDouble range{};
+		ScoreInfo scoreInfo;
+		Info* prevInfo = nullptr; //for interpolation
+
+		const ScoreInfo GetInterpolatedScoreInfo(const MilliDouble&, const chrono::microseconds&) const;
+
 	};
 	static constexpr AccuracyRange::Info NoAccInfo{ RangeName::MAX, MilliDouble(0.0), 0, {0,0,0,0} };
 
@@ -29,11 +38,11 @@ public:
 	static constexpr size_t defaultAccLevel = 50;
 	static constexpr AccuracyRange::Info DefaultAccInfo[(int)RangeName::MAX] =
 	{
-		{ RangeName::Max, MilliDouble(4.5), 1.0, MyColor4::White },
-		{ RangeName::Perfect, MilliDouble(9.5), 0.99, {0.375, 0.875, 1, 1} },
-		{ RangeName::Great, MilliDouble(23.5), 0.9,{0.15625,1,0.15625,1} },
-		{ RangeName::Good, MilliDouble(54.5), 0, {1,0.75,0.125,1} },
-		{ RangeName::Bad, MilliDouble(90.0), 0, {0.25,0.09375,1,1}  }
+		{ RangeName::Max, MilliDouble(4.5),	1.0, MyColor4::White },
+		{ RangeName::Perfect, MilliDouble(9.5),	0.99, {0.175f, 0.875f, 1, 1} },
+		{ RangeName::Great,	MilliDouble(23.5), 0.9,	{0.15625f,1,0.15625f,1} },
+		{ RangeName::Good, MilliDouble(54.5), 0, {1,0.75f,0.125f,1} },
+		{ RangeName::Bad, MilliDouble(90.0), 0, {0.25f,0.09375f,1,1} }
 	};
 
 public:
