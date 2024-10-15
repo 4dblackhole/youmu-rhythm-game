@@ -4,6 +4,21 @@
 _EXPORT_STD template <class T>
 concept arithmetic = std::is_arithmetic_v<T>; 
 
+namespace std
+{
+	template<arithmetic A>
+	XMFLOAT4 pow(const XMFLOAT4& c, const A& v)
+	{
+		return
+		{
+			std::pow(c.x, v),
+			std::pow(c.y, v),
+			std::pow(c.z, v),
+			std::pow(c.w, v),
+		};
+	}
+}
+
 struct ColorOperators
 {
 	static XMFLOAT4 AddColor(const XMFLOAT4& c, const XMFLOAT4& v)

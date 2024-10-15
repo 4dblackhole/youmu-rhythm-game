@@ -16,7 +16,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG3
+#define REFTIME_DEBUG
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -282,6 +282,7 @@ void PlayScene::ReSetting()
 	rhythmTimer.Reset();
 	UpdateTotalMusicTime();
 	testLane.Reset();
+	scorePercent.Init();
 }
 
 static constexpr LPCWSTR OffsetIdc = L"Pattern Offset";
@@ -596,7 +597,7 @@ void PlayScene::LoadMusicScore()
 			if (firstNote != nullptr)
 			{
 				firstNoteTiming = musicScore->GetNoteTimingPoint(firstNote->mp);
-				if (firstNoteTiming < waitTime) UpdateMusicTimeOffset(firstNoteTiming - waitTime);
+				if (firstNoteTiming < waitTime) musicTimeOffset = (firstNoteTiming - waitTime);
 			}
 
 			DEBUG_BREAKPOINT;
@@ -776,7 +777,7 @@ void PlayScene::UpdateDebugText()
 	wstringstream wss;
 	wss << L"Measure: " << note.mp.measureIdx << " Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
 		<< L" Type: " << note.noteType << L" HitCount: " << testLane.CurrentNoteConst()->HitCountConst() << L" diff: " << differenceFromTime.count()
-		<< L"\nScore:" << gainedScoreDebug;
+		<< L"\nScore:" << std::fixed << std::setprecision(2) << scorePercent.GetRate();
 	debugText.SetText(wss.str());
 }
 
@@ -912,7 +913,6 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 
 	const AccuracyRange::ScoreInfo& sInfo = range->GetInterpolatedScoreInfo(refTime, currentNote.Timing());
 	testLane.laneLightSprite.Diffuse = sInfo.color;
-	gainedScoreDebug = sInfo.percentage;
 
 	if (range->id > AccuracyRange::RangeName::Good) //BAD JUDGE
 	{
@@ -928,8 +928,12 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	}
 
 	// Hit successed, MAX ~ GOOD Judge
+	constexpr double inaccuratePenalty = 0.5;
+	const double resultPercentage = currentNote.IsInaccurate() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
+	scorePercent.AddScoreRate(resultPercentage);
 	--currentNote.HitCount();
 	if (currentNote.HitCountConst() <= 0) testLane.MoveCurrentNoteForward();
+
 	
 }
 
@@ -1006,13 +1010,18 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	while (currentNote < targetNoteIter)
 	{
 		//note Miss
-		testLane.MoveCurrentNoteForward();
+		[&]() {
+			scorePercent.AddScoreRate(0.0);
+			testLane.MoveCurrentNoteForward();
+			}();
 	}
 
+#ifdef _DEBUG
 	if (testLane.CurrentNoteConst() != testLane.NoteList().cend())
 	{
 		differenceFromTime = milliseconds(milliseconds::rep(refTime.count())) - duration_cast<milliseconds>(currentNote->Timing());
 	}
+#endif
 }
 
 bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT targetType, int targetHitCount)

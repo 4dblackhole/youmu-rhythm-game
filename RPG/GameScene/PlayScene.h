@@ -108,8 +108,6 @@ private:
 	chrono::microseconds firstNoteTiming{ 0 };
 	MilliDouble totalMusicTime{ 0.0 };
 	
-	template<typename DurationType>
-	void UpdateMusicTimeOffset(DurationType waitTime);
 	void UpdateTotalMusicTime();
 
 	thread playMusicThread;
@@ -118,6 +116,10 @@ private:
 	void PlayMusic();
 
 	const AccuracyRange accRange;
+
+//Score and Percentage related
+private:
+	ScorePercentage scorePercent;
 
 //Game mode related
 private:
@@ -240,7 +242,6 @@ private:
 	MilliDouble debugMs{ 0 };
 	DwLayout2D debugText;
 	chrono::milliseconds differenceFromTime{};
-	double gainedScoreDebug{};
 	void InitDebugText();
 	void UpdateDebugText();
 
@@ -267,9 +268,3 @@ private:
 	bool ParseEffect(const wstring_view& lineStr, RationalNumber<64>& resultSignature, wstring& resultEffectStr);
 	void ParseBPM(const wstring_view& str, const size_t measureIdx, const RationalNumber<64>& pos);
 };
-
-template<typename DurationType>
-inline void PlayScene::UpdateMusicTimeOffset(DurationType waitTime)
-{
-	musicTimeOffset = waitTime;
-}
