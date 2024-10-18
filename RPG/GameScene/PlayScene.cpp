@@ -44,6 +44,9 @@ PlayScene::~PlayScene()
 	ReleaseTaikoModeTextures();
 	ReleasePauseBackground();
 	ReleaseTaikoModeHitSounds();
+
+	ReleaseCOM(noteInstancedBuffer);
+	ReleaseCOM(measureLineInstancedBuffer);
 }
 
 
@@ -114,7 +117,7 @@ void PlayScene::InitTaikoModeTextures()
 	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
 	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
 
-	textureList.AddTextureArr(
+	auto val = textureList.AddTextureArr(
 		TextureName::note,
 		{
 			(skinDir + L"note.png").c_str(),
@@ -122,6 +125,7 @@ void PlayScene::InitTaikoModeTextures()
 			(skinDir + L"noteoverlay.png").c_str()
 		});
 
+	DEBUG_BREAKPOINT;
 }
 
 void PlayScene::ReleaseTaikoModeTextures()
@@ -249,7 +253,7 @@ void PlayScene::InitPauseBackground()
 
 	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &pauseBG));
 	HR(App->GetDevice()->CreateRenderTargetView(pauseBG, nullptr, &pauseBgRTV));
-	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgTexture.srv));
+	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
 
 	D2D.ReleaseBackBuffer();
 	D2D.ResetBackBuffer(pauseBG);
@@ -619,10 +623,10 @@ void PlayScene::LoadMusicScoreComplete()
 	threadTimer.Reset();
 	rhythmTimer.Reset();
 
-	InitInstancedBuffer(*noteInstancedBuffer.GetAddressOf(), UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
+	InitInstancedBuffer(noteInstancedBuffer, UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
 
 	const size_t& maximumMeasureLineCount = testLane.NoteListConst().back().NoteRef()->mp.measureIdx + 1;
-	InitInstancedBuffer(*measureLineInstancedBuffer.GetAddressOf(), UINT(sizeof(SpriteInstanceData) * maximumMeasureLineCount));
+	InitInstancedBuffer(measureLineInstancedBuffer, UINT(sizeof(SpriteInstanceData) * maximumMeasureLineCount));
 }
 
 void PlayScene::StopThread()
@@ -1072,11 +1076,11 @@ void PlayScene::RenderOnStart(ID3D11DeviceContext* deviceContext, const Camera& 
 	const MilliDouble& refTime = totalMusicTime;
 #endif 
 
-	UpdateInstancedBuffer_MeasureLine(measureLineInstancedBuffer.Get(), musicScore->measures, refTime, testLane);
-	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer.Get(), 0, measureLineInstanceCount, textureList.GetTexture(TextureName::MeasureLine).GetRefSRV());
+	UpdateInstancedBuffer_MeasureLine(measureLineInstancedBuffer, musicScore->measures, refTime, testLane);
+	Sprite::RenderInstanced(deviceContext, cam, measureLineInstancedBuffer, 0, measureLineInstanceCount, textureList.GetTexture(TextureName::MeasureLine).GetRefSRV());
 
-	UpdateInstancedBuffer_TaikoModeNote(noteInstancedBuffer.Get(), refTime, testLane);
-	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer.Get(), 0, noteInstanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.GetTexture(TextureName::note).GetRefSRV());
+	UpdateInstancedBuffer_TaikoModeNote(noteInstancedBuffer, refTime, testLane);
+	Sprite::RenderInstanced(deviceContext, cam, noteInstancedBuffer, 0, noteInstanceCount * (size_t)NoteTextureInstanceID::MAX, textureList.GetTexture(TextureName::note).GetRefSRV());
 }
 
 

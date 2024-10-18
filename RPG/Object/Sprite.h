@@ -76,10 +76,11 @@ private:
 	void MakeCenterUV();
 
 public:
-	static ComPtr<ID3D11Buffer> mVB;
-	static ComPtr<ID3D11Buffer> mIB;
-	static ComPtr<ID3D11InputLayout> mInputLayout;
-	static ComPtr<ID3D11InputLayout> mInsatncedInputLayout;
+	static ID3D11Buffer* mVB;
+	static ID3D11Buffer* mIB;
+	static ID3D11InputLayout* mInputLayout;
+	static ID3D11InputLayout* mInsatncedInputLayout;
+	static void ReleaseSpriteBuffer();
 
 };
 

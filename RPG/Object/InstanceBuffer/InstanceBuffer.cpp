@@ -2,18 +2,19 @@
 #include "InstanceBuffer.h"
 
 InstanceBuffer::InstanceBuffer() :
-	ComPtr<ID3D11Buffer>(nullptr),
 	instanceCount(0)
 {
 }
 
 InstanceBuffer::~InstanceBuffer()
 {
+	ReleaseCOM(buffer);
 }
 
 void InstanceBuffer::InitBuffer(ID3D11Device* device, UINT instanceCount)
 {
-	Reset();
+	ReleaseCOM(buffer);
+
 	D3D11_BUFFER_DESC instbd{};
 	instbd.Usage = D3D11_USAGE_DYNAMIC;
 	instbd.ByteWidth = GetBufferSizeFromCount(instanceCount);
@@ -21,5 +22,5 @@ void InstanceBuffer::InitBuffer(ID3D11Device* device, UINT instanceCount)
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	instanceCount = instbd.ByteWidth;
 
-	HR(device->CreateBuffer(&instbd, nullptr, GetAddressOf()));
+	HR(device->CreateBuffer(&instbd, nullptr, &buffer));
 }

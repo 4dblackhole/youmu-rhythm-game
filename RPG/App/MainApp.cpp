@@ -32,6 +32,7 @@ MainApp::MainApp(HINSTANCE hInstance)
 MainApp::~MainApp()
 {
 	EffectList::Release();
+	Sprite::ReleaseSpriteBuffer();
 	delete fpsLayout;
 }
 

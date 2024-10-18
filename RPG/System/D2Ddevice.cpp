@@ -13,6 +13,9 @@ D2Ddevice::~D2Ddevice()
 	for (pair<const string, IDWriteTextFormat*>& it : fontList) ReleaseCOM(it.second);
 	ReleaseCOM(d2Rtg);
 	ReleaseCOM(pDxgiSurface);
+
+	ReleaseCOM(dwFactory);
+	ReleaseCOM(d2dFactory);
 }
 
 void D2Ddevice::CreateD2DDWFactory()
@@ -22,10 +25,10 @@ void D2Ddevice::CreateD2DDWFactory()
 	options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #endif
 
-	HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, options, d2dFactory.GetAddressOf()));
+	HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, options, &d2dFactory));
 
 	HR(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
-		__uuidof(IDWriteFactory), (IUnknown**)dwFactory.GetAddressOf()));
+		__uuidof(IDWriteFactory), (IUnknown**)&dwFactory));
 }
 
 void D2Ddevice::InitFonts()

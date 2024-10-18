@@ -12,13 +12,14 @@ public:
 	FMOD_RESULT Release();
 
 	FMOD_RESULT ChangeDrive(int idx);
+	FMOD_RESULT ChangeDriveOutputType(FMOD_OUTPUTTYPE type);
 
 	inline int GetDriveIdx() const { return currentDriveIdx; }
 	inline void SetDriveIdx(int v) { currentDriveIdx = v; }
 
 	inline int GetDriveCount() const { return driveCount; }
 
-	FMOD::System* System() { return _system; }
+	FMOD::System* System() { return mSystem; }
 
 	vector<wstring> EnumDriverList();
 	
@@ -39,7 +40,7 @@ private:
 	void InitSounds();
 	map<string, pair<FMOD::Sound*,FMOD::Channel*>> defaultSoundList;
 
-	FMOD::System* _system = nullptr;
+	FMOD::System* mSystem = nullptr;
 	int driveCount = 0, currentDriveIdx = 0;
 
 	unsigned int version = 0;

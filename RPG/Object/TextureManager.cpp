@@ -33,13 +33,15 @@ TextureManager::ContainerType::mapped_type& TextureManager::GetTexture(Container
 
 TextureManager::ContainerType::mapped_type& TextureManager::GetNullTexture()
 {
-	static ContainerType::mapped_type nullTexture(App->GetDevice(), TextureDir + L"TextureNotFound.png");
+	static TextureManager::ContainerType::mapped_type nullTexture(App->GetDevice(), TextureDir + L"TextureNotFound.png");
 	return nullTexture;
 }
 
 bool TextureManager::AddTextureArr(const string& keyStr, const vector<LPCWSTR>& fileList)
 {
 	if (fileList.empty()) return false;
+	if (textureList.find(keyStr) != textureList.cend()) return false; //the key is used already
+
 	//Texture Array
 	vector<ID3D11Texture2D*> tempTextureList;
 
@@ -108,13 +110,11 @@ bool TextureManager::AddTextureArr_MergeTextureList(const string& keyStr, const 
 	srvDesc.Texture2DArray.MipLevels = texture2Ddesc.MipLevels;
 	srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
 
-	Texture arrTexture;
-	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture.srv));
+	Texture& arrTexture = this->textureList[keyStr];
+	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture.GetRefSRV()));
 	if (FAILED(hr)) return false;
 
 	Texture::UpdateDescFromSRV(arrTexture);
-	this->AddTexture(keyStr, arrTexture);
-	ReleaseCOM(texture2DArr);
 
 	return true;
 }

@@ -42,10 +42,10 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 
 D3DApp::~D3DApp()
 {
-	mRenderTargetView->Release();
-	mDepthStencilView->Release();
-	mDepthStencilBuffer->Release();
-	mSwapChain->Release();
+	ReleaseCOM(mRenderTargetView);
+	ReleaseCOM(mDepthStencilView);
+	ReleaseCOM(mDepthStencilBuffer);
+	ReleaseCOM(mSwapChain);
 
 	if (md3dImmediateContext)
 	{
@@ -93,20 +93,25 @@ int D3DApp::Run()
 				KEYBOARD.Update();
 				CalculateFrameStats();
 				UpdateScene(mTimer.DeltaTime());
-				
-				//render limit according to monitor hz
-				static float renderTime = 0.0f;
-				renderTime += mTimer.DeltaTime();
-				const float fpsLimit = 1.0f / (float)dwMonitorFrequency;
-				if (renderTime >= fpsLimit)
+
+				constexpr UINT debugFlag = 1;
+				if constexpr (debugFlag == 0) DrawScene();
+				else
 				{
-					DrawScene();
-					if (renderTime < 1.0f)renderTime -= fpsLimit; 
-					else renderTime = 0.0f;
+					//render limit according to monitor hz
+					static float renderTime = 0.0f;
+					renderTime += mTimer.DeltaTime();
+					const float fpsLimit = 1.0f / (float)dwMonitorFrequency;
+					if (renderTime >= fpsLimit)
+					{
+						DrawScene();
+						if (renderTime < 60000.0f) renderTime -= fpsLimit;
+						else renderTime = 0.0f;
+					}
 				}
 			}
 			//no msg and app paused
-			else std::this_thread::sleep_for(milliseconds(100));
+			else std::this_thread::sleep_for(milliseconds(1));
 		}
 	}
 
@@ -142,9 +147,10 @@ void D3DApp::OnResize()
 	//Resize the swap chain and recreate the RTV
 	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 
-	ComPtr<ID3D11Texture2D> backBuffer;
-	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
-	HR(md3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, &mRenderTargetView));
+	ID3D11Texture2D* backBuffer;
+	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
+	HR(md3dDevice->CreateRenderTargetView(backBuffer, nullptr, &mRenderTargetView));
+	ReleaseCOM(backBuffer);
 
 	//Reset D2D DXGI Surface and RenderTarget
 	D2D.ResetBackBufferFromSwapChain(mSwapChain);

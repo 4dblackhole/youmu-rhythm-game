@@ -18,16 +18,16 @@ FMOD_RESULT FmodSystem::Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferleng
 {
     FMOD_RESULT result = FMOD_OK;
     //FMOD Init
-    result = FMOD::System_Create(&_system);
+    result = FMOD::System_Create(&mSystem);
     if (result != FMOD_OK) return result;
 
-    result = _system->getVersion(&version);
+    result = mSystem->getVersion(&version);
     if (result != FMOD_OK) return result;
 
-    result = _system->setOutput(outputMode);
+    result = mSystem->setOutput(outputMode);
     if (result != FMOD_OK) return result;
 
-    result = _system->getNumDrivers(&driveCount);
+    result = mSystem->getNumDrivers(&driveCount);
     if (driveCount == 0)
     {
         if (MessageBox(NULL, _T("No ASIO driver detected."), _T("Buy your own Audio Interface."), MB_YESNO) == IDNO)
@@ -37,12 +37,12 @@ FMOD_RESULT FmodSystem::Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferleng
         return result;
     }
 
-    result = _system->setDSPBufferSize(bufferlength, 4);
+    result = mSystem->setDSPBufferSize(bufferlength, 4);
 
-    result = _system->init(256, FMOD_INIT_NORMAL, extradriverdata);
+    result = mSystem->init(256, FMOD_INIT_NORMAL, extradriverdata);
     if (result != FMOD_OK) return result;
 
-    result = _system->getDriver(&currentDriveIdx);
+    result = mSystem->getDriver(&currentDriveIdx);
 
     return result;
 }
@@ -57,8 +57,8 @@ FMOD_RESULT FmodSystem::Release()
         it.second.first->release(); //sound
     }
 
-    result = _system->close();
-    result = _system->release();
+    result = mSystem->close();
+    result = mSystem->release();
 
     return result;
 }
@@ -66,8 +66,21 @@ FMOD_RESULT FmodSystem::Release()
 FMOD_RESULT FmodSystem::ChangeDrive(int idx)
 {
     FMOD_RESULT result = FMOD_OK;
-    result = _system->setDriver(idx);
+    result = mSystem->setDriver(idx);
     
+    return result;
+}
+
+FMOD_RESULT FmodSystem::ChangeDriveOutputType(FMOD_OUTPUTTYPE type)
+{
+    FMOD_RESULT result = FMOD_OK;
+    FMOD_OUTPUTTYPE currentType{};
+    mSystem->getOutput(&currentType);
+
+    if (type == currentType) return result;
+
+    result = mSystem->setOutput(type);
+
     return result;
 }
 
@@ -78,7 +91,7 @@ vector<wstring> FmodSystem::EnumDriverList()
     result.reserve(driveCount);
     for (int i = 0; i < driveCount; ++i)
     {
-        _system->getDriverInfo(i, (char*)tempDriveName, sizeof(tempDriveName), 0, 0, 0, 0);
+        mSystem->getDriverInfo(i, (char*)tempDriveName, sizeof(tempDriveName), 0, 0, 0, 0);
         result.emplace_back(ShortCut::UTF8ToWstring(tempDriveName));
     }
 
@@ -118,10 +131,10 @@ void FmodSystem::InitSounds()
 
     const string& systemSoundDirU8 = ShortCut::WstringToUTF8(SystemSoundDir);
 
-    _system->createStream((systemSoundDirU8 + "button01a.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    mSystem->createStream((systemSoundDirU8 + "button01a.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
     defaultSoundList.emplace(make_pair(Name::button01a, make_pair(tempSound, nullptr)));
 
-    _system->createStream((systemSoundDirU8 + "select05.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
+    mSystem->createStream((systemSoundDirU8 + "select05.mp3").c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &tempSound);
     defaultSoundList.emplace(make_pair(Name::select05, make_pair(tempSound, nullptr)));
 
 }

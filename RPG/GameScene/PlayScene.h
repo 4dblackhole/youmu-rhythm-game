@@ -220,12 +220,12 @@ private:
 
 	void InitInstancedBuffer(ID3D11Buffer*&, UINT);
 	int noteInstanceCount = 0;
-	ComPtr<ID3D11Buffer> noteInstancedBuffer;
+	ID3D11Buffer* noteInstancedBuffer;
 	void UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, const MilliDouble refTime, Lane& lane);
 	void UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble refTime, Lane& lane, SpriteInstanceData*& dataView);
 
 	int measureLineInstanceCount = 0;
-	ComPtr<ID3D11Buffer> measureLineInstancedBuffer;
+	ID3D11Buffer* measureLineInstancedBuffer;
 	void UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, const MilliDouble refTime, Lane& lane);
 	void UpdateInstancedBuffer_MeasureLine_Internal(const MilliDouble refTime, const vector<Measure>& measureList, Lane& lane, SpriteInstanceData*& dataView);
 

@@ -19,16 +19,16 @@ public:
 	ID2D1SolidColorBrush*& GetSolidBrush(const D2D1::ColorF color);
 	IDWriteTextFormat*& GetFont(const std::string name);
 
-	ID2D1Factory* GetD2DFactory() const { return d2dFactory.Get(); }
-	IDWriteFactory* GetDwFactory() const { return dwFactory.Get(); }
+	IDWriteFactory* GetDwFactory() const { return dwFactory; }
+	ID2D1Factory* GetD2DFactory() const { return d2dFactory; }
 	ID2D1RenderTarget* GetRenderTarget() const { return d2Rtg; }
 private:
 	void InitFonts();
 
 private:
 	//D2 Devices
-	Microsoft::WRL::ComPtr<IDWriteFactory> dwFactory;
-	Microsoft::WRL::ComPtr<ID2D1Factory> d2dFactory;
+	IDWriteFactory* dwFactory = nullptr;
+	ID2D1Factory* d2dFactory = nullptr;
 	ID2D1RenderTarget* d2Rtg = nullptr;
 	IDXGISurface* pDxgiSurface = nullptr;
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "framework.h"
+#include "libraries.h"
 
-class InstanceBuffer : public ComPtr<ID3D11Buffer>
+class InstanceBuffer 
 {
 public:
 	InstanceBuffer();
@@ -13,5 +13,6 @@ public:
 
 private:
 	virtual UINT GetBufferSizeFromCount(UINT count) = 0;
+	ID3D11Buffer* buffer = nullptr;
 	UINT instanceCount;
 };

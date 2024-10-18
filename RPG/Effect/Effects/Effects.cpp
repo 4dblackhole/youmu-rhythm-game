@@ -13,27 +13,33 @@ Effect::Effect(ID3D11Device* device, const std::tstring& filename)
 	fin.read(&compiledShader[0], size);
 	fin.close();
 
+	ReleaseCOM(mFX);
 	HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, device, &mFX));
 
 }
 
 Effect::~Effect()
 {
+	ReleaseCOM(mFX);
 }
 
 
-std::unique_ptr<SpriteEffect> EffectList::SpriteFX;
-std::unique_ptr<InstancedTestEffect> EffectList::InstancedTestFX;
+SpriteEffect* EffectList::SpriteFX = nullptr;
+InstancedTestEffect* EffectList::InstancedTestFX = nullptr;
 
 void EffectList::Init(ID3D11Device* device)
 {
 	//SpriteFX.reset(new SpriteEffect(device, IDR_SHADER_SPRITE));
 
-	InstancedTestFX.reset(new InstancedTestEffect(device, L"Shader/InstancedTest.fxo"));
-	SpriteFX.reset(new SpriteEffect(device, L"Shader/Sprite.fxo"));
+	EffectList::Release();
+
+	InstancedTestFX = (new InstancedTestEffect(device, L"Shader/InstancedTest.fxo"));
+	SpriteFX = (new SpriteEffect(device, L"Shader/Sprite.fxo"));
 
 }
 
 void EffectList::Release()
 {
+	SafeDelete(InstancedTestFX);
+	SafeDelete(SpriteFX);
 }

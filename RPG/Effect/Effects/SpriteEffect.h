@@ -1,10 +1,11 @@
 #pragma once
+#include "Effect/Effects/Effects.h"
 
 class SpriteEffect : public Effect
 {
 public:
 	SpriteEffect(ID3D11Device* device, const std::tstring& filename);
-	~SpriteEffect();
+	virtual ~SpriteEffect();
 
 	void SetWorld(DirectX::CXMMATRIX& M) const { mfxWorld->SetMatrix(reinterpret_cast<const float*>(&M)); }
 	void SetView(DirectX::CXMMATRIX& M) const { mfxView->SetMatrix(reinterpret_cast<const float*>(&M)); }

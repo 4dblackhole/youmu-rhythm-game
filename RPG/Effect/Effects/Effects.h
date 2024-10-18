@@ -23,7 +23,7 @@ private:
 	Effect& operator=(const Effect& rhs) = delete;
 
 protected:
-	Microsoft::WRL::ComPtr<ID3DX11Effect> mFX;
+	ID3DX11Effect* mFX = nullptr;
 };
 
 #include "SpriteEffect.h"
@@ -35,6 +35,6 @@ public:
 	static void Init(ID3D11Device* device);
 	static void Release();
 
-	static std::unique_ptr<SpriteEffect> SpriteFX;
-	static std::unique_ptr<InstancedTestEffect> InstancedTestFX;
+	static SpriteEffect* SpriteFX;
+	static InstancedTestEffect* InstancedTestFX;
 };

@@ -2,10 +2,10 @@
 #include "Sprite.h"
 #include "Vertex.h"
 
-ComPtr<ID3D11Buffer> Sprite::mVB;
-ComPtr<ID3D11Buffer> Sprite::mIB;
-ComPtr<ID3D11InputLayout> Sprite::mInputLayout;
-ComPtr<ID3D11InputLayout> Sprite::mInsatncedInputLayout;
+ID3D11Buffer* Sprite::mVB = nullptr;
+ID3D11Buffer* Sprite::mIB = nullptr;
+ID3D11InputLayout* Sprite::mInputLayout = nullptr;
+ID3D11InputLayout* Sprite::mInsatncedInputLayout = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -73,7 +73,7 @@ void Sprite::Init(float _x, float _y, float _w, float _h, const XMFLOAT4 diffuse
 
 void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 {
-	deviceContext->IASetInputLayout(mInputLayout.Get());
+	deviceContext->IASetInputLayout(mInputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	UINT stride = sizeof(VertexColorTexture);
@@ -88,8 +88,8 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		//buffer setting
-		deviceContext->IASetVertexBuffers(0, 1, mVB.GetAddressOf(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
+		deviceContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
 		CXMMATRIX& world = XMLoadFloat4x4(&GetWorld3d().GetTotalDrawWorld());
@@ -99,7 +99,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 		EffectList::SpriteFX->mfxView->SetMatrix(reinterpret_cast<const float*>(&view));
 		EffectList::SpriteFX->mfxProj->SetMatrix(reinterpret_cast<const float*>(&proj));
 		EffectList::SpriteFX->mfxUvWorld->SetMatrix(reinterpret_cast<const float*>(&uvWorld));
-		if (texture != nullptr) EffectList::SpriteFX->mfxTexture->SetResource(texture->srv.Get());
+		if (texture != nullptr) EffectList::SpriteFX->mfxTexture->SetResource(texture->GetRefSRVConst());
 		EffectList::SpriteFX->mfxTextureDiffuse->SetFloatVector(reinterpret_cast<const float*>(&Diffuse));
 		EffectList::SpriteFX->mfxTextureID->SetInt(TextureID);
 
@@ -112,7 +112,7 @@ void Sprite::Render(ID3D11DeviceContext* deviceContext, const Camera& cam)
 void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& cam, ID3D11Buffer* instancedBuffer,
 	size_t instanceOffset, size_t instanceCount, ID3D11ShaderResourceView* srv)
 {
-	deviceContext->IASetInputLayout(Sprite::mInsatncedInputLayout.Get());
+	deviceContext->IASetInputLayout(Sprite::mInsatncedInputLayout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CXMMATRIX& view = cam.View();
@@ -121,7 +121,7 @@ void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& c
 	constexpr size_t numBuffers = 2;
 	UINT stride[numBuffers] = { sizeof(VertexColorTexture), sizeof(SpriteInstanceData) };
 	UINT offset[numBuffers] = { 0, 0 };
-	ID3D11Buffer* buffers[numBuffers] = { mVB.Get(), instancedBuffer };
+	ID3D11Buffer* buffers[numBuffers] = { mVB, instancedBuffer };
 
 	ID3DX11EffectTechnique*& currentTech = EffectList::SpriteFX->mTechTextureInstanced;
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -130,7 +130,7 @@ void Sprite::RenderInstanced(ID3D11DeviceContext* deviceContext, const Camera& c
 	{
 		//buffer setting
 		deviceContext->IASetVertexBuffers(0, numBuffers, buffers, stride, offset);
-		deviceContext->IASetIndexBuffer(mIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 
 		// Set per object constants.
 		CXMMATRIX view = cam.View();
@@ -161,9 +161,9 @@ void Sprite::ChangeWidthToCurrentWidth(float w, float h)
 
 void Sprite::MakeCenterUV()
 {
-	if (texture->srv == nullptr) return;
+	if (texture->GetRefSRVConst() == nullptr) return;
 
-	const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(texture->srv.Get());
+	const D3D11_TEXTURE2D_DESC& desc = ShortCut::GetDescFromSRV(texture->GetRefSRVConst());
 	const float& spriteRate = GetWorld3d().GetObjectScale().y / GetWorld3d().GetObjectScale().x;
 	const float& imgRate = (float)desc.Height / (float)desc.Width;
 	if (spriteRate < imgRate) //sprite is more width than img
@@ -178,6 +178,14 @@ void Sprite::MakeCenterUV()
 		const XMFLOAT2& uv = world3d.GetUvScale();
 		world3d.SetUvPosition({ (1.0f - uv.x) * 0.5f , 0.0f });
 	}
+}
+
+void Sprite::ReleaseSpriteBuffer()
+{
+	ReleaseCOM(mVB);
+	ReleaseCOM(mIB);
+	ReleaseCOM(mInputLayout);
+	ReleaseCOM(mInsatncedInputLayout);
 }
 
 void Sprite::BulidBuffer(ID3D11Device* device)

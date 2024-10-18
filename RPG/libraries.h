@@ -2,8 +2,6 @@
 
 //Windows
 #include <Windowsx.h>
-#include <wrl.h>
-using namespace Microsoft::WRL;
 
 //#include "resource.h"
 

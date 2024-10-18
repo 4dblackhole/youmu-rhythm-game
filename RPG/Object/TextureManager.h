@@ -19,6 +19,7 @@ public:
 	void Clear();
 
 	static ContainerType::mapped_type& GetNullTexture();
+	static void ReleaseNullTexture();
 
 private:
 	void AddTextureArr_LoadTextureList(const vector<LPCWSTR>& fileList, vector<ID3D11Texture2D*>& textureList);
