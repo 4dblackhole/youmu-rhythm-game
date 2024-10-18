@@ -16,7 +16,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG
+#define REFTIME_DEBUG51
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -45,6 +45,7 @@ PlayScene::~PlayScene()
 	ReleasePauseBackground();
 	ReleaseTaikoModeHitSounds();
 }
+
 
 void PlayScene::InitTaikoModeLanes()
 {

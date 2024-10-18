@@ -213,6 +213,9 @@
     <ClCompile Include="MusicalObject\ScorePercentage.cpp">
       <Filter>MusicalObject</Filter>
     </ClCompile>
+    <ClCompile Include="Object\NumberSprite.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -382,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\ScorePercentage.h">
       <Filter>MusicalObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\NumberSprite.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

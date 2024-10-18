@@ -200,6 +200,7 @@
     <ClCompile Include="Object\InstanceBuffer\InstanceBuffer.cpp" />
     <ClCompile Include="Object\InstanceBuffer\SpriteInstanceBuffer.cpp" />
     <ClCompile Include="Object\MusicListScroll.cpp" />
+    <ClCompile Include="Object\NumberSprite.cpp" />
     <ClCompile Include="Object\Shape2D\DwLayout2D.cpp" />
     <ClCompile Include="Object\Shape2D\Rectangle2D.cpp" />
     <ClCompile Include="Object\Shape2D\Shape2D.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Object\InstanceBuffer\InstanceBuffer.h" />
     <ClInclude Include="Object\InstanceBuffer\SpriteInstanceBuffer.h" />
     <ClInclude Include="Object\MusicListScroll.h" />
+    <ClInclude Include="Object\NumberSprite.h" />
     <ClInclude Include="Object\Shape2D\DwLayout2D.h" />
     <ClInclude Include="Object\Shape2D\Rectangle2D.h" />
     <ClInclude Include="Object\Shape2D\Shape2D.h" />
