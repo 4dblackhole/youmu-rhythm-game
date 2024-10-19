@@ -111,21 +111,21 @@ void PlayScene::InitTaikoModeTextures()
 {
 	ReleaseTaikoModeTextures();
 	const wstring skinDir = SkinDir + L"test Skin/";
-
+	
 	textureList.AddTexture(App->GetDevice(), TextureName::LaneBackground, skinDir + L"LaneBackground.png");
 	textureList.AddTexture(App->GetDevice(), TextureName::LaneLight, skinDir + L"LaneLight.png");
 	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
 	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
-
-	auto val = textureList.AddTextureArr(
+	
+	bool val = textureList.AddTextureArr(
 		TextureName::note,
 		{
 			(skinDir + L"note.png").c_str(),
 			(skinDir + L"bignote.png").c_str(),
 			(skinDir + L"noteoverlay.png").c_str()
 		});
-
-	DEBUG_BREAKPOINT;
+	assert(val);
+	
 }
 
 void PlayScene::ReleaseTaikoModeTextures()
@@ -136,8 +136,6 @@ void PlayScene::ReleaseTaikoModeTextures()
 void PlayScene::InitTaikoModeSprites()
 {
 	//TODO: move this function to Lane class
-
-	//testLane.Init();
 
 	const Texture& laneBGTexture = textureList.GetTexture(TextureName::LaneBackground);
 	testLane.laneSprite.GetWorld3d().SetObjectScale({ LaneWidth, (float)LaneMaxLength });
@@ -162,7 +160,7 @@ void PlayScene::InitTaikoModeSprites()
 	testLane.judgeLineSprite.GetWorld3d().SetLocalPosition({ 0, (float)testLane.GetJudgePosition(), 0 });
 	testLane.judgeLineSprite.GetWorld3d().SetObjectScale(LargeCircleDiameter);
 	testLane.judgeLineSprite.SetTexture(&judgeLineTexture);
-
+	
 }
 
 void PlayScene::InitCurrentTimeText()
@@ -251,11 +249,12 @@ void PlayScene::InitPauseBackground()
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
 
+	ID3D11Texture2D* pauseBG = nullptr;
 	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &pauseBG));
 	HR(App->GetDevice()->CreateRenderTargetView(pauseBG, nullptr, &pauseBgRTV));
 	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
 
-	D2D.ReleaseBackBuffer();
+	D2D.ReleaseBackBuffer(); //for change 3d target, 2d surfaces must be relased
 	D2D.ResetBackBuffer(pauseBG);
 
 	App->GetDeviceContext()->OMSetRenderTargets(1, &pauseBgRTV, nullptr);
@@ -270,6 +269,7 @@ void PlayScene::InitPauseBackground()
 	//D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
 	prevSceneSprite.SetTexture(&pauseBgTexture);
 
+	ReleaseCOM(pauseBG);
 	App->ResetRenderTarget();
 	D2D.ReleaseBackBuffer();
 	D2D.ResetBackBufferFromSwapChain(App->GetSwapChain());
@@ -277,7 +277,6 @@ void PlayScene::InitPauseBackground()
 
 void PlayScene::ReleasePauseBackground()
 {
-	ReleaseCOM(pauseBG);
 	ReleaseCOM(pauseBgRTV);
 	ReleaseCOM(pauseBgTexture.GetRefSRV());
 }

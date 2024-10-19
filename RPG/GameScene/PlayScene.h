@@ -87,7 +87,6 @@ private:
 
 	Triangle2D pauseOptSelectTriangle{};
 
-	ID3D11Texture2D* pauseBG = nullptr;
 	ID3D11RenderTargetView* pauseBgRTV = nullptr;
 	Texture pauseBgTexture;
 

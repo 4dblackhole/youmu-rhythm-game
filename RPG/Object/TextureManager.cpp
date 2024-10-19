@@ -67,7 +67,7 @@ void TextureManager::AddTextureArr_LoadTextureList(const vector<LPCWSTR>& fileLi
 		D3DX11_IMAGE_LOAD_INFO info{};
 		info.MipLevels = 1;
 		HR(D3DX11CreateTextureFromFile(App->GetDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
-		textureList.emplace_back(std::move(tempTexture2D));
+		textureList.emplace_back(tempTexture2D);
 
 		++cIter;
 	}
@@ -113,6 +113,8 @@ bool TextureManager::AddTextureArr_MergeTextureList(const string& keyStr, const 
 	Texture& arrTexture = this->textureList[keyStr];
 	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture.GetRefSRV()));
 	if (FAILED(hr)) return false;
+
+	ReleaseCOM(texture2DArr);
 
 	Texture::UpdateDescFromSRV(arrTexture);
 
