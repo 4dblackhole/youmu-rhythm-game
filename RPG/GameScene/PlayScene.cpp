@@ -16,7 +16,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG51
+#define REFTIME_DEBUG
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -706,7 +706,7 @@ void PlayScene::UpdateOnLoad(float dt)
 		else if (KEYBOARD.Down(VK_RETURN) || threadTimer.TotalTime() > enterWaitTime)
 		{
 			ExitStatusLoad();
-			ChangeStatusReStart();
+			ChangeStatusStart();
 		}
 	}
 
@@ -779,8 +779,13 @@ void PlayScene::UpdateDebugText()
 
 	const Note& note = *testLane.CurrentNoteConst()->NoteRef();
 	wstringstream wss;
-	wss << L"Measure: " << note.mp.measureIdx << " Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
-		<< L" Type: " << note.noteType << L" HitCount: " << testLane.CurrentNoteConst()->HitCountConst() << L" diff: " << differenceFromTime.count()
+	wss << L"Measure: " << note.mp.measureIdx << "  Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
+		<< L" Type: " << note.noteType << L" HitCount: ";
+		
+	const auto& hitCountOpt = testLane.CurrentNoteConst()->GetHitCondition()->GetHitCount();
+	if (hitCountOpt.has_value()) wss << hitCountOpt.value();
+	else wss << L"No";
+	wss << L" diff: " << differenceFromTime.count()
 		<< L"\nScore:" << std::fixed << std::setprecision(2) << scorePercent.GetRate();
 	debugText.SetText(wss.str());
 }
@@ -935,8 +940,8 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	constexpr double inaccuratePenalty = 0.5;
 	const double resultPercentage = currentNote.IsInaccurateConst() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
 	scorePercent.AddScoreRate(resultPercentage);
-	--currentNote.HitCount();
-	if (currentNote.HitCountConst() <= 0) testLane.MoveCurrentNoteForward();
+	currentNote.GetHitCondition()->OnHit();
+	if (currentNote.GetHitCondition()->IsHitted()) testLane.MoveCurrentNoteForward();
 
 	
 }
@@ -1037,7 +1042,7 @@ bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT target
 
 	//not bignote
 	if (currentNote.NoteRef()->noteType != targetType ||
-		currentNote.HitCountConst() != targetHitCount) return false;
+		currentNote.GetHitCondition()->GetHitCount().value() != targetHitCount) return false;
 
 	//not in the judge range
 	if (accRange.RangeCheck(refTime, currentNote.Timing(), AccuracyRange::RangeName::Good) == false) return false;
@@ -1047,14 +1052,14 @@ bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT target
 
 void PlayScene::PlayTaikoModeDonSound(const MilliDouble& refTime)
 {
-	const bool isBigNote = CheckNoteTypeForHitSound(refTime, (UINT)TaikoNoteType::BigDon, (int)HitCount::BigNote);
+	const bool& isBigNote = CheckNoteTypeForHitSound(refTime, (UINT)TaikoNoteType::BigDon, (int)HitCount::BigNote);
 	if (isBigNote) FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::BigDon), nullptr, false, nullptr);
 	else FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::Don), nullptr, false, nullptr);
 }
 
 void PlayScene::PlayTaikoModeKatSound(const MilliDouble& refTime)
 {
-	const bool isBigNote = CheckNoteTypeForHitSound(refTime, (UINT)TaikoNoteType::BigKat, (int)HitCount::BigNote);
+	const bool& isBigNote = CheckNoteTypeForHitSound(refTime, (UINT)TaikoNoteType::BigKat, (int)HitCount::BigNote);
 	if (isBigNote) FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::BigKat), nullptr, false, nullptr);
 	else FMODSYSTEM.System()->playSound(defaultTaikoModeHitSoundList.at((size_t)DefaultHitSound::Kat), nullptr, false, nullptr);
 }

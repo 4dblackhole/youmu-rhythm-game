@@ -4,10 +4,16 @@
 class HitConditionNormal : public HitCondition
 {
 public:
-	HitConditionNormal(int maxC = 1);
+	HitConditionNormal(int hitC);
 	virtual ~HitConditionNormal();
 
 	virtual void OnHit() override;
 	virtual bool IsHitted() override;
+	virtual void Reset() override;
 
+	virtual std::optional<int> GetHitCount() const override;
+
+private:
+	const int maxHitCount;
+	int hitCount;
 };

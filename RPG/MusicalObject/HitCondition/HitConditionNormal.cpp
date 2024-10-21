@@ -1,8 +1,9 @@
 #include "framework.h"
 #include "HitConditionNormal.h"
 
-HitConditionNormal::HitConditionNormal(int maxC) : HitCondition(maxC)
+HitConditionNormal::HitConditionNormal(int hitC) : maxHitCount(hitC)
 {
+	Reset();
 }
 
 HitConditionNormal::~HitConditionNormal()
@@ -11,10 +12,20 @@ HitConditionNormal::~HitConditionNormal()
 
 void HitConditionNormal::OnHit()
 {
-	++hitCount;
+	--hitCount;
 }
 
 bool HitConditionNormal::IsHitted()
 {
-	return maxHitCount <= hitCount;
+	return hitCount == 0;
+}
+
+void HitConditionNormal::Reset()
+{
+	hitCount = maxHitCount;
+}
+
+std::optional<int> HitConditionNormal::GetHitCount() const
+{
+	return hitCount;
 }

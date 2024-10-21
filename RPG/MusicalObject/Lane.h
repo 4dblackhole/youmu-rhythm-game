@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "HitCondition/HitCondition.h"
 
 /*to check the order of each notes
 if the targetNoteList is {0, 1}, then player should pay attention to the order in which they hit notes 0 and 1
@@ -11,7 +12,7 @@ public:
 	struct NoteDesc
 	{
 	public:
-		NoteDesc(const Note* p = nullptr, const chrono::microseconds t = chrono::microseconds(0), bool pass = false, bool inaccurate = false, int hitC = 1);
+		NoteDesc(const Note* p = nullptr, const chrono::microseconds t = chrono::microseconds(0), bool pass = false, bool inaccurate = false);
 		~NoteDesc();
 
 		const Note* NoteRef() const { return note; }
@@ -19,21 +20,23 @@ public:
 
 		bool& IsPassed() { return isPassed; }
 		bool& IsInaccurate() { return isInaccurate; }
-		int& HitCount() { return hitCount; }
 
 		const bool& IsPassedConst() const { return isPassed; }
 		const bool& IsInaccurateConst() const { return isInaccurate; }
-		const int& HitCountConst() const { return hitCount; }
 
-		void ResetHitCount() { hitCount = maxHitcount; };
+		void ResetHitCount() { hitCondition->Reset(); };
+
+		void SetHitCondition(HitCondition* hc); //move pointer owner
+		HitCondition* const& GetHitCondition() const { return hitCondition; }
 
 	private:
 		const Note* note; //weak ptr
 		const chrono::microseconds timing;
 		bool isPassed;
 		bool isInaccurate;
-		const int maxHitcount;
-		int hitCount;
+		HitCondition* hitCondition;
+		//const int maxHitcount;
+		//int hitCount;
 
 	public:
 		template <typename MemberType, typename Comparator = std::less<MemberType>>
@@ -109,7 +112,7 @@ private:
 	void SetNotePassStatus(bool v);
 	void SetNoteInaccurate(bool v);
 	void InitNoteHitCount();
-	int GetNoteHitCountFromType(const Note& targetNote);
+	HitCondition* GetNoteHitConditionFromType(const Note& targetNote);
 
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);

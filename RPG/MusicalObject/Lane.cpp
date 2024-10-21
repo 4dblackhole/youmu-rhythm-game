@@ -3,15 +3,24 @@
 
 #include "GameScene/PlayScene.h"
 
+#include "HitCondition/HitConditionNormal.h"
+
 constexpr float LaneWidth = 180.0f;
 
-Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass, bool inaccurate, int hitC)
-	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCount(hitC), maxHitcount(hitC)
+Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass, bool inaccurate)
+	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCondition(nullptr)
 {
 }
 
 Lane::NoteDesc::~NoteDesc()
 {
+	delete hitCondition;
+}
+
+void Lane::NoteDesc::SetHitCondition(HitCondition* hc)
+{
+	delete hitCondition; 
+	hitCondition = hc;
 }
 
 void Lane::Reset()
@@ -141,21 +150,31 @@ void Lane::InitNoteHitCount()
 	
 }
 
-int Lane::GetNoteHitCountFromType(const Note& targetNote)
+HitCondition* Lane::GetNoteHitConditionFromType(const Note& targetNote)
 {
-	int hitcount = NoteDesc::DefaultHitCount;
-	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote.noteType == (int)PlayScene::TaikoNoteType::BigKat)
-		hitcount = (int)PlayScene::HitCount::BigNote;
+	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::Don || targetNote.noteType == (int)PlayScene::TaikoNoteType::Kat)
+	{
+		return new HitConditionNormal((int)PlayScene::HitCount::Note);
+	}
 
-	return hitcount;
+	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote.noteType == (int)PlayScene::TaikoNoteType::BigKat)
+	{
+		return new HitConditionNormal((int)PlayScene::HitCount::BigNote);
+	}
+
+	return nullptr;
 }
 
 void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote)
 {
+	if (targetNote == nullptr) return;
+
 	const size_t& key_of_recentlyPoppedNote = targetNote->noteType;
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
 
-	noteList.emplace_back(NoteDesc{ targetNote, timing, false, false, GetNoteHitCountFromType(*targetNote) });
+	noteList.emplace_back(NoteDesc{ targetNote, timing, false, false });
+	noteList.back().SetHitCondition(GetNoteHitConditionFromType(*targetNote));
+	DEBUG_BREAKPOINT;
 }
 
 void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)
