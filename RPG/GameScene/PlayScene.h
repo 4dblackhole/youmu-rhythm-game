@@ -157,7 +157,7 @@ private:
 	void ReleaseTaikoModeKeyNoteTypeMap();
 	void NoteUpdateTaikoMode(const MilliDouble& refTime);
 	void NoteProcessTaikoMode(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList);
-	bool CheckNoteType(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList);
+	bool CheckNoteType(const std::span<const UINT>& targetTypeList);
 	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 
 	enum class DefaultHitSound

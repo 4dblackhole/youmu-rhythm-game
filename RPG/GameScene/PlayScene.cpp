@@ -249,13 +249,13 @@ void PlayScene::InitPauseBackground()
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
 
-	ID3D11Texture2D* pauseBG = nullptr;
-	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &pauseBG));
-	HR(App->GetDevice()->CreateRenderTargetView(pauseBG, nullptr, &pauseBgRTV));
-	HR(App->GetDevice()->CreateShaderResourceView(pauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
+	ID3D11Texture2D* tempPauseBG = nullptr;
+	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &tempPauseBG));
+	HR(App->GetDevice()->CreateRenderTargetView(tempPauseBG, nullptr, &pauseBgRTV));
+	HR(App->GetDevice()->CreateShaderResourceView(tempPauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
 
 	D2D.ReleaseBackBuffer(); //for change 3d target, 2d surfaces must be relased
-	D2D.ResetBackBuffer(pauseBG);
+	D2D.ResetBackBuffer(tempPauseBG);
 
 	App->GetDeviceContext()->OMSetRenderTargets(1, &pauseBgRTV, nullptr);
 
@@ -269,7 +269,7 @@ void PlayScene::InitPauseBackground()
 	//D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
 	prevSceneSprite.SetTexture(&pauseBgTexture);
 
-	ReleaseCOM(pauseBG);
+	ReleaseCOM(tempPauseBG);
 	App->ResetRenderTarget();
 	D2D.ReleaseBackBuffer();
 	D2D.ResetBackBufferFromSwapChain(App->GetSwapChain());
@@ -924,7 +924,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 		return;
 	}
 
-	if (!CheckNoteType(refTime, targetTypeList)) // wrong note type
+	if (!CheckNoteType(targetTypeList)) // wrong note type
 	{
 		testLane.laneLightSprite.Diffuse = MyColor4::MyRed;
 		currentNote.IsInaccurate() = true;
@@ -933,7 +933,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 
 	// Hit successed, MAX ~ GOOD Judge
 	constexpr double inaccuratePenalty = 0.5;
-	const double resultPercentage = currentNote.IsInaccurate() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
+	const double resultPercentage = currentNote.IsInaccurateConst() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
 	scorePercent.AddScoreRate(resultPercentage);
 	--currentNote.HitCount();
 	if (currentNote.HitCountConst() <= 0) testLane.MoveCurrentNoteForward();
@@ -941,7 +941,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	
 }
 
-bool PlayScene::CheckNoteType(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList)
+bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 {
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return false;
 	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
@@ -977,7 +977,7 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 		(accRange.GetLateJudgeTiming(refTime, judgepriority)).count());
 
 	vector<Lane::NoteDesc>::iterator targetNoteIter;
-	//MoveCurrentNoteIterWithLowerBound
+	//FindTargetNoteIter
 	[&]()
 		{
 			const vector<Lane::NoteDesc>::iterator& targetNotePriorityIter
@@ -1011,6 +1011,7 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 
 		}();
 
+	//MoveCurrentNoteIter
 	while (currentNote < targetNoteIter)
 	{
 		//note Miss

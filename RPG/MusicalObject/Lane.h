@@ -12,7 +12,7 @@ public:
 	{
 	public:
 		NoteDesc(const Note* p = nullptr, const chrono::microseconds t = chrono::microseconds(0), bool pass = false, bool inaccurate = false, int hitC = 1);
-		~NoteDesc() {}
+		~NoteDesc();
 
 		const Note* NoteRef() const { return note; }
 		const chrono::microseconds& Timing() const { return timing; }

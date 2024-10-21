@@ -10,6 +10,10 @@ Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass,
 {
 }
 
+Lane::NoteDesc::~NoteDesc()
+{
+}
+
 void Lane::Reset()
 {
 	SetNotePassStatus(false);

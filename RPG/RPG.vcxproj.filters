@@ -58,6 +58,9 @@
     <Filter Include="Object\InstanceBuffer">
       <UniqueIdentifier>{5f188596-31ee-4507-99a6-106746cc3e06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MusicalObject\HitCondition">
+      <UniqueIdentifier>{b1666ad4-55b4-477d-b5b3-d23fa4be9bd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -215,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="Object\NumberSprite.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\HitCondition\HitConditionNormal.cpp">
+      <Filter>MusicalObject\HitCondition</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\HitCondition\HitCondition.cpp">
+      <Filter>MusicalObject\HitCondition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -388,6 +397,12 @@
     </ClInclude>
     <ClInclude Include="Object\NumberSprite.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\HitCondition\HitCondition.h">
+      <Filter>MusicalObject\HitCondition</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\HitCondition\HitConditionNormal.h">
+      <Filter>MusicalObject\HitCondition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
