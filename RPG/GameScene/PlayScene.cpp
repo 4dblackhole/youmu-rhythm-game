@@ -16,7 +16,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG
+#define REFTIME_DEBUG34
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -689,6 +689,7 @@ void PlayScene::ChangeStatusLoad()
 void PlayScene::ExitStatusLoad()
 {
 	StopLoadMusicScoreThread();
+	UpdateTotalMusicTime();
 }
 
 void PlayScene::UpdateOnLoad(float dt)
@@ -727,15 +728,18 @@ void PlayScene::UpdateTotalMusicTime()
 void PlayScene::StopPlayMusicThread()
 {
 	playMusicThreadRunFlag = false;
-	if (playMusicThread.joinable())playMusicThread.join();
+	if (playMusicThread.joinable()) playMusicThread.join();
 }
 
 void PlayScene::PlayMusic()
 {
 	while (totalMusicTime.count() < 0 && playMusicThreadRunFlag)
 	{
+		TRACE(_T("music play wait\n"));
 		(std::this_thread::sleep_for(std::chrono::milliseconds(1)));
 	}
+
+	TRACE(_T("musicTime: %.2lfms \n"), totalMusicTime.count());
 
 	music->PlayMusic();
 	UpdateTotalMusicTime();
@@ -748,7 +752,6 @@ void PlayScene::ChangeStatusReStart()
 	
 	playMusicThreadRunFlag = true;
 	playMusicThread = thread(&PlayScene::PlayMusic, this);
-
 
 	sceneStatus = Status::Start;
 }

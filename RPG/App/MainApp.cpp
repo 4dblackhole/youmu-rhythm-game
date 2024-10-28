@@ -48,6 +48,11 @@ bool MainApp::Init()
 {
 	if (!__super::Init())return false;
 
+	//Init singletons
+	SceneManager::GetInstance();
+	D2Ddevice::GetInstance();
+	StrToVK::GetInstance();
+
 	RenderStates::Init(md3dDevice);
 	EffectList::Init(md3dDevice);
 
