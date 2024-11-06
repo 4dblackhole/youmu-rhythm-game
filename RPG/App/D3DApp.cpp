@@ -82,7 +82,7 @@ int D3DApp::Run()
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
+			DispatchMessage(&msg);
 		}
 		else
 		{
@@ -94,8 +94,8 @@ int D3DApp::Run()
 				CalculateFrameStats();
 				UpdateScene(mTimer.DeltaTime());
 
-				constexpr UINT debugFlag = 1;
-				if constexpr (debugFlag == 0) DrawScene();
+				constexpr UINT debugDrawLimitFlag = 1;
+				if constexpr (debugDrawLimitFlag == 0) DrawScene();
 				else
 				{
 					//render limit according to monitor hz
@@ -105,7 +105,7 @@ int D3DApp::Run()
 					if (renderTime >= fpsLimit)
 					{
 						DrawScene();
-						if (renderTime < 60000.0f) renderTime -= fpsLimit;
+						if (renderTime < 1024.0f) renderTime -= fpsLimit;
 						else renderTime = 0.0f;
 					}
 				}
@@ -157,7 +157,6 @@ void D3DApp::OnResize()
 
 	//Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-
 	depthStencilDesc.Width = mClientWidth;
 	depthStencilDesc.Height = mClientHeight;
 	depthStencilDesc.MipLevels = 1;

@@ -2,7 +2,7 @@
 #include "libraries.h"
 
 class MusicalPosition;
-class Note;
+class MusicalNote;
 class Measure;
 class MusicBPM;
 
@@ -15,9 +15,9 @@ public:
 	MusicScore();
 	~MusicScore();
 	
-	const Note* GetFirstNote() const;
+	const MusicalNote* GetFirstNote() const;
 
-	using NoteListPerType = map<MusicalPosition, Note>;
+	using NoteListPerType = map<MusicalPosition, MusicalNote>;
 
 	//idx - length
 	vector<Measure> measures;
@@ -84,11 +84,11 @@ public:
 
 };
 
-class Note : public MusicalObject
+class MusicalNote : public MusicalObject
 {
 public:
-	Note() {}
-	~Note() {}
+	MusicalNote() {}
+	~MusicalNote() {}
 
 	enum class DataOrder
 	{

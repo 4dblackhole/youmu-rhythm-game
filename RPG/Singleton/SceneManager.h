@@ -6,8 +6,8 @@
 class SceneManager : public SingletonBase<SceneManager>
 {
 public:
-	using mapSceneList = map< string, GameScene* >;
-	using mapSceneIter = map< string, GameScene* >::iterator;
+	using mapSceneList = map<string, GameScene*>;
+	using mapSceneIter = map<string, GameScene*>::iterator;
 
 public:
 	SceneManager();

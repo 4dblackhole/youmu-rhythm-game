@@ -1,6 +1,5 @@
 #pragma once
-#include "framework.h"
-#include "Note.h"
+#include "libraries.h"
 
 class Pattern
 {

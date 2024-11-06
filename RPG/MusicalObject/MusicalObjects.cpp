@@ -1,5 +1,5 @@
 #include "framework.h"
-#include "Note.h"
+#include "MusicalObjects.h"
 
 MusicScore::MusicScore()
 {
@@ -9,10 +9,10 @@ MusicScore::~MusicScore()
 {
 }
 
-const Note* MusicScore::GetFirstNote() const
+const MusicalNote* MusicScore::GetFirstNote() const
 {
     if(notesPerTypeMap.empty()) return nullptr;
-    const Note* result = nullptr;
+    const MusicalNote* result = nullptr;
     for (const decltype(notesPerTypeMap)::value_type& it : notesPerTypeMap)
     {
         const auto& firstNoteOfEachList = it.second.begin();

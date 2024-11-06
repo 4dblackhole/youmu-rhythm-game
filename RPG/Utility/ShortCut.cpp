@@ -123,7 +123,10 @@ bool ShortCut::WordSeparateW(const wstring_view& source, const wstring& separato
 	if (second != nullptr)
 	{
 		size_t secondStartPos = separatorPos + separator.length() - 1;
-		while (source[++secondStartPos] == L' ');
+		while (source[++secondStartPos] == L' ')
+		{
+			if (secondStartPos == source.length() - 1)break;
+		}
 		*second = source.substr(secondStartPos);
 	}
 	return true;

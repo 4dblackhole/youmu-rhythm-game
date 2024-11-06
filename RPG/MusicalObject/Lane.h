@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
-#include "HitCondition/HitCondition.h"
+#include "NoteRelated/Note/Note.h"
+#include "NoteRelated/HitCondition/HitCondition.h"
 
 /*to check the order of each notes
 if the targetNoteList is {0, 1}, then player should pay attention to the order in which they hit notes 0 and 1
@@ -9,51 +10,6 @@ if the targetNoteList is {0, 1}, then player should pay attention to the order i
 class Lane
 {
 public:
-	struct NoteDesc
-	{
-	public:
-		NoteDesc(const Note* p = nullptr, const chrono::microseconds t = chrono::microseconds(0), bool pass = false, bool inaccurate = false);
-		~NoteDesc();
-
-		const Note* NoteRef() const { return note; }
-		const chrono::microseconds& Timing() const { return timing; }
-
-		bool& IsPassed() { return isPassed; }
-		bool& IsInaccurate() { return isInaccurate; }
-
-		const bool& IsPassedConst() const { return isPassed; }
-		const bool& IsInaccurateConst() const { return isInaccurate; }
-
-		void ResetHitCount() { hitCondition->Reset(); };
-
-		void SetHitCondition(HitCondition* hc); //move pointer owner
-		HitCondition* const& GetHitCondition() const { return hitCondition; }
-
-	private:
-		const Note* note; //weak ptr
-		const chrono::microseconds timing;
-		bool isPassed;
-		bool isInaccurate;
-		HitCondition* hitCondition;
-		//const int maxHitcount;
-		//int hitCount;
-
-	public:
-		template <typename MemberType, typename Comparator = std::less<MemberType>>
-		static bool CompareLowerBound(const NoteDesc& s, const MemberType& v)
-		{
-			return Comparator()(s.timing, v);
-		}
-
-		template <typename MemberType, typename Comparator = std::less<MemberType>>
-		static bool CompareUpperBound(const MemberType& v, const NoteDesc& s)
-		{
-			return Comparator()(v, s.timing);
-		}
-
-		static constexpr int DefaultHitCount = 1;
-	};
-	
 	struct NoteDrawDesc
 	{
 	public:
@@ -108,11 +64,11 @@ private:
 
 private:
 	vector<NoteDesc> noteList;
-	void AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote);
+	void AddNoteDescFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote);
 	void SetNotePassStatus(bool v);
 	void SetNoteInaccurate(bool v);
 	void InitNoteHitCount();
-	HitCondition* GetNoteHitConditionFromType(const Note& targetNote);
+	HitCondition* GetNoteHitConditionFromType(const MusicalNote& targetNote);
 
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);

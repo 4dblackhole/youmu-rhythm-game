@@ -428,14 +428,13 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 }
 void PlayScene::LoadPattern(const wstring_view& content)
 {
-
 	size_t startIdx = 0;
 	size_t endIdx = content.find(EndlineIdc, startIdx);
 
 	bool isReadingFile = true;
-	bool isAnnotationArea = false;
 	size_t measureIdx = 0;
 
+	bool isAnnotationArea = false;
 	const auto& ReadPatternLine = [&](const wstring_view& lineStr)
 		{
 			//annotation check
@@ -463,12 +462,12 @@ void PlayScene::LoadPattern(const wstring_view& content)
 			vector<pair<size_t, size_t>> idxArr;
 			ShortCut::WordSeparateW(lineStr, L",", idxArr);
 
-			if (idxArr.size() < (size_t)Note::DataOrder::Action + 1) //invalid string
+			if (idxArr.size() < (size_t)MusicalNote::DataOrder::Action + 1) //invalid string
 			{
 				return;
 			}
 
-			wstring_view noteElements[(int)Note::DataOrder::MAX];
+			wstring_view noteElements[(int)MusicalNote::DataOrder::MAX];
 			for (int idx = 0; idx < idxArr.size(); ++idx)
 			{
 				if (idxArr[idx].second != wstring_view::npos)
@@ -478,35 +477,35 @@ void PlayScene::LoadPattern(const wstring_view& content)
 			}
 
 			wstringstream wss;
-			Note tempNote;
+			MusicalNote tempNote;
 			tempNote.mp.measureIdx = measureIdx;
 
 			//DataOrder::Beat
-			tempNote.mp.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)Note::DataOrder::Rhythm]);
+			tempNote.mp.position = ShortCut::StrToRationalNumber<64>(noteElements[(int)MusicalNote::DataOrder::Rhythm]);
 			size_t referencingMeasureIdx = min(measureIdx, musicScore->measures.size() - 1);
 
 			//out of measure
 			if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) return;
 
 			//DataOrder::Type
-			wss << noteElements[(int)Note::DataOrder::Type];
+			wss << noteElements[(int)MusicalNote::DataOrder::Type];
 			wss >> tempNote.noteType;
 
 			//DataOrder:Action
-			wss << noteElements[(int)Note::DataOrder::Action];
+			wss << noteElements[(int)MusicalNote::DataOrder::Action];
 			wss >> tempNote.actionType;
 
 			//DataOrder::Hitsound
-			if (idxArr.size() > (int)Note::DataOrder::Hitsound)
+			if (idxArr.size() > (int)MusicalNote::DataOrder::Hitsound)
 			{
-				tempNote.hitSound = noteElements[(int)Note::DataOrder::Hitsound];
+				tempNote.hitSound = noteElements[(int)MusicalNote::DataOrder::Hitsound];
 			}
 
 			wstring asdfdsaf;
 
-			if (idxArr.size() > (int)Note::DataOrder::ExtraData)
+			if (idxArr.size() > (int)MusicalNote::DataOrder::ExtraData)
 			{
-				tempNote.extraData = noteElements[(int)Note::DataOrder::ExtraData];
+				tempNote.extraData = noteElements[(int)MusicalNote::DataOrder::ExtraData];
 			}
 
 			musicScore->notesPerTypeMap[tempNote.noteType].emplace(make_pair(tempNote.mp, tempNote));
@@ -596,7 +595,7 @@ void PlayScene::LoadMusicScore()
 
 			testLane.LoadNotes(musicScore);
 
-			const Note* firstNote = musicScore->GetFirstNote();
+			const MusicalNote* firstNote = musicScore->GetFirstNote();
 			constexpr chrono::milliseconds waitTime(1000);
 			if (firstNote != nullptr)
 			{
@@ -618,7 +617,6 @@ void PlayScene::LoadMusicScore()
 void PlayScene::LoadMusicScoreComplete()
 {
 	musicScoreLoadFlag = true;
-	//if (musicScore->offset < MilliDouble(1));
 	threadTimer.Reset();
 	rhythmTimer.Reset();
 
@@ -742,7 +740,6 @@ void PlayScene::PlayMusic()
 	TRACE(_T("musicTime: %.2lfms \n"), totalMusicTime.count());
 
 	music->PlayMusic();
-	UpdateTotalMusicTime();
 	music->channel->setPosition((unsigned int)totalMusicTime.count(), FMOD_TIMEUNIT_MS);
 }
 
@@ -759,6 +756,7 @@ void PlayScene::ChangeStatusStart()
 {
 	rhythmTimer.Start();
 	rhythmTimer.Tick();
+	UpdateTotalMusicTime();
 
 	playMusicThreadRunFlag = true;
 	playMusicThread = thread(&PlayScene::PlayMusic, this);
@@ -780,7 +778,7 @@ void PlayScene::UpdateDebugText()
 		return;
 	}
 
-	const Note& note = *testLane.CurrentNoteConst()->NoteRef();
+	const MusicalNote& note = *testLane.CurrentNoteConst()->NoteRef();
 	wstringstream wss;
 	wss << L"Measure: " << note.mp.measureIdx << "  Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
 		<< L" Type: " << note.noteType << L" HitCount: ";
@@ -918,7 +916,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	testLane.laneLightSprite.Diffuse = MyColor4::White; //default LaneLight Color
 
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return;
-	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
+	NoteDesc& currentNote = *testLane.CurrentNote();
 
 	const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime, currentNote.Timing());
 	if (range == nullptr) return; //out of range
@@ -952,7 +950,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 {
 	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return false;
-	Lane::NoteDesc& currentNote = *testLane.CurrentNote();
+	const NoteDesc& currentNote = *testLane.CurrentNote();
 	
 	bool isFind = false;
 	for (const UINT& it : targetTypeList)
@@ -968,12 +966,12 @@ bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 
 void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority)
 {
-	vector<Lane::NoteDesc>::iterator& currentNote = testLane.CurrentNote();
+	vector<NoteDesc>::iterator& currentNote = testLane.CurrentNote();
 	if (currentNote == testLane.NoteListConst().cend()) return;
 
 	using namespace chrono;
 
-	const vector<Lane::NoteDesc>& noteDescList = testLane.NoteListConst();
+	const vector<NoteDesc>& noteDescList = testLane.NoteListConst();
 
 	const microseconds noteWholeJudgeAreaMs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(accRange.GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::MAX)).count());
@@ -984,17 +982,17 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	const microseconds lateJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(accRange.GetLateJudgeTiming(refTime, judgepriority)).count());
 
-	vector<Lane::NoteDesc>::iterator targetNoteIter;
+	vector<NoteDesc>::iterator targetNoteIter;
 	//FindTargetNoteIter
 	[&]()
 		{
-			const vector<Lane::NoteDesc>::iterator& targetNotePriorityIter
+			const vector<NoteDesc>::iterator& targetNotePriorityIter
 				= lower_bound
 				(
 					testLane.NoteList().begin(),
 					testLane.NoteList().end(),
 					earlyJudgeTimeUs,
-					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
+					NoteDesc::CompareLowerBound<microseconds, std::less<>>
 				);
 
 			if (targetNotePriorityIter != testLane.NoteList().end())
@@ -1006,13 +1004,13 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 				}
 			}
 
-			const vector<Lane::NoteDesc>::iterator& targetNoteWholeAreaIter
+			const vector<NoteDesc>::iterator& targetNoteWholeAreaIter
 				= lower_bound
 				(
 					testLane.NoteList().begin(),
 					testLane.NoteList().end(),
 					noteWholeJudgeAreaMs,
-					Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
+					NoteDesc::CompareLowerBound<microseconds, std::less<>>
 				);
 			targetNoteIter = targetNoteWholeAreaIter;
 			
@@ -1041,7 +1039,7 @@ bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT target
 {
 	if (testLane.CurrentNoteConst() == testLane.NoteListConst().cend()) return false;
 
-	const Lane::NoteDesc& currentNote = *testLane.CurrentNoteConst();
+	const NoteDesc& currentNote = *testLane.CurrentNoteConst();
 
 	//not bignote
 	if (currentNote.NoteRef()->noteType != targetType ||
@@ -1324,19 +1322,19 @@ void PlayScene::UpdateInstancedBuffer_MeasureLine_Internal(const MilliDouble ref
 
 	measureLineInstanceCount = 0;
 
-	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
+	const vector<NoteDesc>& noteDescList = lane.NoteListConst();
 
-	const vector<Lane::NoteDesc>::const_iterator& frontNote
+	const vector<NoteDesc>::const_iterator& frontNote
 		= lower_bound(noteDescList.begin(), noteDescList.end(),
 			microseconds((long long)refTime.count()),
-			Lane::NoteDesc::CompareLowerBound<microseconds, std::less<>>
+			NoteDesc::CompareLowerBound<microseconds, std::less<>>
 		);
 
 	if (frontNote == noteDescList.cend()) return; //end of note, no need to draw measure line
 
 	const long long int& frontMeasureLineIdx = (long long int)frontNote->NoteRef()->mp.measureIdx;
 
-	const Lane::NoteDesc& lastNote = noteDescList.back();
+	const NoteDesc& lastNote = noteDescList.back();
 	long long int currentMeasureLineIdx = (long long int)lastNote.NoteRef()->mp.measureIdx;
 
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
@@ -1387,21 +1385,21 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 
 	noteInstanceCount = 0;
 
-	const vector<Lane::NoteDesc>& noteDescList = lane.NoteListConst();
+	const vector<NoteDesc>& noteDescList = lane.NoteListConst();
 
 	const MicroDouble& earlyBadTiming
 		= duration_cast<MicroDouble>(accRange.GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::Bad));
 
-	const vector<Lane::NoteDesc>::const_reverse_iterator rEndIter
+	const vector<NoteDesc>::const_reverse_iterator rEndIter
 		= upper_bound
 		(
 			noteDescList.rbegin(),
 			noteDescList.rend(),
 			microseconds((long long)earlyBadTiming.count()),
-			Lane::NoteDesc::CompareUpperBound<microseconds, greater<>>
+			NoteDesc::CompareUpperBound<microseconds, greater<>>
 		);
 
-	vector<Lane::NoteDesc>::const_reverse_iterator rcIter = noteDescList.rbegin();
+	vector<NoteDesc>::const_reverse_iterator rcIter = noteDescList.rbegin();
 
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 

@@ -28,7 +28,7 @@ bool SceneManager::AddScene(const mapSceneList::key_type& sceneName, const mapSc
 
 bool SceneManager::RemoveScene(const mapSceneList::key_type& sceneName)
 {
-	mapSceneIter it = sceneList.find(sceneName);
+	const mapSceneIter it = sceneList.find(sceneName);
 	if (it != sceneList.end())
 	{
 		delete it->second;
@@ -41,10 +41,11 @@ bool SceneManager::RemoveScene(const mapSceneList::key_type& sceneName)
 
 void SceneManager::ChangeScene(const mapSceneList::key_type& sceneName)
 {
-	mapSceneIter it = sceneList.find(sceneName);
+	const mapSceneIter it = sceneList.find(sceneName);
 	if (it != sceneList.end())
 	{
 		currentScene->EndScene();
+		previousScene = currentScene;
 		currentScene = it->second;
 		currentScene->BeginScene();
 		currentScene->OnResize((float)App->GetWidth(), (float)App->GetHeight());
@@ -67,6 +68,4 @@ SceneManager::~SceneManager()
 	{
 		delete it.second;
 	}
-
-	TRACE(_T("SceneManager Release\n"));
 }

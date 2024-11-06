@@ -37,9 +37,9 @@
 
 #include "MusicalObject/Music.h"
 #include "MusicalObject/Pattern.h"
+#include "MusicalObject/MusicalObjects.h"
 #include "MusicalObject/PrefixSum/BpmTimingPrefixSum.h"
 #include "MusicalObject/PrefixSum/MeasurePrefixSum.h"
-#include "MusicalObject/Note.h"
 
 #include "Singleton/SceneManager.h"
 #include "Singleton/FmodSystem.h"

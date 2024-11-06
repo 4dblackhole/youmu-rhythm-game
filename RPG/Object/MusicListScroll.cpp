@@ -492,6 +492,8 @@ const wstring tagIdc = L"Tags";
 
 static bool ColumnSeparate(const wstring_view& source, wstring* first, wstring* second)
 {
+	return ShortCut::WordSeparateW(source, L":", first, second);
+	/*
 	size_t columnPos = source.find(L':'); // key: filename
 	if (columnPos == wstring::npos) return false; //not valid desc
 
@@ -504,6 +506,7 @@ static bool ColumnSeparate(const wstring_view& source, wstring* first, wstring* 
 		*second = wstring(source.substr(secondStartPos));
 	}
 	return true;
+	*/
 }
 
 static Pattern* ParseYmpFile(const wstring& fileDir, const wstring& file)

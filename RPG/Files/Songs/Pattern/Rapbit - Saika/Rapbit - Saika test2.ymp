@@ -3,21 +3,27 @@ Music metadata: Music/1Rabpit - Saika/saika.ymm
 Pattern Maker Count: 2
 Pattern Maker 1: Konpaku Sariel
 Pattern Maker 2: Youmu
-Pattern Name: copy test
+Pattern Name: test
 Tags: test
 
-Pattern Offset: 1045
-Preview Time: 1,0/1
+Pattern Offset: 1045.5227
+Preview Time: 1045
+Base BPM: 140
 
 [Difficulty]
 Mode: Taiko
 JudgeLevel: 50
 
+[HitSounds]
+
 [Time Signature]
 0/1,#bpm 140
 #measure 1/4
+#measureLineVisible OFF
 --
-0/8,#measure 15/8
+#measure 20/8
+#measureLineVisible ON
+
 1/8,#bpm 180
 2/8,#bpm 175
 3/8,#bpm 200
@@ -25,38 +31,39 @@ JudgeLevel: 50
 5/8,#bpm 155
 6/8,#bpm 115
 7/8,#bpm 110
-9/8,#bpm 115
+8/8,#bpm 115
 10/8,#bpm 175
-11/8,#bpm 165
-12/8,#bpm 120
-13/8,#bpm 115
-14/8,#bpm 108
+12/8,#bpm 165
+14/8,#bpm 120
+16/8,#bpm 115
+18/8,#bpm 108
 --
 #measure C
 0/1,#bpm 144
 --
 #measure 1/2
 --
+#measure C
 0/1,#bpm 145
 
 [Pattern]
 7/32,1,0
 --
 0/8,2,0
-1/8,2,0
+1/8,11,1
 2/8,1,0
 3/8,1,0
 4/8,1,0
-5/8,1,0
+5/8,11,1
 6/8,2,0
 7/8,2,0
-8/8,1,0
+8/8,11,2
 9/8,1,0
 10/8,1,0
-11/8,2,0
-12/8,1,0
-13/8,2,0
+12/8,2,0
 14/8,1,0
+16/8,2,0
+18/8,1,0
 --
 0/1,2,0
 --

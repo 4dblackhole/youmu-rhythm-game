@@ -3,9 +3,6 @@
 #include "Object/Sprite.h"
 #include "framework.h"
 
-#include "MusicalObject/Music.h"
-#include "MusicalObject/Pattern.h"
-#include "MusicalObject/Note.h"
 #include "MusicalObject/Lane.h"
 #include "MusicalObject/AccuracyRange.h"
 #include "MusicalObject/ScorePercentage.h"

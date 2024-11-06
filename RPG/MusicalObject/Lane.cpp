@@ -3,25 +3,9 @@
 
 #include "GameScene/PlayScene.h"
 
-#include "HitCondition/HitConditionNormal.h"
+#include "NoteRelated/HitCondition/HitConditionNormal.h"
 
 constexpr float LaneWidth = 180.0f;
-
-Lane::NoteDesc::NoteDesc(const Note* p, const chrono::microseconds t, bool pass, bool inaccurate)
-	:note(p), timing(t), isPassed(pass), isInaccurate(inaccurate), hitCondition(nullptr)
-{
-}
-
-Lane::NoteDesc::~NoteDesc()
-{
-	delete hitCondition;
-}
-
-void Lane::NoteDesc::SetHitCondition(HitCondition* hc)
-{
-	delete hitCondition; 
-	hitCondition = hc;
-}
 
 void Lane::Reset()
 {
@@ -88,7 +72,7 @@ void Lane::LoadNotes(const MusicScore* score)
 
 	//object containing first note of each note
 	unordered_map<size_t, MusicScore::NoteContainer::mapped_type::const_iterator> targetNoteIterList;
-	priority_queue<const Note*, vector<const Note*>, ShortCut::ptrHeapLess<Note>> targetNoteListTimeSort;
+	priority_queue<const MusicalNote*, vector<const MusicalNote*>, ShortCut::ptrHeapLess<MusicalNote>> targetNoteListTimeSort;
 	size_t validIterCount = targetNoteTypeList.size();
 	for (const size_t& keyType : targetNoteTypeList)
 	{
@@ -98,7 +82,7 @@ void Lane::LoadNotes(const MusicScore* score)
 				const MusicScore::NoteContainer::const_iterator noteTypeList = wholeNoteList.find(keyType);
 				if (noteTypeList == wholeNoteList.cend()) return false; //there is no notes of the type
 
-				const map<MusicalPosition, Note>::const_iterator firstNoteOfTypeIt = (*noteTypeList).second.begin();
+				const map<MusicalPosition, MusicalNote>::const_iterator firstNoteOfTypeIt = (*noteTypeList).second.begin();
 
 				//in case there is no note
 				if (firstNoteOfTypeIt == wholeNoteList.at(keyType).cend()) return false;
@@ -115,7 +99,7 @@ void Lane::LoadNotes(const MusicScore* score)
 	while (validIterCount != 0)
 	{
 		//select most earliest note
-		const Note* const& mostEarliestNote = targetNoteListTimeSort.top();
+		const MusicalNote* const& mostEarliestNote = targetNoteListTimeSort.top();
 		AddNoteDescFromNoteTaikoMode(score, mostEarliestNote);
 
 		//add new note
@@ -150,7 +134,7 @@ void Lane::InitNoteHitCount()
 	
 }
 
-HitCondition* Lane::GetNoteHitConditionFromType(const Note& targetNote)
+HitCondition* Lane::GetNoteHitConditionFromType(const MusicalNote& targetNote)
 {
 	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::Don || targetNote.noteType == (int)PlayScene::TaikoNoteType::Kat)
 	{
@@ -165,7 +149,7 @@ HitCondition* Lane::GetNoteHitConditionFromType(const Note& targetNote)
 	return nullptr;
 }
 
-void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const Note* const& targetNote)
+void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote)
 {
 	if (targetNote == nullptr) return;
 
@@ -203,7 +187,7 @@ void Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNot
 	for (const size_t& keyType : targetNoteTypeList)
 	{
 		//MusicScore::NoteList
-		const map<MusicalPosition, Note>& currentNoteList = wholeNoteList.at(keyType);
+		const map<MusicalPosition, MusicalNote>& currentNoteList = wholeNoteList.at(keyType);
 		totalExpectedNotes += currentNoteList.size();
 	}
 	noteList.reserve(totalExpectedNotes);
