@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
-#include "NoteRelated/Note/Note.h"
+#include "NoteRelated/Note/NoteDesc.h"
+#include "NoteRelated/Note/NoteDrawDesc.h"
 #include "NoteRelated/HitCondition/HitCondition.h"
 
 /*to check the order of each notes
@@ -9,17 +10,6 @@ if the targetNoteList is {0, 1}, then player should pay attention to the order i
 
 class Lane
 {
-public:
-	struct NoteDrawDesc
-	{
-	public:
-		XMFLOAT4 color;
-		double diameter;
-		UINT textureID;
-		UINT textureOverlayID;
-	};
-	static constexpr NoteDrawDesc defaultNoteDrawDesc{ MyColor4::Blank, 0 };
-
 public:
 	Lane() {}
 	~Lane() {}

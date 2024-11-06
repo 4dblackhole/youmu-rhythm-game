@@ -618,7 +618,6 @@ void PlayScene::LoadMusicScoreComplete()
 {
 	musicScoreLoadFlag = true;
 	threadTimer.Reset();
-	rhythmTimer.Reset();
 
 	InitInstancedBuffer(noteInstancedBuffer, UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
 
@@ -754,7 +753,7 @@ void PlayScene::ChangeStatusReStart()
 }
 void PlayScene::ChangeStatusStart()
 {
-	rhythmTimer.Start();
+	rhythmTimer.Reset();
 	rhythmTimer.Tick();
 	UpdateTotalMusicTime();
 
@@ -1415,7 +1414,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 			if (notePos >= laneDrawArea.second) return;
 
 			//set the data from note draw desc
-			const Lane::NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->NoteRef()->noteType);
+			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc(rcIter->NoteRef()->noteType);
 			World3D tempWorld3d;
 			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
 			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);

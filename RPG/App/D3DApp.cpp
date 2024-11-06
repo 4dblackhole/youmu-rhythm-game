@@ -2,7 +2,7 @@
 #include "d3dApp.h"
 
 static constexpr UINT SWAPCHAIN_BUFFERCOUNT = 2;
-
+static constexpr UINT SWAPCHAIN_FLAG = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 namespace
 {
 	D3DApp* gd3dApp = nullptr;
@@ -145,7 +145,7 @@ void D3DApp::OnResize()
 	D2D.ReleaseBackBuffer();
 
 	//Resize the swap chain and recreate the RTV
-	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, SWAPCHAIN_FLAG));
 
 	ID3D11Texture2D* backBuffer;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
@@ -460,7 +460,7 @@ bool D3DApp::InitDirect3D()
 	sd.OutputWindow = mhMainWnd;
 	sd.Windowed = true;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	sd.Flags = 0;
+	sd.Flags = SWAPCHAIN_FLAG;
 
 	//To correctly create the swap chain, we must use the IDXGIFactory
 	IDXGIDevice* dxgiDevice{};

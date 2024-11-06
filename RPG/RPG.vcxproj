@@ -193,6 +193,8 @@
     <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitCondition.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\Note.cpp" />
+    <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDesc.cpp" />
+    <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
     <ClCompile Include="MusicalObject\PlayMode\PlayMode.cpp" />
     <ClCompile Include="MusicalObject\PlayMode\TaikoMode.cpp" />
@@ -250,6 +252,8 @@
     <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitCondition.h" />
     <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\Note.h" />
+    <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDesc.h" />
+    <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
     <ClInclude Include="MusicalObject\PlayMode\PlayMode.h" />
     <ClInclude Include="MusicalObject\PlayMode\TaikoMode.h" />

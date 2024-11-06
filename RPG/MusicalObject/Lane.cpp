@@ -2,7 +2,6 @@
 #include "Lane.h"
 
 #include "GameScene/PlayScene.h"
-
 #include "NoteRelated/HitCondition/HitConditionNormal.h"
 
 constexpr float LaneWidth = 180.0f;
@@ -43,7 +42,7 @@ void Lane::RemoveNoteType(size_t key)
 	targetNoteTypeList.erase(key);
 }
 
-const Lane::NoteDrawDesc& Lane::GetNoteDrawDesc(size_t key) const
+const NoteDrawDesc& Lane::GetNoteDrawDesc(size_t key) const
 {
 	auto it = noteDrawDescMap.find(key);
 	if (it != noteDrawDescMap.end()) return it->second;

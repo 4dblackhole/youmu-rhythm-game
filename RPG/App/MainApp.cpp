@@ -192,7 +192,8 @@ void MainApp::DrawScene()
 		fpsLayout->Draw();
 	}
 	D2D.EndDraw();
-	HR(mSwapChain->Present(0, 0));
+	HR(mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
+	//HR(mSwapChain->Present(0, 0));
 }
 
 void MainApp::OnMouseDown(WPARAM btnState, int x, int y)
