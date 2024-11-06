@@ -686,7 +686,7 @@ void PlayScene::ChangeStatusLoad()
 void PlayScene::ExitStatusLoad()
 {
 	StopLoadMusicScoreThread();
-	UpdateTotalMusicTime();
+	rhythmTimer.Reset();
 }
 
 void PlayScene::UpdateOnLoad(float dt)
@@ -732,14 +732,14 @@ void PlayScene::PlayMusic()
 {
 	while (totalMusicTime.count() < 0 && playMusicThreadRunFlag)
 	{
-		TRACE(_T("music play wait\n"));
 		(std::this_thread::sleep_for(std::chrono::milliseconds(1)));
 	}
 
-	TRACE(_T("musicTime: %.2lfms \n"), totalMusicTime.count());
-
-	music->PlayMusic();
-	music->channel->setPosition((unsigned int)totalMusicTime.count(), FMOD_TIMEUNIT_MS);
+	if (totalMusicTime < music->GetMusicLength())
+	{
+		music->PlayMusic();
+		music->channel->setPosition((unsigned int)totalMusicTime.count(), FMOD_TIMEUNIT_MS);
+	}
 }
 
 void PlayScene::ChangeStatusReStart()
@@ -753,7 +753,7 @@ void PlayScene::ChangeStatusReStart()
 }
 void PlayScene::ChangeStatusStart()
 {
-	rhythmTimer.Reset();
+	rhythmTimer.Start();
 	rhythmTimer.Tick();
 	UpdateTotalMusicTime();
 

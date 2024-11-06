@@ -55,6 +55,7 @@ protected:
 	bool mMinimized;
 	bool mMaximized;
 	bool mResizing;
+	BOOL isFullScreen;
 
 	//window size
 	int mClientWidth;

@@ -6,11 +6,11 @@
 class Note
 {
 public:
-	Note() {};
+	Note(const MusicalPosition& pos);
 	~Note() {};
 
 protected:
-	MusicalPosition mp;
+	const MusicalPosition mp;
 	UINT noteType;
 	UINT actionType;
 	bool isPassed;

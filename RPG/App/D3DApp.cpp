@@ -35,7 +35,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mRenderTargetView(nullptr),
 	mDepthStencilView(nullptr),
 	mScreenViewport({}),
-	dwMonitorFrequency(60u)
+	dwMonitorFrequency(60u),
+	isFullScreen(FALSE)
 {
 	gd3dApp = this;
 }
@@ -115,7 +116,6 @@ int D3DApp::Run()
 		}
 	}
 
-	BOOL isFullScreen;
 	mSwapChain->GetFullscreenState(&isFullScreen, nullptr);
 	if (isFullScreen == TRUE) mSwapChain->SetFullscreenState(FALSE, nullptr);
 

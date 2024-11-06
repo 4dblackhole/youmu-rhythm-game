@@ -76,12 +76,12 @@ void MusicListScroll::OnEndScene()
 
 void MusicListScroll::PlayMusic(size_t idx)
 {
-	if (!musicList.empty()) FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, false, &musicList[idx]->channel);
+	if (!musicList.empty()) musicList[idx]->PlayMusic(false); //FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, false, &musicList[idx]->channel);
 }
 
 void MusicListScroll::StopMusic(size_t idx)
 {
-	if (!musicList.empty()) FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
+	if (!musicList.empty()) musicList[idx]->PlayMusic(true); //FMODSYSTEM.System()->playSound(musicList[idx]->music, nullptr, true, &musicList[idx]->channel);
 }
 
 void MusicListScroll::UpdateScrollMatrix()
@@ -595,18 +595,14 @@ static Music* ParseYmmFile(const wstring& fileDir, const wstring& file)
 		wstring_view lineStr = wstring_view(file.c_str()+filePos, endPos - filePos);
 		ColumnSeparate(lineStr, nullptr, &resultMusic->FileName);
 
-		const wstring musicDir = fileDir + L'/' + resultMusic->FileName;
-		const string musicDirUTF8 = ShortCut::WstringToUTF8(musicDir);
-		FMOD_RESULT result = FmodSystem::GetInstance().System()->createStream(musicDirUTF8.c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &resultMusic->music);
+		const wstring& musicDir = fileDir + L'/' + resultMusic->FileName;
+		const string& musicDirUTF8 = ShortCut::WstringToUTF8(musicDir);
+		//FMOD_RESULT result = FmodSystem::GetInstance().System()->createStream(musicDirUTF8.c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &resultMusic->music);
+		FMOD_RESULT result = resultMusic->CreateStream(musicDirUTF8.c_str(), FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr);
 		
 		if (result != FMOD_OK) throw 0; //no file detected
 
-		//get audio file size
-		std::ifstream fin(musicDir, std::ios::binary);
-		fin.seekg(0, std::ios_base::end);
-		size_t size = (size_t)fin.tellg();
-		resultMusic->musicFileSize = size;
-		fin.close();
+		resultMusic->UpdateMusicFileSize(musicDir);
 
 		// pos of "Music Name"
 		size_t musicNamePos = file.find(musicNameIdc, endPos);

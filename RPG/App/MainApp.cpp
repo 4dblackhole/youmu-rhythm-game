@@ -192,8 +192,16 @@ void MainApp::DrawScene()
 		fpsLayout->Draw();
 	}
 	D2D.EndDraw();
-	HR(mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
-	//HR(mSwapChain->Present(0, 0));
+
+	mSwapChain->GetFullscreenState(&isFullScreen, nullptr);
+	if (isFullScreen == FALSE)
+	{
+		HR(mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
+	}
+	else
+	{
+		HR(mSwapChain->Present(0, 0));
+	}
 }
 
 void MainApp::OnMouseDown(WPARAM btnState, int x, int y)
