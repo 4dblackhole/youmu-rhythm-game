@@ -1,5 +1,6 @@
 #include "framework.h"
 #include "PlayScene.h"
+#include "ResultScene.h"
 
 constexpr float LayoutSize = 4.0f;
 constexpr int LayoutBaseX = -60;
@@ -16,14 +17,14 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-#define REFTIME_DEBUG34
+constexpr UINT REFTIME_DEBUG = FALSE;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
-	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false)
+	prevSceneSprite(0, 0, (float)StandardWidth, (float)StandardHeight, { 1,1,1,0.2f }, false), resultWaitFlag(false)
 	//,noteSprite(0, 0)
 {
-	threadTimer.Reset();
+	loadWaitTimer.Reset();
 
 	InitPauseOptionLayoutList();
 	InitLoadingText();
@@ -287,6 +288,7 @@ void PlayScene::ReSetting()
 	UpdateTotalMusicTime();
 	testLane.Reset();
 	scorePercent.Init();
+	resultWaitFlag = false;
 }
 
 static constexpr LPCWSTR OffsetIdc = L"Pattern Offset";
@@ -617,7 +619,7 @@ void PlayScene::LoadMusicScore()
 void PlayScene::LoadMusicScoreComplete()
 {
 	musicScoreLoadFlag = true;
-	threadTimer.Reset();
+	loadWaitTimer.Reset();
 
 	InitInstancedBuffer(noteInstancedBuffer, UINT(sizeof(SpriteInstanceData) * testLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
 
@@ -675,7 +677,7 @@ void PlayScene::ChangeStatusLoad()
 {
 	sceneStatus = Status::Load;
 	SafeDelete(musicScore);
-	threadTimer.Reset();
+	loadWaitTimer.Reset();
 	loadMusicScoreThreadFlag = true;
 	loadMusicScoreThread = thread(&PlayScene::LoadMusicScore, this);
 
@@ -694,14 +696,14 @@ void PlayScene::UpdateOnLoad(float dt)
 	constexpr float enterWaitTime = 3.0f;
 	if (musicScoreLoadFlag)
 	{
-		threadTimer.Tick();
+		loadWaitTimer.Tick();
 		if (musicScore == nullptr)
 		{
 			AlertBox(_T("Pattern Load Fail"));
 			ExitStatusLoad();
 			ChangeStatusEnd();
 		}
-		else if (KEYBOARD.Down(VK_RETURN) || threadTimer.TotalTime() > enterWaitTime)
+		else if (KEYBOARD.Down(VK_RETURN) || loadWaitTimer.TotalTime() > enterWaitTime)
 		{
 			ExitStatusLoad();
 			ChangeStatusStart();
@@ -726,6 +728,7 @@ void PlayScene::StopPlayMusicThread()
 {
 	playMusicThreadRunFlag = false;
 	if (playMusicThread.joinable()) playMusicThread.join();
+	//music->PlayMusic(true);
 }
 
 void PlayScene::PlayMusic()
@@ -790,8 +793,40 @@ void PlayScene::UpdateDebugText()
 	debugText.SetText(wss.str());
 }
 
+static void Wait()
+{
+	GameTimer timer;
+	timer.Reset();
+	constexpr float waitTime = 5.0f;
+	while (timer.TotalTime() < waitTime)
+	{
+		timer.Tick();
+		if (KEYBOARD.Down(VK_ESCAPE)) break;
+	}
+	SCENEMANAGER.AddScene(SceneManager::Name::ResultScene, new ResultScene());
+	SCENEMANAGER.ChangeScene(SceneManager::Name::ResultScene);
+}
+
 void PlayScene::UpdateOnStart(float dt)
 {
+	if (testLane.CurrentNoteConst() == testLane.NoteList().cend())
+	{
+		constexpr float waitTime = 5.0f;
+		if (!resultWaitFlag)
+		{
+			resultWaitTimer.Reset();
+			resultWaitFlag = true;
+		}
+		resultWaitTimer.Tick();
+
+		if (KEYBOARD.Down(VK_ESCAPE) || resultWaitTimer.TotalTime() > waitTime)
+		{
+			SCENEMANAGER.AddScene(SceneManager::Name::ResultScene, new ResultScene());
+			SCENEMANAGER.ChangeScene(SceneManager::Name::ResultScene);
+			return;
+		}
+	}
+
 	rhythmTimer.Tick();
 	UpdateTotalMusicTime();
 
@@ -800,6 +835,7 @@ void PlayScene::UpdateOnStart(float dt)
 		ExitStatusStart();
 		ChangeStatusPause();
 	}
+	
 
 #ifdef _DEBUG
 
@@ -851,15 +887,13 @@ void PlayScene::UpdateOnStart(float dt)
 	}
 #endif
 
-#ifdef REFTIME_DEBUG
-	const MilliDouble& refTime = debugMs;
-#else
-	const MilliDouble& refTime = totalMusicTime;
-#endif 
-
 	testLane.Update(dt);
+
+	MilliDouble refTime;
+	if constexpr (REFTIME_DEBUG == 0) refTime = totalMusicTime;
+	else refTime = debugMs;
+
 	NoteUpdateTaikoMode(refTime);
-	//PlayTaikoModeHitSound();
 
 }
 
@@ -965,7 +999,7 @@ bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 
 void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority)
 {
-	vector<NoteDesc>::iterator& currentNote = testLane.CurrentNote();
+	const vector<NoteDesc>::const_iterator& currentNote = testLane.CurrentNoteConst();
 	if (currentNote == testLane.NoteListConst().cend()) return;
 
 	using namespace chrono;
@@ -981,11 +1015,11 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	const microseconds lateJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(accRange.GetLateJudgeTiming(refTime, judgepriority)).count());
 
-	vector<NoteDesc>::iterator targetNoteIter;
+	vector<NoteDesc>::const_iterator targetNoteIter;
 	//FindTargetNoteIter
 	[&]()
 		{
-			const vector<NoteDesc>::iterator& targetNotePriorityIter
+			const vector<NoteDesc>::const_iterator& targetNotePriorityIter
 				= lower_bound
 				(
 					testLane.NoteList().begin(),
@@ -1003,7 +1037,7 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 				}
 			}
 
-			const vector<NoteDesc>::iterator& targetNoteWholeAreaIter
+			const vector<NoteDesc>::const_iterator& targetNoteWholeAreaIter
 				= lower_bound
 				(
 					testLane.NoteList().begin(),

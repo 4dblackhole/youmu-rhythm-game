@@ -47,6 +47,7 @@ void SelectMusicScene::Update(float dt)
 			GameScene* playScene = new PlayScene(currentMusic, currentPattern);
 			SCENEMANAGER.AddScene(SceneManager::Name::PlayScene, playScene);
 			SCENEMANAGER.ChangeScene(SceneManager::Name::PlayScene);
+			return;
 		}
 	}
 }

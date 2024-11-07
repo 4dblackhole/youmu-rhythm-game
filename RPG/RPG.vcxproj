@@ -182,6 +182,7 @@
     </ClCompile>
     <ClCompile Include="GameScene\LogoScene.cpp" />
     <ClCompile Include="GameScene\PlayScene.cpp" />
+    <ClCompile Include="GameScene\ResultScene.cpp" />
     <ClCompile Include="GameScene\SelectMusicScene.cpp" />
     <ClCompile Include="GameScene\TestScene.cpp" />
     <ClCompile Include="GameScene\TitleScene.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameScene\LogoScene.h" />
     <ClInclude Include="GameScene\PlayScene.h" />
+    <ClInclude Include="GameScene\ResultScene.h" />
     <ClInclude Include="GameScene\SelectMusicScene.h" />
     <ClInclude Include="GameScene\TestScene.h" />
     <ClInclude Include="GameScene\TitleScene.h" />

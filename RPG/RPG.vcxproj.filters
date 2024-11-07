@@ -240,6 +240,9 @@
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
+    <ClCompile Include="GameScene\ResultScene.cpp">
+      <Filter>GameScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -427,6 +430,9 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene\ResultScene.h">
+      <Filter>GameScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

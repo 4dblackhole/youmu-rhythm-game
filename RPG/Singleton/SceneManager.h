@@ -30,6 +30,7 @@ public:
 		DECLARE_VARIABLE_STRING(Title);
 		DECLARE_VARIABLE_STRING(SelectMusic);
 		DECLARE_VARIABLE_STRING(PlayScene);
+		DECLARE_VARIABLE_STRING(ResultScene);
 	};
 
 private:

@@ -65,6 +65,8 @@ private:
 	void ExitStatus(Status);
 	void RenderStatus(Status s, ID3D11DeviceContext* deviceContext, const Camera& cam);
 	
+	bool resultWaitFlag;
+
 //pause related
 private:
 	enum class PauseOption
@@ -97,7 +99,8 @@ private:
 
 //timing related
 private:
-	GameTimer threadTimer;
+	GameTimer loadWaitTimer;
+	GameTimer resultWaitTimer;
 
 	GameTimer rhythmTimer;
 	chrono::microseconds musicTimeOffset{ 0 };
