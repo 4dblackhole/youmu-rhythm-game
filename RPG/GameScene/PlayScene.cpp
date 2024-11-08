@@ -793,20 +793,6 @@ void PlayScene::UpdateDebugText()
 	debugText.SetText(wss.str());
 }
 
-static void Wait()
-{
-	GameTimer timer;
-	timer.Reset();
-	constexpr float waitTime = 5.0f;
-	while (timer.TotalTime() < waitTime)
-	{
-		timer.Tick();
-		if (KEYBOARD.Down(VK_ESCAPE)) break;
-	}
-	SCENEMANAGER.AddScene(SceneManager::Name::ResultScene, new ResultScene());
-	SCENEMANAGER.ChangeScene(SceneManager::Name::ResultScene);
-}
-
 void PlayScene::UpdateOnStart(float dt)
 {
 	if (testLane.CurrentNoteConst() == testLane.NoteList().cend())
@@ -818,9 +804,10 @@ void PlayScene::UpdateOnStart(float dt)
 			resultWaitFlag = true;
 		}
 		resultWaitTimer.Tick();
-
+		music->channel->setVolume(1.0f - (resultWaitTimer.TotalTime() / waitTime));
 		if (KEYBOARD.Down(VK_ESCAPE) || resultWaitTimer.TotalTime() > waitTime)
 		{
+			music->PlayMusic(true);
 			SCENEMANAGER.AddScene(SceneManager::Name::ResultScene, new ResultScene());
 			SCENEMANAGER.ChangeScene(SceneManager::Name::ResultScene);
 			return;

@@ -27,7 +27,6 @@ private:
 	class TextureName
 	{
 	public:
-		DECLARE_VARIABLE_STRING(fmodLogo);
 	};
 
 	GameTimer timer;
