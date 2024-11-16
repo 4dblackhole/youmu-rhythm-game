@@ -15,3 +15,4 @@ const wstring TextureDir = AssetDir + L"Textures/";
 const wstring SystemSoundDir = AssetDir + L"Hitsounds/System/";
 
 const wstring SkinDir = FileDir + L"Skins/";
+const wstring ConfigDir = FileDir + L"Configs/";

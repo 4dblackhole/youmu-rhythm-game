@@ -19,6 +19,9 @@ public:
 	static std::string WstringToUTF8(const std::wstring& buf);
 	static std::wstring ReadUTF8File(const std::wstring& fileName);
 
+	static std::string WstrToStr(const std::wstring_view& source);
+	static std::wstring StrToWstr(const std::string_view& source);
+	
 	static void TraceTimingPoint();
 
 	static float GetOrthoWidth(float w, float h);

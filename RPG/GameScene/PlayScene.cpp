@@ -70,14 +70,69 @@ void PlayScene::InitTaikoModeKeyNoteTypeMap()
 	//TODO: load from config file
 	ReleaseTaikoModeKeyNoteTypeMap();
 
-	keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("Z"));
-	keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("X"));
-	keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_2"));
-	keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_PERIOD"));
-	keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("A"));
-	keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("S"));
-	keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_7"));
-	keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_1"));
+	try
+	{
+		static const wstring taikoConfigDir = ConfigDir + L"TaikoModeConfig.ini";
+		const wstring& configContent = ShortCut::ReadUTF8File(taikoConfigDir);
+
+		size_t startIdx = configContent.find(L"Multi Key");
+		if (startIdx == wstring::npos) throw 0;
+		size_t endIdx = configContent.find(EndlineIdc, startIdx);
+
+		UINT multiKey = 0;
+		const wstring_view multiKeyStr(configContent.c_str() + startIdx, endIdx - startIdx);
+		wstring value;
+		ShortCut::WordSeparateW(multiKeyStr, L":", nullptr, &value);
+		wstringstream wss;
+		wss << value;
+		wss >> multiKey;
+
+		if (multiKey == 0) throw 0;
+
+		const auto& RegisterKeys = [&](const LPCWSTR& keyName)
+			{
+				size_t startIdx = configContent.find(keyName);
+				if (startIdx == wstring::npos) throw 0;
+				size_t endIdx = configContent.find(EndlineIdc, startIdx);
+				
+				wstring lineStr;
+				//if (startIdx == wstring::npos)lineStr = configContent.substr(startIdx);
+				lineStr = configContent.substr(startIdx, endIdx - startIdx);
+
+				wstring keyListStr;
+				ShortCut::WordSeparateW(lineStr, L":", nullptr, &keyListStr);
+
+				vector<pair<size_t, size_t>> idxList;
+				ShortCut::WordSeparateW(keyListStr, L",", idxList);
+				for (int i = 0; i < min(multiKey, idxList.size()); ++i)
+				{
+					wstring_view keyWstr;
+					if (idxList.at(i).second == wstring_view::npos) keyWstr = wstring_view(keyListStr.c_str() + idxList.at(i).first);
+					else keyWstr = wstring_view(keyListStr.c_str() + idxList.at(i).first, idxList.at(i).second - idxList.at(i).first);
+					const string& keyStr = ShortCut::WstrToStr(keyWstr);
+					keyNoteTypeMap[keyName].emplace_back(StrToVK::GetVK(keyStr));
+				}
+			};
+
+		RegisterKeys(LeftK);
+		RegisterKeys(LeftD);
+		RegisterKeys(RightD);
+		RegisterKeys(RightK);
+	}
+	catch (UINT val)
+	{
+		UNREFERENCED_PARAMETER(val);
+
+		ReleaseTaikoModeKeyNoteTypeMap();
+		keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("Z"));
+		keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("X"));
+		keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_2"));
+		keyNoteTypeMap[RightD].emplace_back(StrToVK::GetVK("VK_OEM_PERIOD"));
+		keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("A"));
+		keyNoteTypeMap[LeftK].emplace_back(StrToVK::GetVK("S"));
+		keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_7"));
+		keyNoteTypeMap[RightK].emplace_back(StrToVK::GetVK("VK_OEM_1"));
+	}
 }
 
 void PlayScene::ReleaseTaikoModeKeyNoteTypeMap()
@@ -294,7 +349,6 @@ void PlayScene::ReSetting()
 static constexpr LPCWSTR OffsetIdc = L"Pattern Offset";
 static constexpr LPCWSTR TimeSignatureIdc = L"[Time Signature]";
 static constexpr LPCWSTR PatternIdc = L"[Pattern]";
-static constexpr LPCWSTR EndlineIdc = L"\r\n";
 static constexpr LPCWSTR BarlineIdc = L"--";
 static constexpr LPCWSTR EffectTypeIdc = L"#";
 static constexpr LPCWSTR measureIdc = L"measure";
@@ -302,8 +356,6 @@ static constexpr LPCWSTR measureLineVisible = L"measureLineVisible";
 static constexpr LPCWSTR BaseBpmIdc = L"Base BPM";
 static constexpr LPCWSTR bpmIdc = L"bpm";
 static constexpr LPCWSTR CommonTimeIdc = L"C";
-
-static constexpr size_t EndlineIdcLength = 2;
 
 const wstring MeasureEffect = wstring(EffectTypeIdc) + measureIdc;
 const wstring MeasureLineVisibleEffect = wstring(EffectTypeIdc) + measureLineVisible;

@@ -53,6 +53,9 @@ namespace MyColor4
 
 constexpr DirectX::XMFLOAT4 DefaultBgColor = MyColor4::Black;
 
+static constexpr LPCWSTR EndlineIdc = L"\r\n";
+static constexpr size_t EndlineIdcLength = 2;
+
 extern const wstring FileDir;
 extern const wstring SongDir;
 extern const wstring MusicDir;
@@ -61,6 +64,7 @@ extern const wstring AssetDir;
 extern const wstring TextureDir;
 extern const wstring SystemSoundDir;
 extern const wstring SkinDir;
+extern const wstring ConfigDir;
 
 constexpr LPCWSTR ExtMusic = L".ymm";
 constexpr LPCWSTR ExtPattern = L".ymp";

@@ -37,6 +37,16 @@ std::wstring ShortCut::ReadUTF8File(const std::wstring& fileName)
 
 }
 
+std::string ShortCut::WstrToStr(const std::wstring_view& source)
+{
+	return std::string().assign(source.begin(), source.end());
+}
+
+std::wstring ShortCut::StrToWstr(const std::string_view& source)
+{
+	return std::wstring().assign(source.begin(), source.end());
+}
+
 void ShortCut::TraceTimingPoint()
 {
     INT64 t;
@@ -141,8 +151,13 @@ void ShortCut::WordSeparateW(const wstring_view& source, const wstring& separato
 		size_t separatorPos = source.find(separator, startPos); // key {separator} filename
 		idxList.emplace_back(make_pair(startPos, separatorPos));
 		if (separatorPos == wstring::npos) break;
-		startPos = separatorPos + separatorLength - 1;
-		while (source[++startPos] == L' ');
+		startPos = separatorPos + separatorLength;
+		const size_t& sourceLength = source.length();
+		while (startPos < sourceLength)
+		{
+			if (source.at(startPos) != L' ') break;
+			++startPos;
+		}
 	}
 }
 
