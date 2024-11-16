@@ -119,9 +119,11 @@ void PlayScene::InitTaikoModeKeyNoteTypeMap()
 		RegisterKeys(RightD);
 		RegisterKeys(RightK);
 	}
-	catch (UINT val)
+	catch (int val)
 	{
 		UNREFERENCED_PARAMETER(val);
+
+		MessageBox(NULL, _T("Config File Error"), _T("Alert"), MB_OK);
 
 		ReleaseTaikoModeKeyNoteTypeMap();
 		keyNoteTypeMap[LeftD].emplace_back(StrToVK::GetVK("Z"));
