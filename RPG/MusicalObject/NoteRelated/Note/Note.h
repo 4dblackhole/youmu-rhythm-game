@@ -7,7 +7,7 @@ class Note
 {
 public:
 	Note(const MusicalPosition& pos);
-	~Note() {};
+	virtual ~Note() {}
 
 protected:
 	const MusicalPosition mp;

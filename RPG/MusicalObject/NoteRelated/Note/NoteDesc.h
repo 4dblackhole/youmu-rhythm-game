@@ -17,7 +17,7 @@ public:
 	const bool& IsPassedConst() const { return isPassed; }
 	const bool& IsInaccurateConst() const { return isInaccurate; }
 
-	void ResetHitCount() { hitCondition->Reset(); };
+	void ResetHitCondition() { hitCondition->Reset(); };
 
 	void SetHitCondition(HitCondition* hc); //move pointer owner
 	HitCondition* const& GetHitCondition() const { return hitCondition; }
@@ -28,8 +28,6 @@ private:
 	bool isPassed;
 	bool isInaccurate;
 	HitCondition* hitCondition;
-	//const int maxHitcount;
-	//int hitCount;
 
 public:
 	template <typename MemberType, typename Comparator = std::less<MemberType>>
@@ -44,5 +42,16 @@ public:
 		return Comparator()(v, s.timing);
 	}
 
-	static constexpr int DefaultHitCount = 1;
+	template <typename MemberType, typename Comparator = std::less<MemberType>>
+	static bool CompareLowerBoundPtr(NoteDesc* const& s, const MemberType& v)
+	{
+		return Comparator()(s->timing, v);
+	}
+
+	template <typename MemberType, typename Comparator = std::less<MemberType>>
+	static bool CompareUpperBoundPtr(const MemberType& v, NoteDesc* const& s)
+	{
+		return Comparator()(v, s->timing);
+	}
+
 };

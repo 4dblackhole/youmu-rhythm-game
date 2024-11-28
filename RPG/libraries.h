@@ -22,6 +22,7 @@ using namespace DirectX;
 
 
 //STL
+#include <algorithm>
 #include <array>
 #include <assert.h>
 #include <chrono>

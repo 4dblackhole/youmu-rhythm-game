@@ -11,8 +11,10 @@ if the targetNoteList is {0, 1}, then player should pay attention to the order i
 class Lane
 {
 public:
+	using NoteObjectContainer = vector<NoteDesc*>;
+public:
 	Lane() {}
-	~Lane() {}
+	~Lane();
 
 	void OnResize();
 	void Update(float dt);
@@ -30,11 +32,11 @@ public:
 
 	const set<size_t>& GetTargetNoteTypeList() const { return targetNoteTypeList; }
 	
-	vector<NoteDesc>& NoteList() { return noteList; }
-	const vector<NoteDesc>& NoteListConst() const { return noteList; }
+	NoteObjectContainer& NoteList() { return noteObjectList; }
+	const NoteObjectContainer& NoteListConst() const { return noteObjectList; }
 	
-	vector<NoteDesc>::iterator& CurrentNote() { return currentNote; }
-	const vector<NoteDesc>::const_iterator& CurrentNoteConst() const { return currentNote; }
+	NoteObjectContainer::iterator& CurrentNote() { return currentNote; }
+	const NoteObjectContainer::const_iterator& CurrentNoteConst() const { return currentNote; }
 
 	void MoveCurrentNoteForward();
 	void MoveCurrentNoteBackward();
@@ -53,19 +55,20 @@ private:
 	double judgePosition = 0.0;
 
 private:
-	vector<NoteDesc> noteList;
-	void AddNoteDescFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote);
+	NoteObjectContainer noteObjectList;
+	void AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote);
+	void ClearNoteObjectList();
 	void SetNotePassStatus(bool v);
 	void SetNoteInaccurate(bool v);
-	void InitNoteHitCount();
+	void InitNoteHitCondition();
 	HitCondition* GetNoteHitConditionFromType(const MusicalNote& targetNote);
 
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);
-	void CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList);
+	size_t CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList);
 
 	map<size_t, NoteDrawDesc> noteDrawDescMap;
 
-	vector<NoteDesc>::iterator currentNote;
+	NoteObjectContainer::iterator currentNote;
 
 };

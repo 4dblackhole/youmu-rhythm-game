@@ -10,8 +10,13 @@ void Lane::Reset()
 {
 	SetNotePassStatus(false);
 	SetNoteInaccurate(false);
-	InitNoteHitCount();
-	currentNote = noteList.begin();
+	InitNoteHitCondition();
+	currentNote = noteObjectList.begin();
+}
+
+Lane::~Lane()
+{
+	ClearNoteObjectList();
 }
 
 void Lane::OnResize()
@@ -67,7 +72,10 @@ void Lane::LoadNotes(const MusicScore* score)
 	const MusicScore::NoteContainer& wholeNoteList = score->notesPerTypeMap;
 
 	RemoveUnusedNoteType(wholeNoteList);
-	CalculateTotalExpectedNotes(wholeNoteList);
+	const size_t& totalExpectedNotes = CalculateTotalExpectedNotes(wholeNoteList);
+
+	ClearNoteObjectList();
+	noteObjectList.reserve(totalExpectedNotes);
 
 	//object containing first note of each note
 	unordered_map<size_t, MusicScore::NoteContainer::mapped_type::const_iterator> targetNoteIterList;
@@ -99,7 +107,7 @@ void Lane::LoadNotes(const MusicScore* score)
 	{
 		//select most earliest note
 		const MusicalNote* const& mostEarliestNote = targetNoteListTimeSort.top();
-		AddNoteDescFromNoteTaikoMode(score, mostEarliestNote);
+		AddNoteObjectFromNoteTaikoMode(score, mostEarliestNote);
 
 		//add new note
 		const size_t& key_of_recentlyPoppedNote = mostEarliestNote->noteType; 
@@ -113,23 +121,23 @@ void Lane::LoadNotes(const MusicScore* score)
 		else --validIterCount;
 	}
 
-	currentNote = noteList.begin();
+	currentNote = noteObjectList.begin();
 
 }
 
 void Lane::SetNotePassStatus(bool v)
 {
-	for (NoteDesc& it : noteList) it.IsPassed() = v;
+	for (NoteObjectContainer::value_type& it : noteObjectList) it->IsPassed() = v;
 }
 
 void Lane::SetNoteInaccurate(bool v)
 {
-	for (NoteDesc& it : noteList) it.IsInaccurate() = v;
+	for (NoteObjectContainer::value_type& it : noteObjectList) it->IsInaccurate() = v;
 }
 
-void Lane::InitNoteHitCount()
+void Lane::InitNoteHitCondition()
 {
-	for (NoteDesc& it : noteList) it.ResetHitCount();
+	for (NoteObjectContainer::value_type& it : noteObjectList) it->ResetHitCondition();
 	
 }
 
@@ -148,16 +156,26 @@ HitCondition* Lane::GetNoteHitConditionFromType(const MusicalNote& targetNote)
 	return nullptr;
 }
 
-void Lane::AddNoteDescFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote)
+void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote)
 {
 	if (targetNote == nullptr) return;
 
 	const size_t& key_of_recentlyPoppedNote = targetNote->noteType;
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
 
-	noteList.emplace_back(NoteDesc{ targetNote, timing, false, false });
-	noteList.back().SetHitCondition(GetNoteHitConditionFromType(*targetNote));
-	DEBUG_BREAKPOINT;
+	NoteDesc* const notePtr = new NoteDesc{ targetNote, timing, false, false };
+	if (notePtr == nullptr) return; // in case dynamic allocation failure
+
+	noteObjectList.emplace_back(notePtr);
+	NoteDesc& lastNote = *noteObjectList.back();
+	lastNote.SetHitCondition(GetNoteHitConditionFromType(*targetNote));
+}
+
+void Lane::ClearNoteObjectList()
+{
+	if (noteObjectList.empty()) return;
+	for (NoteDesc*& it : noteObjectList) delete it;
+	noteObjectList.clear();
 }
 
 void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)
@@ -179,9 +197,8 @@ void Lane::RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList)
 	
 }
 
-void Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList)
+size_t Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList)
 {
-	noteList.clear();
 	size_t totalExpectedNotes = 0;
 	for (const size_t& keyType : targetNoteTypeList)
 	{
@@ -189,19 +206,19 @@ void Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNot
 		const map<MusicalPosition, MusicalNote>& currentNoteList = wholeNoteList.at(keyType);
 		totalExpectedNotes += currentNoteList.size();
 	}
-	noteList.reserve(totalExpectedNotes);
+	return totalExpectedNotes;
 }
 
 void Lane::MoveCurrentNoteForward()
 {
-	currentNote->IsPassed() = true;
+	(*currentNote)->IsPassed() = true;
 	++currentNote;
 }
 
 void Lane::MoveCurrentNoteBackward()
 {
 	--currentNote;
-	currentNote->IsPassed() = false;
+	(*currentNote)->IsPassed() = false;
 }
 
 void Lane::ChangeLaneLightColor(const XMFLOAT4& color)
