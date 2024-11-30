@@ -988,7 +988,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 {
 	testLane.laneLightSprite.Diffuse = MyColor4::White; //default LaneLight Color
 
-	if (testLane.CurrentNote() == testLane.NoteListConst().end()) return;
+	if (testLane.IsNoTargetNote()) return;
 	NoteDesc& currentNote = **testLane.CurrentNote();
 
 	const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime, currentNote.Timing());

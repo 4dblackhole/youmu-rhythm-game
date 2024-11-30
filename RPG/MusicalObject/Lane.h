@@ -38,6 +38,8 @@ public:
 	NoteObjectContainer::iterator& CurrentNote() { return currentNote; }
 	const NoteObjectContainer::const_iterator& CurrentNoteConst() const { return currentNote; }
 
+	const bool IsNoTargetNote() const { return currentNote == NoteListConst().end(); }
+
 	void MoveCurrentNoteForward();
 	void MoveCurrentNoteBackward();
 
