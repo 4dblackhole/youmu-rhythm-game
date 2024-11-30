@@ -122,7 +122,7 @@ private:
 
 //Game mode related
 private:
-	Lane testLane;
+	Lane taikoLane;
 	void InitTaikoModeLanes();
 
 public:
