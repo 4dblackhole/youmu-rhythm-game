@@ -1460,17 +1460,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 
 	const Lane::NoteObjectContainer& noteDescList = lane.NoteListConst();
 
-	const MicroDouble& earlyBadTiming
-		= duration_cast<MicroDouble>(accRange.GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::Bad));
-
-	const Lane::NoteObjectContainer::const_reverse_iterator rEndIter
-		= upper_bound
-		(
-			noteDescList.rbegin(),
-			noteDescList.rend(),
-			microseconds((long long)earlyBadTiming.count()),
-			NoteDesc::CompareUpperBoundPtr<microseconds, greater<>>
-		);
+	const Lane::NoteObjectContainer::const_reverse_iterator rEndIter = reverse_iterator(taikoLane.CurrentNoteConst());
 
 	Lane::NoteObjectContainer::const_reverse_iterator rcIter = noteDescList.rbegin();
 
