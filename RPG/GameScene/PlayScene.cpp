@@ -556,8 +556,6 @@ void PlayScene::LoadPattern(const wstring_view& content)
 				tempNote.hitSound = noteElements[(int)MusicalNote::DataOrder::Hitsound];
 			}
 
-			wstring asdfdsaf;
-
 			if (idxArr.size() > (int)MusicalNote::DataOrder::ExtraData)
 			{
 				tempNote.extraData = noteElements[(int)MusicalNote::DataOrder::ExtraData];
