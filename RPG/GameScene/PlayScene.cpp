@@ -1461,16 +1461,15 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 	const Lane::NoteObjectContainer& noteDescList = lane.NoteListConst();
 
 	const Lane::NoteObjectContainer::const_reverse_iterator rEndIter = reverse_iterator(taikoLane.CurrentNoteConst());
-
-	Lane::NoteObjectContainer::const_reverse_iterator rcIter = noteDescList.rbegin();
+	Lane::NoteObjectContainer::const_reverse_iterator rStartIter = noteDescList.rbegin();
 
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 
 	const auto& CopyNoteDrawDescIntoInstancedData = [&]() 
 		{
-			if ((*rcIter)->IsPassedConst() == true) return;
+			if ((*rStartIter)->IsPassedConst() == true) return;
 
-			const microseconds& noteTiming = (*rcIter)->Timing();
+			const microseconds& noteTiming = (*rStartIter)->Timing();
 			const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - refTime.count();
 			const double notePos = taikoLane.GetJudgePosition() + distanceQuarterRhythm * noteRelativeTiming * msQuarterInv;
 
@@ -1478,7 +1477,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 			if (notePos >= laneDrawArea.second) return;
 
 			//set the data from note draw desc
-			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc((*rcIter)->NoteRef()->noteType);
+			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc((*rStartIter)->NoteRef()->noteType);
 			World3D tempWorld3d;
 			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
 			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);
@@ -1498,9 +1497,9 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 			++noteInstanceCount;
 		};
 
-	while (rcIter != rEndIter)
+	while (rStartIter != rEndIter)
 	{
 		CopyNoteDrawDescIntoInstancedData();
-		++rcIter;
+		++rStartIter;
 	}
 }
