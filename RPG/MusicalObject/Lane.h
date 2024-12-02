@@ -60,9 +60,7 @@ private:
 	NoteObjectContainer noteObjectList;
 	void AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote);
 	void ClearNoteObjectList();
-	void SetNotePassStatus(bool v);
-	void SetNoteInaccurate(bool v);
-	void InitNoteHitCondition();
+	void InitNoteList();
 	HitCondition* GetNoteHitConditionFromType(const MusicalNote& targetNote);
 
 	set<size_t> targetNoteTypeList;

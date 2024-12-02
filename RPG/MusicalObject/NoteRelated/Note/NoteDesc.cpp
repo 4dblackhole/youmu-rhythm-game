@@ -12,6 +12,18 @@ NoteDesc::~NoteDesc()
 	delete hitCondition;
 }
 
+void NoteDesc::Init()
+{
+	isPassed = false;
+	isInaccurate = false;
+	hitCondition->Init();
+}
+
+void NoteDesc::OnPass()
+{
+	isPassed = true;
+}
+
 void NoteDesc::SetHitCondition(HitCondition* hc)
 {
 	delete hitCondition;

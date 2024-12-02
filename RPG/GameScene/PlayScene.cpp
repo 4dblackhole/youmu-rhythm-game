@@ -827,22 +827,23 @@ void PlayScene::ExitStatusStart()
 
 void PlayScene::UpdateDebugText()
 {
+	wstringstream wss;
 	if (taikoLane.CurrentNoteConst() == taikoLane.NoteList().cend())
 	{
-		debugText.SetText(L"No Target Note");
-		return;
+		wss<< L"No Target Note";
 	}
+	else
+	{
+		const MusicalNote& note = *(*taikoLane.CurrentNoteConst())->NoteRef();
+		wss << L"Measure: " << note.mp.measureIdx << "  Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
+			<< L" Type: " << note.noteType << L" HitCount: ";
 
-	const MusicalNote& note = *(*taikoLane.CurrentNoteConst())->NoteRef();
-	wstringstream wss;
-	wss << L"Measure: " << note.mp.measureIdx << "  Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
-		<< L" Type: " << note.noteType << L" HitCount: ";
-		
-	const auto& hitCountOpt = (*taikoLane.CurrentNoteConst())->GetHitCondition()->GetHitCount();
-	if (hitCountOpt.has_value()) wss << hitCountOpt.value();
-	else wss << L"No";
-	wss << L" diff: " << differenceFromTime.count()
-		<< L"\nScore:" << std::fixed << std::setprecision(2) << scorePercent.GetRate();
+		const auto& hitCountOpt = (*taikoLane.CurrentNoteConst())->GetHitCondition()->GetHitCount();
+		if (hitCountOpt.has_value()) wss << hitCountOpt.value();
+		else wss << L"No";
+		wss << L" diff: " << differenceFromTime.count();
+	}
+	wss	<< L"\nScore:" << std::fixed << std::setprecision(2) << scorePercent.GetRate();
 	debugText.SetText(wss.str());
 }
 
@@ -999,14 +1000,14 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 
 	if (range->id > AccuracyRange::RangeName::Good) //BAD JUDGE
 	{
-		currentNote->IsInaccurate() = true;
+		currentNote->SetInaccurateStatus(true);
 		return;
 	}
 
 	if (!CheckNoteType(targetTypeList)) // wrong note type
 	{
 		taikoLane.laneLightSprite.Diffuse = MyColor4::MyRed;
-		currentNote->IsInaccurate() = true;
+		currentNote->SetInaccurateStatus(true);
 		return;
 	}
 

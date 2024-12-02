@@ -9,7 +9,7 @@ public:
 
 	virtual void OnHit() override;
 	virtual bool IsHitted() override;
-	virtual void Reset() override;
+	virtual void Init() override;
 
 	virtual std::optional<int> GetHitCount() const override;
 

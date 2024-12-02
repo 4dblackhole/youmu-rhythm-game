@@ -3,7 +3,7 @@
 
 HitConditionNormal::HitConditionNormal(int hitC) : maxHitCount(hitC)
 {
-	Reset();
+	Init();
 }
 
 HitConditionNormal::~HitConditionNormal()
@@ -20,7 +20,7 @@ bool HitConditionNormal::IsHitted()
 	return hitCount == 0;
 }
 
-void HitConditionNormal::Reset()
+void HitConditionNormal::Init()
 {
 	hitCount = maxHitCount;
 }

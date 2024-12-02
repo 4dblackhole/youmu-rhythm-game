@@ -8,9 +8,7 @@ constexpr float LaneWidth = 180.0f;
 
 void Lane::Reset()
 {
-	SetNotePassStatus(false);
-	SetNoteInaccurate(false);
-	InitNoteHitCondition();
+	InitNoteList();
 	currentNote = noteObjectList.begin();
 }
 
@@ -125,19 +123,10 @@ void Lane::LoadNotes(const MusicScore* score)
 
 }
 
-void Lane::SetNotePassStatus(bool v)
-{
-	for (NoteObjectContainer::value_type& it : noteObjectList) it->IsPassed() = v;
-}
 
-void Lane::SetNoteInaccurate(bool v)
+void Lane::InitNoteList()
 {
-	for (NoteObjectContainer::value_type& it : noteObjectList) it->IsInaccurate() = v;
-}
-
-void Lane::InitNoteHitCondition()
-{
-	for (NoteObjectContainer::value_type& it : noteObjectList) it->ResetHitCondition();
+	for (NoteObjectContainer::value_type& it : noteObjectList) it->Init();
 	
 }
 
@@ -211,14 +200,14 @@ size_t Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeN
 
 void Lane::MoveCurrentNoteForward()
 {
-	(*currentNote)->IsPassed() = true;
+	(*currentNote)->OnPass();
 	++currentNote;
 }
 
 void Lane::MoveCurrentNoteBackward()
 {
 	--currentNote;
-	(*currentNote)->IsPassed() = false;
+	(*currentNote)->Init();
 }
 
 void Lane::ChangeLaneLightColor(const XMFLOAT4& color)
