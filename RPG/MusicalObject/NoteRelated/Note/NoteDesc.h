@@ -1,6 +1,7 @@
 #pragma once
 #include "libraries.h"
-#include "Note.h"
+#include "MusicalObject/NoteRelated/HitCondition/HitCondition.h"
+#include "MusicalObject/AccuracyRange.h"
 
 class NoteDesc
 {
@@ -10,6 +11,8 @@ public:
 
 	void Init();
 	void OnPass();
+	void OnHit();
+	bool IsHitted();
 
 	const MusicalNote* NoteRef() const { return mNote; }
 	const chrono::microseconds& Timing() const { return timing; }
@@ -26,12 +29,17 @@ public:
 	void SetHitCondition(HitCondition* hc); //move pointer owner
 	HitCondition* const& GetHitCondition() const { return hitCondition; }
 
-private:
+	void SetAccRange(const AccuracyRange* const& ptr) { accRange = ptr; }
+	const AccuracyRange* const& GetAccRange() const { return accRange; }
+
+protected:
 	const MusicalNote* mNote; //weak ptr
 	const chrono::microseconds timing;
 	bool isPassed;
 	bool isInaccurate;
 	HitCondition* hitCondition;
+
+	const AccuracyRange* accRange = nullptr; //weak ptr
 
 public:
 	template <typename MemberType, typename Comparator = std::less<MemberType>>

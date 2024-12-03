@@ -990,7 +990,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	if (taikoLane.IsNoTargetNote()) return;
 	NoteDesc* currentNote = *taikoLane.CurrentNote();
 
-	const AccuracyRange::Info* const& range = accRange.GetRangeInfo(refTime, currentNote->Timing());
+	const AccuracyRange::Info* const& range = currentNote->GetAccRange()->GetRangeInfo(refTime, currentNote->Timing());
 	if (range == nullptr) return; //out of range
 
 	const AccuracyRange::ScoreInfo& sInfo = range->GetInterpolatedScoreInfo(refTime, currentNote->Timing());
@@ -1013,10 +1013,9 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const std::span
 	constexpr double inaccuratePenalty = 0.5;
 	const double resultPercentage = currentNote->IsInaccurateConst() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
 	scorePercent.AddScoreRate(resultPercentage);
-	currentNote->GetHitCondition()->OnHit();
-	if (currentNote->GetHitCondition()->IsHitted()) taikoLane.MoveCurrentNoteForward();
+	currentNote->OnHit();
+	if (currentNote->IsHitted()) taikoLane.MoveCurrentNoteForward();
 
-	
 }
 
 bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
@@ -1045,14 +1044,16 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 
 	const Lane::NoteObjectContainer& noteDescList = taikoLane.NoteListConst();
 
+	const AccuracyRange* const& accRange = (*currentNote)->GetAccRange();
+
 	const microseconds noteWholeJudgeAreaMs = microseconds((microseconds::rep)duration_cast<MicroDouble>
-		(accRange.GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::MAX)).count());
+		(accRange->GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::MAX)).count());
 
 	const microseconds earlyJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
-		(accRange.GetEarlyJudgeTiming(refTime, judgepriority)).count());
+		(accRange->GetEarlyJudgeTiming(refTime, judgepriority)).count());
 
 	const microseconds lateJudgeTimeUs = microseconds((microseconds::rep)duration_cast<MicroDouble>
-		(accRange.GetLateJudgeTiming(refTime, judgepriority)).count());
+		(accRange->GetLateJudgeTiming(refTime, judgepriority)).count());
 
 	Lane::NoteObjectContainer::const_iterator targetNoteIter;
 	//TODO: lowerbound function change
@@ -1119,7 +1120,7 @@ bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT target
 		currentNote.GetHitCondition()->GetHitCount().value() != targetHitCount) return false;
 
 	//not in the judge range
-	if (accRange.RangeCheck(refTime, currentNote.Timing(), AccuracyRange::RangeName::Good) == false) return false;
+	if (currentNote.GetAccRange()->RangeCheck(refTime, currentNote.Timing(), AccuracyRange::RangeName::Good) == false) return false;
 
 	return true;
 }

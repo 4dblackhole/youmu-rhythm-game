@@ -114,7 +114,7 @@ private:
 	void StopPlayMusicThread();
 	void PlayMusic();
 
-	const AccuracyRange accRange;
+	//const AccuracyRange accRange;
 
 //Score and Percentage related
 private:

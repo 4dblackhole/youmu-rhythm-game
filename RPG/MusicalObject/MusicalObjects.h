@@ -8,6 +8,7 @@ class MusicBPM;
 
 #include "PrefixSum/BpmTimingPrefixSum.h"
 #include "PrefixSum/MeasurePrefixSum.h"
+#include "AccuracyRange.h"
 
 class MusicScore
 {
@@ -34,6 +35,7 @@ public:
 
 	double baseBpm = 120.0;
 	chrono::microseconds offset{ 0 };
+	AccuracyRange accRange;
 
 public:
 	chrono::microseconds GetNoteTimingPoint(const MusicalPosition& note) const;

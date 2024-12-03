@@ -158,6 +158,7 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 	noteObjectList.emplace_back(notePtr);
 	NoteDesc& lastNote = *noteObjectList.back();
 	lastNote.SetHitCondition(GetNoteHitConditionFromType(*targetNote));
+	lastNote.SetAccRange(&score->accRange);
 }
 
 void Lane::ClearNoteObjectList()

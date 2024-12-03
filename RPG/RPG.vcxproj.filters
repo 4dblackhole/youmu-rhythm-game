@@ -231,9 +231,6 @@
     <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.cpp">
       <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
     </ClCompile>
-    <ClCompile Include="MusicalObject\NoteRelated\Note\Note.cpp">
-      <Filter>MusicalObject\NoteRelated\Note</Filter>
-    </ClCompile>
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDesc.cpp">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
@@ -421,9 +418,6 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.h">
       <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicalObject\NoteRelated\Note\Note.h">
-      <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDesc.h">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
