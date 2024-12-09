@@ -231,14 +231,14 @@
     <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.cpp">
       <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
     </ClCompile>
-    <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDesc.cpp">
-      <Filter>MusicalObject\NoteRelated\Note</Filter>
-    </ClCompile>
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
     <ClCompile Include="GameScene\ResultScene.cpp">
       <Filter>GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\NoteRelated\Note\NoteObject.cpp">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -419,14 +419,14 @@
     <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.h">
       <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
     </ClInclude>
-    <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDesc.h">
-      <Filter>MusicalObject\NoteRelated\Note</Filter>
-    </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
     <ClInclude Include="GameScene\ResultScene.h">
       <Filter>GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\NoteRelated\Note\NoteObject.h">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

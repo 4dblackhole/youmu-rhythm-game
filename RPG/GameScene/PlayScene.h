@@ -114,8 +114,6 @@ private:
 	void StopPlayMusicThread();
 	void PlayMusic();
 
-	//const AccuracyRange accRange;
-
 //Score and Percentage related
 private:
 	ScorePercentage scorePercent;
@@ -138,7 +136,17 @@ public:
 		Balloon,
 		MAX
 	};
-
+	enum class TaikoInputType
+	{
+		Don = 1,
+		Kat,
+		MAX
+	};
+	enum class TaikoActionType
+	{
+		Down,
+		MAX
+	};
 	enum class HitCount
 	{
 		NoCount,
@@ -156,7 +164,7 @@ private:
 	void InitTaikoModeKeyNoteTypeMap();
 	void ReleaseTaikoModeKeyNoteTypeMap();
 	void NoteUpdateTaikoMode(const MilliDouble& refTime);
-	void NoteProcessTaikoMode(const MilliDouble& refTime, const std::span<const UINT>& targetTypeList);
+	void NoteProcessTaikoMode(const MilliDouble& refTime, const UINT inputType, const UINT actType);
 	bool CheckNoteType(const std::span<const UINT>& targetTypeList);
 	void MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority);
 

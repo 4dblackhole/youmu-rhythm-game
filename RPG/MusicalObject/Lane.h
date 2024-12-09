@@ -1,6 +1,6 @@
 #pragma once
 #include "framework.h"
-#include "NoteRelated/Note/NoteDesc.h"
+#include "NoteRelated/Note/NoteObject.h"
 #include "NoteRelated/Note/NoteDrawDesc.h"
 #include "NoteRelated/HitCondition/HitCondition.h"
 
@@ -11,7 +11,7 @@ if the targetNoteList is {0, 1}, then player should pay attention to the order i
 class Lane
 {
 public:
-	using NoteObjectContainer = vector<NoteDesc*>;
+	using NoteObjectContainer = vector<NoteObject*>;
 public:
 	Lane() {}
 	~Lane();
@@ -39,6 +39,9 @@ public:
 	const NoteObjectContainer::const_iterator& CurrentNoteConst() const { return currentNote; }
 
 	const bool IsNoTargetNote() const { return currentNote == NoteListConst().end(); }
+
+	void MissCurrentNote();
+	void HitCurrentNote();
 
 	void MoveCurrentNoteForward();
 	void MoveCurrentNoteBackward();

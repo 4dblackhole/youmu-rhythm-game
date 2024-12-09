@@ -35,7 +35,9 @@ public:
 
 	double baseBpm = 120.0;
 	chrono::microseconds offset{ 0 };
-	AccuracyRange accRange;
+
+	//TODO: make this as vector so note object can select accuracy difficulty (ex: syncopation)
+	AccuracyRange accRange; 
 
 public:
 	chrono::microseconds GetNoteTimingPoint(const MusicalPosition& note) const;

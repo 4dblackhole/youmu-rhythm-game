@@ -149,22 +149,24 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 {
 	if (targetNote == nullptr) return;
 
-	const size_t& key_of_recentlyPoppedNote = targetNote->noteType;
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
 
-	NoteDesc* const notePtr = new NoteDesc{ targetNote, timing, false, false };
+	UINT noteType = targetNote->noteType;
+	int maxHitCount = 1;
+	if (noteType == (UINT)PlayScene::TaikoNoteType::BigDon || noteType == (UINT)PlayScene::TaikoNoteType::BigKat) maxHitCount = 2;
+	NoteObject* const notePtr = new NoteObject{ targetNote, timing, false, false, maxHitCount };
 	if (notePtr == nullptr) return; // in case dynamic allocation failure
 
 	noteObjectList.emplace_back(notePtr);
-	NoteDesc& lastNote = *noteObjectList.back();
-	lastNote.SetHitCondition(GetNoteHitConditionFromType(*targetNote));
+	NoteObject& lastNote = *noteObjectList.back();
+	//lastNote.SetHitCondition(GetNoteHitConditionFromType(*targetNote));
 	lastNote.SetAccRange(&score->accRange);
 }
 
 void Lane::ClearNoteObjectList()
 {
 	if (noteObjectList.empty()) return;
-	for (NoteDesc*& it : noteObjectList) delete it;
+	for (NoteObject*& it : noteObjectList) delete it;
 	noteObjectList.clear();
 }
 
@@ -197,6 +199,14 @@ size_t Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeN
 		totalExpectedNotes += currentNoteList.size();
 	}
 	return totalExpectedNotes;
+}
+
+void Lane::MissCurrentNote()
+{
+}
+
+void Lane::HitCurrentNote()
+{
 }
 
 void Lane::MoveCurrentNoteForward()
