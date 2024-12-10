@@ -61,9 +61,6 @@
     <Filter Include="MusicalObject\NoteRelated">
       <UniqueIdentifier>{b1666ad4-55b4-477d-b5b3-d23fa4be9bd0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MusicalObject\NoteRelated\HitCondition">
-      <UniqueIdentifier>{46aa6a5d-6314-44d7-9736-46ccf526839b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MusicalObject\NoteRelated\Note">
       <UniqueIdentifier>{19068d92-0a5f-45a7-a6bd-4212c8901c6b}</UniqueIdentifier>
     </Filter>
@@ -225,12 +222,6 @@
     <ClCompile Include="Object\NumberSprite.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitCondition.cpp">
-      <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.cpp">
-      <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
-    </ClCompile>
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
@@ -238,6 +229,9 @@
       <Filter>GameScene</Filter>
     </ClCompile>
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteObject.cpp">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicalObject\NoteRelated\Note\BigNote.cpp">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClCompile>
   </ItemGroup>
@@ -413,12 +407,6 @@
     <ClInclude Include="Object\NumberSprite.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitCondition.h">
-      <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicalObject\NoteRelated\HitCondition\HitConditionNormal.h">
-      <Filter>MusicalObject\NoteRelated\HitCondition</Filter>
-    </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
@@ -426,6 +414,9 @@
       <Filter>GameScene</Filter>
     </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteObject.h">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\NoteRelated\Note\BigNote.h">
       <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,7 +2,6 @@
 #include "framework.h"
 #include "NoteRelated/Note/NoteObject.h"
 #include "NoteRelated/Note/NoteDrawDesc.h"
-#include "NoteRelated/HitCondition/HitCondition.h"
 
 /*to check the order of each notes
 if the targetNoteList is {0, 1}, then player should pay attention to the order in which they hit notes 0 and 1
@@ -64,7 +63,6 @@ private:
 	void AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote);
 	void ClearNoteObjectList();
 	void InitNoteList();
-	HitCondition* GetNoteHitConditionFromType(const MusicalNote& targetNote);
 
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);
@@ -75,3 +73,25 @@ private:
 	NoteObjectContainer::iterator currentNote;
 
 };
+
+class A
+{
+public:
+	A() {};
+	~A() {};
+	int GetX() const { return x; }
+private:
+	int x;
+};
+
+class B : public A
+{
+public:
+	B();
+	~B() {};
+};
+
+B::B()
+{
+	GetX();
+}

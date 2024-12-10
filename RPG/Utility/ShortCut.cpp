@@ -47,6 +47,16 @@ std::wstring ShortCut::StrToWstr(const std::string_view& source)
 	return std::wstring().assign(source.begin(), source.end());
 }
 
+std::string ShortCut::BoolToStr(const bool& b)
+{
+	return b ? "true" : "false";
+}
+
+std::wstring ShortCut::BoolToWstr(const bool& b)
+{
+	return b ? L"true" : L"false";
+}
+
 void ShortCut::TraceTimingPoint()
 {
     INT64 t;

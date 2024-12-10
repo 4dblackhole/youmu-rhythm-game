@@ -22,6 +22,9 @@ public:
 	static std::string WstrToStr(const std::wstring_view& source);
 	static std::wstring StrToWstr(const std::string_view& source);
 	
+	static std::string BoolToStr(const bool& b);
+	static std::wstring BoolToWstr(const bool& b);
+
 	static void TraceTimingPoint();
 
 	static float GetOrthoWidth(float w, float h);

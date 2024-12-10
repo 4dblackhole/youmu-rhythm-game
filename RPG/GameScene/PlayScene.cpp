@@ -674,7 +674,7 @@ void PlayScene::LoadMusicScoreComplete()
 
 	InitInstancedBuffer(noteInstancedBuffer, UINT(sizeof(SpriteInstanceData) * taikoLane.NoteListConst().size()) * (UINT)NoteTextureInstanceID::MAX);
 
-	const size_t& maximumMeasureLineCount = taikoLane.NoteListConst().back()->NoteRef()->mp.measureIdx + 1;
+	const size_t& maximumMeasureLineCount = taikoLane.NoteListConst().back()->MP().measureIdx + 1;
 	InitInstancedBuffer(measureLineInstancedBuffer, UINT(sizeof(SpriteInstanceData) * maximumMeasureLineCount));
 }
 
@@ -832,12 +832,10 @@ void PlayScene::UpdateDebugText()
 	}
 	else
 	{
-		const MusicalNote& note = *(*taikoLane.CurrentNoteConst())->NoteRef();
-		wss << L"Measure: " << note.mp.measureIdx << "  Pos: " << note.mp.position.Numerator() << "/" << note.mp.position.Denominator()
-			<< L" Type: " << note.noteType << L" HitCount: ";
-
-		const auto& hitCount = (*taikoLane.CurrentNoteConst())->GetHitCount();
-		wss << hitCount;
+		const NoteObject* const& note = (*taikoLane.CurrentNoteConst());
+		note->DebugText(wss);
+		//const auto& hitCount = (*taikoLane.CurrentNoteConst())->GetHitCount();
+		//wss << hitCount;
 		wss << L" diff: " << differenceFromTime.count();
 	}
 	wss	<< L"\nScore:" << std::fixed << std::setprecision(2) << scorePercent.GetRate();
@@ -1006,7 +1004,7 @@ bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 	bool isFind = false;
 	for (const UINT& it : targetTypeList)
 	{
-		if (it == currentNote.NoteRef()->noteType)
+		if (it == currentNote.NoteType())
 		{
 			isFind = true;
 			break;
@@ -1092,18 +1090,21 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 
 bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT targetType, int targetHitCount)
 {
+	/*
 	if (taikoLane.CurrentNoteConst() == taikoLane.NoteListConst().cend()) return false;
 
 	const NoteObject& currentNote = **taikoLane.CurrentNoteConst();
 
 	//not bignote
-	if (currentNote.NoteRef()->noteType != targetType ||
+	if (currentNote.NoteType() != targetType ||
 		currentNote.GetHitCount() != targetHitCount) return false;
 
 	//not in the judge range
 	if (currentNote.GetAccRange()->RangeCheck(refTime, currentNote.Timing(), AccuracyRange::RangeName::Good) == false) return false;
 
 	return true;
+	*/
+	return false;
 }
 
 void PlayScene::PlayTaikoModeDonSound(const MilliDouble& refTime)
@@ -1384,10 +1385,10 @@ void PlayScene::UpdateInstancedBuffer_MeasureLine_Internal(const MilliDouble ref
 
 	if (frontNote == noteDescList.cend()) return; //end of note, no need to draw measure line
 
-	const long long int& frontMeasureLineIdx = (long long int)(*frontNote)->NoteRef()->mp.measureIdx;
+	const long long int& frontMeasureLineIdx = (long long int)(*frontNote)->MP().measureIdx;
 
 	const NoteObject& lastNote = *noteDescList.back();
-	long long int currentMeasureLineIdx = (long long int)lastNote.NoteRef()->mp.measureIdx;
+	long long int currentMeasureLineIdx = (long long int)lastNote.MP().measureIdx;
 
 	const double msQuarterInv = musicScore->baseBpm / (double)quarterBeatOfBpm60.count();
 
@@ -1446,7 +1447,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 
 	const auto& CopyNoteDrawDescIntoInstancedData = [&]() 
 		{
-			if ((*rStartIter)->IsPassedConst() == true) return;
+			if ((*rStartIter)->IsPassed() == true) return;
 
 			const microseconds& noteTiming = (*rStartIter)->Timing();
 			const double noteRelativeTiming = (double)(duration_cast<milliseconds>(noteTiming).count()) - refTime.count();
@@ -1456,7 +1457,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 			if (notePos >= laneDrawArea.second) return;
 
 			//set the data from note draw desc
-			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc((*rStartIter)->NoteRef()->noteType);
+			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc((*rStartIter)->NoteType());
 			World3D tempWorld3d;
 			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
 			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);

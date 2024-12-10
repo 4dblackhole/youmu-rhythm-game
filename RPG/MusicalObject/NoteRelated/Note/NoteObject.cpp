@@ -2,27 +2,26 @@
 #include "NoteObject.h"
 #include "GameScene/PlayScene.h"
 
-NoteObject::NoteObject(const MusicalNote* p, const chrono::microseconds t, bool pass, bool inaccurate, int maxC)
-	:mNote(p), timing(t), isPassed(pass), isInaccurate(inaccurate), accRange(), maxHitCount(maxC), hitCount(maxC)
+NoteObject::NoteObject(const MusicalNote* p, const chrono::microseconds t) :
+	mp(p->mp), noteType(p->noteType), actionType(p->actionType),
+	timing(t)
 {
+	Init();
 }
 
 NoteObject::~NoteObject()
 {
-	//delete hitCondition;
 }
 
 void NoteObject::Init()
 {
-	isPassed = false;
-	isInaccurate = false;
-	//hitCondition->Init();
-	hitCount = maxHitCount;
+	SetPassedStatus(false);
+	SetInaccurateStatus(false);
 }
 
 void NoteObject::OnPass()
 {
-	isPassed = true;
+	SetPassedStatus(true);
 }
 
 void NoteObject::OnAction(const MilliDouble& refTime, UINT type, UINT act)
@@ -34,54 +33,59 @@ void NoteObject::OnAction(const MilliDouble& refTime, UINT type, UINT act)
 
 	if (range->id > AccuracyRange::RangeName::Good) //BAD JUDGE
 	{
-		SetInaccurateStatus(true);
+		OnHitInaccurate();
 		return;
 	}
 
 	if (!CheckNoteType(type, act)) // wrong note type
 	{
 		sInfo.color = MyColor4::MyRed;
-		SetInaccurateStatus(true);
+		OnHitInaccurate();
 		return;
 	}
 
 	// Hit successed, MAX ~ GOOD Judge
-	OnHit();
+	OnHitSuccess();
 }
 
-void NoteObject::OnHit()
+void NoteObject::OnHitInaccurate()
 {
-	//hitCondition->OnHit();
-	--hitCount;
+	SetInaccurateStatus(true);
+}
+
+void NoteObject::OnHitSuccess()
+{
+	isHitted = true;
 }
 
 void NoteObject::AddScore(ScorePercentage& sp) const
 {
+	if (!IsHitted())
+	{
+		sp.AddScoreRate(0.0);
+		return;
+	}
 	constexpr double inaccuratePenalty = 0.5;
-	const double resultPercentage = IsInaccurateConst() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
+	const double resultPercentage = IsInaccurate() ? sInfo.percentage * inaccuratePenalty : sInfo.percentage;
 	sp.AddScoreRate(resultPercentage);
 }
 
 bool NoteObject::IsHitted() const
 {
-	//return hitCondition->IsHitted();
-	return hitCount == 0;
+	return isHitted;
 }
 
-/*
-void NoteObject::SetHitCondition(HitCondition* hc)
+void NoteObject::DebugText(wstringstream& wss) const
 {
-	delete hitCondition;
-	hitCondition = hc;
+	wss << L"Measure: " << MP().measureIdx << "  Pos: " << MP().position.Numerator() << "/" << MP().position.Denominator()
+		<< L" Type: " << NoteType() << L" Inaccurate " << ShortCut::BoolToWstr(IsInaccurate());
 }
-*/
 
 bool NoteObject::CheckNoteType(UINT inputType, UINT act) const
 {
-	const UINT noteType = NoteRef()->noteType;
 	//if (act != (UINT)PlayScene::TaikoActionType::Down) return false;
 
-	switch (noteType)
+	switch (NoteType())
 	{
 	case (UINT)PlayScene::TaikoNoteType::Don:
 	case (UINT)PlayScene::TaikoNoteType::BigDon:

@@ -2,7 +2,6 @@
 #include "Lane.h"
 
 #include "GameScene/PlayScene.h"
-#include "NoteRelated/HitCondition/HitConditionNormal.h"
 
 constexpr float LaneWidth = 180.0f;
 
@@ -130,21 +129,6 @@ void Lane::InitNoteList()
 	
 }
 
-HitCondition* Lane::GetNoteHitConditionFromType(const MusicalNote& targetNote)
-{
-	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::Don || targetNote.noteType == (int)PlayScene::TaikoNoteType::Kat)
-	{
-		return new HitConditionNormal((int)PlayScene::HitCount::Note);
-	}
-
-	if (targetNote.noteType == (int)PlayScene::TaikoNoteType::BigDon || targetNote.noteType == (int)PlayScene::TaikoNoteType::BigKat)
-	{
-		return new HitConditionNormal((int)PlayScene::HitCount::BigNote);
-	}
-
-	return nullptr;
-}
-
 void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const MusicalNote* const& targetNote)
 {
 	if (targetNote == nullptr) return;
@@ -154,7 +138,7 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 	UINT noteType = targetNote->noteType;
 	int maxHitCount = 1;
 	if (noteType == (UINT)PlayScene::TaikoNoteType::BigDon || noteType == (UINT)PlayScene::TaikoNoteType::BigKat) maxHitCount = 2;
-	NoteObject* const notePtr = new NoteObject{ targetNote, timing, false, false, maxHitCount };
+	NoteObject* const notePtr = new NoteObject{ targetNote, timing };
 	if (notePtr == nullptr) return; // in case dynamic allocation failure
 
 	noteObjectList.emplace_back(notePtr);
