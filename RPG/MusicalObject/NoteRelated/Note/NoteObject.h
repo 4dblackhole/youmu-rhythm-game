@@ -9,13 +9,16 @@ public:
 	NoteObject(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
 	virtual ~NoteObject();
 
-	virtual void Init();
-	virtual void OnPass();
-	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act);
-	virtual void OnHitInaccurate();
-	virtual void OnHitSuccess();
-	virtual void AddScore(ScorePercentage&) const; //is called when player miss/hit the note
-	virtual bool IsHitted() const;
+	void Init();
+	virtual void OnPass() = 0;
+	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act) = 0;
+	virtual void OnHitInaccurate() = 0;
+	virtual void OnHitSuccess() = 0; //is called when player hit the note
+	virtual bool CheckActionAccurate(UINT inputType, UINT act) const = 0; //private function?
+	virtual void UpdateScore(ScorePercentage&) const = 0; //is called when the player hitted the note and note condition is fulfilled
+	virtual void UpdateScoreOnMiss(ScorePercentage&) const = 0; //is called when player missed the note
+	virtual bool IsHitted() const = 0;
+	virtual void DebugText(wstringstream& wss) const = 0;
 
 	const MusicalPosition& MP() const { return mp; }
 	const UINT NoteType() const { return noteType; }
@@ -31,9 +34,6 @@ public:
 	
 	const AccuracyRange::ScoreInfo& GetScoreInfo() const { return sInfo; }
 
-public:
-	virtual void DebugText(wstringstream& wss) const;
-
 //common information
 protected:
 	const MusicalPosition mp;
@@ -44,19 +44,7 @@ protected:
 	vector<FMOD::Sound*> hitSound; //hitsound weak ptr list
 
 	bool isPassed;
-	AccuracyRange::ScoreInfo sInfo;
-protected:
-	bool CheckNoteType(UINT type, UINT act) const;
-
-//normal note information
-public:
-	const bool& IsInaccurate() const { return isInaccurate; }
-
-private:
-	void SetInaccurateStatus(bool v) { isInaccurate = v; }
-
-	bool isInaccurate;
-	bool isHitted = false;
+	AccuracyRange::ScoreInfo sInfo; //change to xmfloat4?
 
 //compare function
 public:

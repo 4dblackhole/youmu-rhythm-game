@@ -2,11 +2,11 @@
 #include "libraries.h"
 #include "NoteObject.h"
 
-class BigNote : public NoteObject
+class NormalNote : public NoteObject
 {
 public:
-	BigNote(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
-	virtual ~BigNote();
+	NormalNote(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
+	virtual ~NormalNote();
 
 	void Init();
 	virtual void OnPass();
@@ -17,14 +17,16 @@ public:
 	virtual void UpdateScore(ScorePercentage&) const;
 	virtual void UpdateScoreOnMiss(ScorePercentage&) const;
 	virtual bool IsHitted() const;
-
 	virtual void DebugText(wstringstream& wss) const;
 
-
-	//note information
+	//NormalNote information
 protected:
-	static constexpr int maxHitCount = 2;
-	int hitCount;
-	bool isInaccurate[BigNote::maxHitCount];
-	double score[BigNote::maxHitCount];
+	const bool& IsInaccurate() const { return isInaccurate; }
+	void SetInaccurateStatus(bool v) { isInaccurate = v; }
+	
+	void SetHittedStatus(bool v) { isHitted = v; }
+
+	bool isInaccurate;
+	bool isHitted;
+
 };

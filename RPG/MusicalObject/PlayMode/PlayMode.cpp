@@ -12,5 +12,12 @@ PlayMode::~PlayMode()
 
 void PlayMode::ReleaseTextures()
 {
-	this->TextureList.Clear();
+	this->textureList.Clear();
+}
+
+void PlayMode::ReleaseLaneList()
+{
+	for (Lane* const& it : laneList) delete it;
+	laneList.clear();
+	
 }

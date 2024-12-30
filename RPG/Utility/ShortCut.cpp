@@ -142,11 +142,14 @@ bool ShortCut::WordSeparateW(const wstring_view& source, const wstring& separato
 
 	if (second != nullptr)
 	{
-		size_t secondStartPos = separatorPos + separator.length() - 1;
-		while (source[++secondStartPos] == L' ')
+		size_t secondStartPos = separatorPos + separator.length();
+
+		while (secondStartPos < source.length())
 		{
-			if (secondStartPos == source.length() - 1)break;
+			if (source[secondStartPos] == L' ') ++secondStartPos;
+			else break;
 		}
+
 		*second = source.substr(secondStartPos);
 	}
 	return true;

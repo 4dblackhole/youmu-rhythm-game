@@ -17,7 +17,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-constexpr UINT REFTIME_DEBUG = TRUE;
+constexpr UINT REFTIME_DEBUG = FALSE;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -53,10 +53,15 @@ PlayScene::~PlayScene()
 
 void PlayScene::InitTaikoModeLanes()
 {
-	taikoLane.AddNoteType(1);
-	taikoLane.AddNoteType(2);
-	taikoLane.AddNoteType(3);
-	taikoLane.AddNoteType(4);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::Don);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::Kat);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::BigDon);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::BigKat);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::Roll);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::TickRoll);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::BigRoll);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::BigTickRoll);
+	taikoLane.AddNoteType((size_t)TaikoNoteType::Balloon);
 
 	taikoLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
 	taikoLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
@@ -121,7 +126,7 @@ void PlayScene::InitTaikoModeKeyNoteTypeMap()
 	catch (int val)
 	{
 		UNREFERENCED_PARAMETER(val);
-
+		
 		MessageBox(NULL, _T("Config File Error"), _T("Alert"), MB_OK);
 
 		ReleaseTaikoModeKeyNoteTypeMap();
@@ -433,14 +438,14 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 			}
 
 			// Measure
-			if (lineStr.find(MeasureEffect + L' ') != wstring_view::npos) //#measure n/d
+			else if (lineStr.find(MeasureEffect + L' ') != wstring_view::npos) //#measure n/d
 			{
 				ParseMeasure(lineStr, measureLength);
 				return;
 			}
 
 			// Measure
-			if (lineStr.find(MeasureLineVisibleEffect + L' ') != wstring_view::npos) //#measureLineVisible ON/OFF
+			else if (lineStr.find(MeasureLineVisibleEffect + L' ') != wstring_view::npos) //#measureLineVisible ON/OFF
 			{
 				const wstring_view effectType = lineStr.substr(MeasureLineVisibleEffect.length() + 1);
 				constexpr LPCWSTR effectON = L"ON";
@@ -476,7 +481,7 @@ void PlayScene::LoadTimeSignature(const wstring_view& content)
 		isReadingFile = GetNextLineIdxPair(content, EndlineIdc, startIdx, endIdx);
 	}
 
-	musicScore->measures.emplace_back(measureLength,lineVisible);
+	musicScore->measures.emplace_back(measureLength, lineVisible);
 
 	musicScore->InitTimeSignaturePrefixSum();
 
@@ -543,11 +548,11 @@ void PlayScene::LoadPattern(const wstring_view& content)
 			if (tempNote.mp.position >= musicScore->measures[referencingMeasureIdx].length) return;
 
 			//DataOrder::Type
-			wss << noteElements[(int)MusicalNote::DataOrder::Type];
+			wss << noteElements[(int)MusicalNote::DataOrder::Type] << endl;
 			wss >> tempNote.noteType;
 
 			//DataOrder:Action
-			wss << noteElements[(int)MusicalNote::DataOrder::Action];
+			wss << noteElements[(int)MusicalNote::DataOrder::Action] << endl;
 			wss >> tempNote.actionType;
 
 			//DataOrder::Hitsound
@@ -842,6 +847,17 @@ void PlayScene::UpdateDebugText()
 	debugText.SetText(wss.str());
 }
 
+void PlayScene::GetNoteDifferenceTime(const MilliDouble refTime)
+{
+	using namespace chrono;
+	if (taikoLane.IsNoTargetNote())
+	{
+		differenceFromTime = milliseconds::zero();
+		return;
+	}
+	differenceFromTime = milliseconds(milliseconds::rep(refTime.count())) - duration_cast<milliseconds>((*taikoLane.CurrentNoteConst())->Timing());
+}
+
 void PlayScene::UpdateOnStart(float dt)
 {
 	if (taikoLane.CurrentNoteConst() == taikoLane.NoteList().cend())
@@ -977,6 +993,7 @@ void PlayScene::NoteUpdateTaikoMode(const MilliDouble& refTime)
 		}
 	}
 
+	GetNoteDifferenceTime(refTime);
 	UpdateDebugText();
 }
 
@@ -991,7 +1008,7 @@ void PlayScene::NoteProcessTaikoMode(const MilliDouble& refTime, const UINT inpu
 	taikoLane.laneLightSprite.Diffuse = currentNote->GetScoreInfo().color;
 	if (currentNote->IsHitted())
 	{
-		currentNote->AddScore(scorePercent);
+		taikoLane.UpdateScore(scorePercent);
 		taikoLane.MoveCurrentNoteForward();
 	}
 }
@@ -1015,14 +1032,15 @@ bool PlayScene::CheckNoteType(const std::span<const UINT>& targetTypeList)
 
 void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::RangeName& judgepriority)
 {
-	const Lane::NoteObjectContainer::const_iterator& currentNote = taikoLane.CurrentNoteConst();
-	if (currentNote == taikoLane.NoteListConst().cend()) return;
+	if (taikoLane.IsNoTargetNote()) return;
+	const Lane::NoteObjectContainer::const_iterator& currentNoteIter = taikoLane.CurrentNoteConst();
+	const Lane::NoteObjectContainer::value_type& currentNote = *currentNoteIter;
 
 	using namespace chrono;
 
 	const Lane::NoteObjectContainer& noteDescList = taikoLane.NoteListConst();
 
-	const AccuracyRange* const& accRange = (*currentNote)->GetAccRange();
+	const AccuracyRange* const& accRange = currentNote->GetAccRange();
 
 	const microseconds noteWholeJudgeAreaMs = microseconds((microseconds::rep)duration_cast<MicroDouble>
 		(accRange->GetEarlyJudgeTiming(refTime, AccuracyRange::RangeName::MAX)).count());
@@ -1070,22 +1088,15 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 		}();
 
 	//MoveCurrentNoteIter
-	while (currentNote < targetNoteIter)
+	while (currentNoteIter < targetNoteIter)
 	{
 		//note Miss
 		[&]() {
 			//scorePercent.AddScoreRate(0.0);
-			(*currentNote)->AddScore(scorePercent);
+			taikoLane.UpdateScore(scorePercent);
 			taikoLane.MoveCurrentNoteForward();
 			}();
 	}
-
-#ifdef _DEBUG
-	if (taikoLane.CurrentNoteConst() != taikoLane.NoteList().cend())
-	{
-		differenceFromTime = milliseconds(milliseconds::rep(refTime.count())) - duration_cast<milliseconds>((*currentNote)->Timing());
-	}
-#endif
 }
 
 bool PlayScene::CheckNoteTypeForHitSound(const MilliDouble& refTime, UINT targetType, int targetHitCount)

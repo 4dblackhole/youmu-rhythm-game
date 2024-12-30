@@ -132,8 +132,21 @@ public:
 		BigDon,
 		BigKat,
 		Roll=11,
+		TickRoll,
 		BigRoll,
+		BigTickRoll,
 		Balloon,
+		MAX
+	};
+	enum class TaikoNoteDrawType
+	{
+		Don = 1,
+		Kat,
+		BigDon,
+		BigKat,
+		LNHead,
+		LNBody,
+		LNTail,
 		MAX
 	};
 	enum class TaikoInputType
@@ -145,6 +158,8 @@ public:
 	enum class TaikoActionType
 	{
 		Down,
+		LNStart,
+		LNEnd,
 		MAX
 	};
 	enum class HitCount
@@ -248,9 +263,11 @@ private:
 private:
 	MilliDouble debugMs{ 0 };
 	DwLayout2D debugText;
-	chrono::milliseconds differenceFromTime{};
 	void InitDebugText();
 	void UpdateDebugText();
+
+	chrono::milliseconds differenceFromTime{};
+	void GetNoteDifferenceTime(const MilliDouble refTime);
 
 //music score related
 private:

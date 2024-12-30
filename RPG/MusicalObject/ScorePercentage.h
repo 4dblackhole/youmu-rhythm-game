@@ -11,6 +11,8 @@ public:
 	void AddScore(INT64);
 	void AddScoreRate(double);
 
+	//TODO: add weight
+
 	double GetRate(double maxRate = 100.0) const;
 	INT64 GetScore(UINT64 maxScore = 1000000) const;
 

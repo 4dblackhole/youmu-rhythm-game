@@ -18,6 +18,7 @@ void MeasurePrefixSum::InitMeasurePrefixSum(const vector<Measure>* list)
 		const auto& val = measurePrefixSum[prevIdx] + it->length;
 		measurePrefixSum.emplace_back(val);
 	}
+	DEBUG_BREAKPOINT;
 }
 
 void MeasurePrefixSum::ReleaseMeasurePrefixSum()

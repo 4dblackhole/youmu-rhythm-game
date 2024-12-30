@@ -1,7 +1,8 @@
 #pragma once
 #include "libraries.h"
-#include "../Lane.h"
-#include "../AccuracyRange.h"
+#include "MusicalObject/Lane.h"
+#include "MusicalObject/AccuracyRange.h"
+#include "MusicalObject/ScorePercentage.h"
 
 class PlayMode
 {
@@ -12,9 +13,13 @@ public:
 	virtual void InitTextures() = 0;
 	void ReleaseTextures();
 
-	vector<Lane*> LaneList;
-	AccuracyRange AccRange;
-	TextureManager TextureList;
+	virtual void InitLaneList() = 0;
+	void ReleaseLaneList();
+
+protected:
+	vector<Lane*> laneList;
+	TextureManager textureList;
 
 	int Combo = 0;
+	ScorePercentage scorePercent;
 };

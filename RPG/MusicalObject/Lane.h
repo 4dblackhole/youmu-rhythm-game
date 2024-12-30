@@ -2,6 +2,7 @@
 #include "framework.h"
 #include "NoteRelated/Note/NoteObject.h"
 #include "NoteRelated/Note/NoteDrawDesc.h"
+#include "MusicalObject/ScorePercentage.h"
 
 /*to check the order of each notes
 if the targetNoteList is {0, 1}, then player should pay attention to the order in which they hit notes 0 and 1
@@ -39,9 +40,7 @@ public:
 
 	const bool IsNoTargetNote() const { return currentNote == NoteListConst().end(); }
 
-	void MissCurrentNote();
-	void HitCurrentNote();
-
+	void UpdateScore(ScorePercentage& sp);
 	void MoveCurrentNoteForward();
 	void MoveCurrentNoteBackward();
 
@@ -49,8 +48,6 @@ public:
 	Sprite judgeLineSprite;
 	Sprite laneLightSprite;
 	static constexpr double laneLightFadeSpeed = 8.0;
-
-	void ChangeLaneLightColor(const XMFLOAT4& color = MyColor4::White);
 
 public:
 	double GetJudgePosition() const;
@@ -72,26 +69,10 @@ private:
 
 	NoteObjectContainer::iterator currentNote;
 
-};
-
-class A
-{
-public:
-	A() {};
-	~A() {};
-	int GetX() const { return x; }
 private:
-	int x;
+	//note Load related
+	void LoadNotesVariablesInit();
+	bool isLN = false;
+	const MusicalNote* tempLnHead;
+	const MusicalNote* prevNote;
 };
-
-class B : public A
-{
-public:
-	B();
-	~B() {};
-};
-
-B::B()
-{
-	GetX();
-}

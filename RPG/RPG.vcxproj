@@ -191,7 +191,9 @@
     <ClCompile Include="MusicalObject\Lane.cpp" />
     <ClCompile Include="MusicalObject\Music.cpp" />
     <ClCompile Include="MusicalObject\MusicalObjects.cpp" />
+    <ClCompile Include="MusicalObject\NoteRelated\NoteFactory\NoteFactory.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\BigNote.cpp" />
+    <ClCompile Include="MusicalObject\NoteRelated\Note\NormalNote.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteObject.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
@@ -249,7 +251,9 @@
     <ClInclude Include="MusicalObject\Lane.h" />
     <ClInclude Include="MusicalObject\Music.h" />
     <ClInclude Include="MusicalObject\MusicalObjects.h" />
+    <ClInclude Include="MusicalObject\NoteRelated\NoteFactory\NoteFactory.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\BigNote.h" />
+    <ClInclude Include="MusicalObject\NoteRelated\Note\NormalNote.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteObject.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />

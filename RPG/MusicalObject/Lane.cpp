@@ -2,6 +2,10 @@
 #include "Lane.h"
 
 #include "GameScene/PlayScene.h"
+#include "MusicalObject/NoteRelated/Note/NormalNote.h"
+#include "MusicalObject/NoteRelated/Note/BigNote.h"
+
+#include "MusicalObject/NoteRelated/NoteFactory/NoteFactory.h"
 
 constexpr float LaneWidth = 180.0f;
 
@@ -61,10 +65,20 @@ void Lane::RemoveNoteDrawDesc(size_t key)
 	noteDrawDescMap.erase(key);
 }
 
+
+void Lane::LoadNotesVariablesInit()
+{
+	isLN = false;
+	tempLnHead = nullptr;
+	prevNote = nullptr;
+}
+
 void Lane::LoadNotes(const MusicScore* score)
 {
 	assert(score != nullptr);
 	
+	LoadNotesVariablesInit();
+
 	//noteType[1] - Note[N] List
 	const MusicScore::NoteContainer& wholeNoteList = score->notesPerTypeMap;
 
@@ -136,15 +150,35 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 	const chrono::microseconds& timing = score->GetNoteTimingPoint(targetNote->mp);
 
 	UINT noteType = targetNote->noteType;
-	int maxHitCount = 1;
-	if (noteType == (UINT)PlayScene::TaikoNoteType::BigDon || noteType == (UINT)PlayScene::TaikoNoteType::BigKat) maxHitCount = 2;
-	NoteObject* const notePtr = new NoteObject{ targetNote, timing };
-	if (notePtr == nullptr) return; // in case dynamic allocation failure
+	UINT actType = targetNote->actionType;
 
-	noteObjectList.emplace_back(notePtr);
-	NoteObject& lastNote = *noteObjectList.back();
-	//lastNote.SetHitCondition(GetNoteHitConditionFromType(*targetNote));
-	lastNote.SetAccRange(&score->accRange);
+	switch (actType)
+	{
+	case (UINT)PlayScene::TaikoActionType::Down:
+	{
+		if (isLN) return;
+
+		NoteObject* const notePtr = NoteFactory::CreateTaikoNote(noteType, actType, targetNote, timing);
+		if (notePtr == nullptr) return; // in case dynamic allocation failure
+
+		noteObjectList.emplace_back(notePtr);
+		NoteObject& lastNote = *noteObjectList.back();
+		lastNote.SetAccRange(&score->accRange);
+		return;
+	}
+	case (UINT)PlayScene::TaikoActionType::LNStart:
+	{
+		isLN = true;
+		tempLnHead = targetNote;
+	}
+	return;
+	case (UINT)PlayScene::TaikoActionType::LNEnd:
+	{
+		isLN = false;
+	}
+	return;
+
+	}
 }
 
 void Lane::ClearNoteObjectList()
@@ -185,12 +219,10 @@ size_t Lane::CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeN
 	return totalExpectedNotes;
 }
 
-void Lane::MissCurrentNote()
+void Lane::UpdateScore(ScorePercentage& sp)
 {
-}
-
-void Lane::HitCurrentNote()
-{
+	if ((*currentNote)->IsHitted()) (*currentNote)->UpdateScore(sp);
+	else (*currentNote)->UpdateScoreOnMiss(sp);
 }
 
 void Lane::MoveCurrentNoteForward()
@@ -203,11 +235,6 @@ void Lane::MoveCurrentNoteBackward()
 {
 	--currentNote;
 	(*currentNote)->Init();
-}
-
-void Lane::ChangeLaneLightColor(const XMFLOAT4& color)
-{
-	laneLightSprite.Diffuse = color;
 }
 
 double Lane::GetJudgePosition() const
