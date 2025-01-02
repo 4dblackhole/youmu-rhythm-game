@@ -18,7 +18,6 @@ void MeasurePrefixSum::InitMeasurePrefixSum(const vector<Measure>* list)
 		const auto& val = measurePrefixSum[prevIdx] + it->length;
 		measurePrefixSum.emplace_back(val);
 	}
-	DEBUG_BREAKPOINT;
 }
 
 void MeasurePrefixSum::ReleaseMeasurePrefixSum()
@@ -50,4 +49,10 @@ RationalNumber<64> MeasurePrefixSum::GetMeasurePrefixSum(int idx) const
 	{
 		return measurePrefixSum.back() + measureList->back().length * (idx - (int)measureListSize + 1);
 	}
+}
+
+size_t MeasurePrefixSum::GetMeasureIdxFromLength(const RationalNumber<64>& l) const
+{
+	const auto& it = std::lower_bound(measurePrefixSum.begin(), measurePrefixSum.end(), l);
+	return std::distance(measurePrefixSum.begin(), it);
 }

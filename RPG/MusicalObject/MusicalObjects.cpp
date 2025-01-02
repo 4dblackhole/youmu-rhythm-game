@@ -53,6 +53,18 @@ chrono::microseconds MusicScore::GetNoteTimingPoint(const MusicalPosition& mp) c
 
 }
 
+const MusicalPosition MusicScore::AddMusicalPos(const MusicalPosition& notePos, RationalNumber<64> addLength) const
+{
+    const RationalNumber<64>& totalMeasureLength = measurePrefixSum.GetMeasurePrefixSum(notePos.measureIdx);
+    const RationalNumber<64>& absolutePosition = totalMeasureLength + notePos.position;
+    const RationalNumber<64>& resultPos = absolutePosition + addLength;
+
+    const size_t& resultMeasureIdx = measurePrefixSum.GetMeasureIdxFromLength(resultPos);
+    const RationalNumber<64>& newPos = resultPos - measurePrefixSum.GetMeasurePrefixSum(resultMeasureIdx);
+    if (newPos < 0) return MusicalPosition(0, 0);
+    else return MusicalPosition(resultMeasureIdx, newPos);
+}
+
 void MusicBPM::SetBPM(double b)
 {
     bpm = b;

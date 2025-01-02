@@ -17,6 +17,8 @@ public:
 	RationalNumber<64> GetMeasurePrefixSum(int start, int end) const;
 	RationalNumber<64> GetMeasurePrefixSum(int idx) const;
 
+	size_t GetMeasureIdxFromLength(const RationalNumber<64>& l) const;
+
 private:
 	vector<RationalNumber<64>> measurePrefixSum;
 	const vector<Measure>* measureList = nullptr; //weak ptr

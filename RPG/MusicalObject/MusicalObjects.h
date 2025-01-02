@@ -41,6 +41,7 @@ public:
 
 public:
 	chrono::microseconds GetNoteTimingPoint(const MusicalPosition& note) const;
+	const MusicalPosition AddMusicalPos(const MusicalPosition& notePos, RationalNumber<64> addLength) const;
 };
 
 class Measure

@@ -17,7 +17,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-constexpr UINT REFTIME_DEBUG = FALSE;
+constexpr UINT REFTIME_DEBUG = TRUE;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -1092,7 +1092,6 @@ void PlayScene::MoveTargetNote(const MilliDouble refTime, const AccuracyRange::R
 	{
 		//note Miss
 		[&]() {
-			//scorePercent.AddScoreRate(0.0);
 			taikoLane.UpdateScore(scorePercent);
 			taikoLane.MoveCurrentNoteForward();
 			}();

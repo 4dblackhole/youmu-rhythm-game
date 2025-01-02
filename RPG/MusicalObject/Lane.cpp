@@ -4,6 +4,7 @@
 #include "GameScene/PlayScene.h"
 #include "MusicalObject/NoteRelated/Note/NormalNote.h"
 #include "MusicalObject/NoteRelated/Note/BigNote.h"
+#include "MusicalObject/NoteRelated/Note/RollNote.h"
 
 #include "MusicalObject/NoteRelated/NoteFactory/NoteFactory.h"
 
@@ -151,7 +152,9 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 
 	UINT noteType = targetNote->noteType;
 	UINT actType = targetNote->actionType;
-
+	
+	NoteObject* notePtr = nullptr;
+	
 	switch (actType)
 	{
 	case (UINT)PlayScene::TaikoActionType::Down:
@@ -168,13 +171,32 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 	}
 	case (UINT)PlayScene::TaikoActionType::LNStart:
 	{
+		if (isLN) return;
+
 		isLN = true;
 		tempLnHead = targetNote;
+		tempLnHeadTiming = timing;
 	}
 	return;
 	case (UINT)PlayScene::TaikoActionType::LNEnd:
 	{
+		if (!isLN) return;
+		if (tempLnHead->noteType != noteType) return;
 		isLN = false;
+
+		switch (noteType)
+		{
+		case (UINT)PlayScene::TaikoNoteType::Roll:
+			notePtr = new RollNote(tempLnHead, tempLnHeadTiming, 10, targetNote->mp, timing);
+			break;
+		}
+
+		if (notePtr != nullptr)
+		{
+			noteObjectList.emplace_back(notePtr);
+			NoteObject& lastNote = *noteObjectList.back();
+			lastNote.SetAccRange(&score->accRange);
+		}
 	}
 	return;
 

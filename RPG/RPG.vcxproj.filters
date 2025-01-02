@@ -243,6 +243,9 @@
     <ClCompile Include="MusicalObject\NoteRelated\NoteFactory\NoteFactory.cpp">
       <Filter>MusicalObject\NoteRelated\NoteFactory</Filter>
     </ClCompile>
+    <ClCompile Include="MusicalObject\NoteRelated\Note\RollNote.cpp">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -433,6 +436,9 @@
     </ClInclude>
     <ClInclude Include="MusicalObject\NoteRelated\NoteFactory\NoteFactory.h">
       <Filter>MusicalObject\NoteRelated\NoteFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicalObject\NoteRelated\Note\RollNote.h">
+      <Filter>MusicalObject\NoteRelated\Note</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

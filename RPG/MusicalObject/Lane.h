@@ -74,5 +74,7 @@ private:
 	void LoadNotesVariablesInit();
 	bool isLN = false;
 	const MusicalNote* tempLnHead;
+	chrono::microseconds tempLnHeadTiming;
+
 	const MusicalNote* prevNote;
 };

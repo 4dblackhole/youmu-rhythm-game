@@ -196,6 +196,7 @@
     <ClCompile Include="MusicalObject\NoteRelated\Note\NormalNote.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.cpp" />
     <ClCompile Include="MusicalObject\NoteRelated\Note\NoteObject.cpp" />
+    <ClCompile Include="MusicalObject\NoteRelated\Note\RollNote.cpp" />
     <ClCompile Include="MusicalObject\Pattern.cpp" />
     <ClCompile Include="MusicalObject\PlayMode\PlayMode.cpp" />
     <ClCompile Include="MusicalObject\PlayMode\TaikoMode.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="MusicalObject\NoteRelated\Note\NormalNote.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteDrawDesc.h" />
     <ClInclude Include="MusicalObject\NoteRelated\Note\NoteObject.h" />
+    <ClInclude Include="MusicalObject\NoteRelated\Note\RollNote.h" />
     <ClInclude Include="MusicalObject\Pattern.h" />
     <ClInclude Include="MusicalObject\PlayMode\PlayMode.h" />
     <ClInclude Include="MusicalObject\PlayMode\TaikoMode.h" />
