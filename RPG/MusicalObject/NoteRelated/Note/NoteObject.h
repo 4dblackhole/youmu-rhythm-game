@@ -18,6 +18,7 @@ public:
 	virtual void UpdateScore(ScorePercentage&) const = 0; //is called when the player hitted the note and note condition is fulfilled
 	virtual void UpdateScoreOnMiss(ScorePercentage&) const = 0; //is called when player missed the note
 	virtual bool IsHitted() const = 0;
+	virtual chrono::microseconds NoteEndTime() const = 0;
 	virtual void DebugText(wstringstream& wss) const = 0;
 
 	const MusicalPosition& MP() const { return mp; }
@@ -48,28 +49,17 @@ protected:
 
 //compare function
 public:
-	template <typename MemberType, typename Comparator = std::less<MemberType>>
-	static bool CompareLowerBound(const NoteObject& s, const MemberType& v)
-	{
-		return Comparator()(s.timing, v);
-	}
-
-	template <typename MemberType, typename Comparator = std::less<MemberType>>
-	static bool CompareUpperBound(const MemberType& v, const NoteObject& s)
-	{
-		return Comparator()(v, s.timing);
-	}
 
 	template <typename MemberType, typename Comparator = std::less<MemberType>>
 	static bool CompareLowerBoundPtr(NoteObject* const& s, const MemberType& v)
 	{
-		return Comparator()(s->timing, v);
+		return Comparator()(s->NoteEndTime(), v);
 	}
 
 	template <typename MemberType, typename Comparator = std::less<MemberType>>
 	static bool CompareUpperBoundPtr(const MemberType& v, NoteObject* const& s)
 	{
-		return Comparator()(v, s->timing);
+		return Comparator()(v, s->NoteEndTime());
 	}
 
 };

@@ -18,6 +18,8 @@ public:
 	virtual void UpdateScore(ScorePercentage&) const;
 	virtual void UpdateScoreOnMiss(ScorePercentage&) const;
 	virtual bool IsHitted() const;
+	virtual chrono::microseconds NoteEndTime() const;
+
 	virtual void DebugText(wstringstream& wss) const;
 
 	//RollNote information

@@ -73,6 +73,11 @@ bool NormalNote::IsHitted() const
 	return isHitted;
 }
 
+chrono::microseconds NormalNote::NoteEndTime() const
+{
+	return Timing();
+}
+
 void NormalNote::DebugText(wstringstream& wss) const
 {
 	wss << L"Measure: " << MP().measureIdx << "  Pos: " << MP().position.Numerator() << "/" << MP().position.Denominator()

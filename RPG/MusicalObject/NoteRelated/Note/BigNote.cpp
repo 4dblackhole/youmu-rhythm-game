@@ -99,6 +99,11 @@ bool BigNote::IsHitted() const
 	return hitCount == 0;
 }
 
+chrono::microseconds BigNote::NoteEndTime() const
+{
+	return Timing();
+}
+
 void BigNote::DebugText(wstringstream& wss) const
 {
 	wss << L"Measure: " << MP().measureIdx << "  Pos: " << MP().position.Numerator() << "/" << MP().position.Denominator()

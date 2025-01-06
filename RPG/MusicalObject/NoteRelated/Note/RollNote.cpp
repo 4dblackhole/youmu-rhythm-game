@@ -68,6 +68,11 @@ bool RollNote::IsHitted() const
 	return hitCount == 0;
 }
 
+chrono::microseconds RollNote::NoteEndTime() const
+{
+	return tailPosTiming;
+}
+
 void RollNote::DebugText(wstringstream& wss) const
 {
 	wss << L"Head Pos: " << MP().measureIdx << L", " << MP().position.Numerator() << "/" << MP().position.Denominator()
