@@ -37,6 +37,6 @@ void Triangle2D::Draw()
 {
 	__super::Draw();
 
-	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.D2D.GetSolidBrush(BorderColor), BorderSize);
-	if(!isHollow) D2D.GetRenderTarget()->FillGeometry(geometry, D2D.D2D.GetSolidBrush(FillColor));
+	D2D.GetRenderTarget()->DrawGeometry(geometry, D2D.GetSolidBrush(BorderColor), BorderSize);
+	if(!isHollow) D2D.GetRenderTarget()->FillGeometry(geometry, D2D.GetSolidBrush(FillColor));
 }

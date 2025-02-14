@@ -765,7 +765,7 @@ void MusicListScroll::LoadMusic()
 
 void MusicListScroll::InitMusicListScroll()
 {
-	textureManager.AddTexture(App->GetDevice(), TextureName::MusicScroll, TextureDir + L"SelectMusic/MusicScroll.png");
+	textureManager.AddTexture(App->GetD3DDevice(), TextureName::MusicScroll, TextureDir + L"SelectMusic/MusicScroll.png");
 	scrollImg.GetWorld3d().SetAlignX(AlignModeX::Right);
 	scrollImg.GetWorld3d().SetAlignY(AlignModeY::Top);
 	scrollImg.GetWorld3d().SetParentDrawWorld();

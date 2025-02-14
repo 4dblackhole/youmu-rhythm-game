@@ -1,10 +1,10 @@
 #pragma once
-
+#include "libraries.h"
 #include "System/GameScene.h"
 #include "Object/Sprite.h"
 #include "Object/Shape2D/Rectangle2D.h"
+#include "Object/Shape2D/DwLayout2D.h"
 #include "Object/MusicListScroll.h"
-#include "framework.h"
 
 class SelectMusicScene : public GameScene
 {
@@ -29,4 +29,7 @@ public:
 private:
 	Sprite background;
 	MusicListScroll musicScroll;
+
+	DwLayout2D tooltipLayout;
+	
 };

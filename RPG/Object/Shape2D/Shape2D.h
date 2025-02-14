@@ -10,6 +10,8 @@ public:
 
 	virtual void Draw();
 
+	void OnResize();
+
 	const World2D& GetWorld2dConst() const { return world2d; }
 	World2D& GetWorld2d() { return world2d; }
 

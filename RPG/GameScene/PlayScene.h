@@ -210,12 +210,15 @@ private:
 
 	TextureManager textureList;
 
+public:
 	//Texture2DArray ID of Texture "note"
 	enum class NoteTextureArrID
 	{
 		Note,
 		BigNote,
 		NoteOverlay,
+		LNBody,
+		LNTail,
 		MAX
 	};
 
@@ -226,6 +229,7 @@ private:
 		MAX
 	};
 
+private:
 	void InitTaikoModeTextures();
 	void ReleaseTaikoModeTextures();
 

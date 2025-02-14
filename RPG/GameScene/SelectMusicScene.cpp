@@ -12,6 +12,11 @@ SelectMusicScene::SelectMusicScene() :
 	background(0, 0, (float)StandardWidth, (float)StandardHeight, MyColor4::Black, true),
 	musicScroll(MusicScrollCenterX, MusicScrollCenterY, MusicScrollWidth, MusicScrollHeight)
 {
+	constexpr float tooltipTextSize = 20.0f / D2Ddevice::DefaultFontSize;
+	tooltipLayout.SetLayout(L"Music Select: ก็/กๆ, Pattern Select: ก่/ก้");
+	tooltipLayout.GetWorld2d().SetPosition({ 5 ,(float)StandardHeight - 30 });
+	tooltipLayout.GetWorld2d().SetScale(tooltipTextSize);
+	tooltipLayout.GetWorld2d().SetAlignX(AlignModeX::Left);
 }
 
 SelectMusicScene::~SelectMusicScene()
@@ -27,6 +32,7 @@ void SelectMusicScene::OnResize(float newW, float newH)
 {
 	background.ChangeWidthToCurrentWidth(newW, newH);
 	musicScroll.OnResize(newW, newH);
+	tooltipLayout.OnResize();
 }
 
 void SelectMusicScene::Update(float dt)
@@ -56,6 +62,7 @@ void SelectMusicScene::Render(ID3D11DeviceContext* deviceContext, const Camera& 
 {
 	background.Render(deviceContext, cam);
 	musicScroll.Render(deviceContext, cam);
+	tooltipLayout.Draw();
 }
 
 void SelectMusicScene::EndScene()

@@ -75,3 +75,8 @@ void DwLayout2D::UpdateLayout()
 		textUpdateFlag = false;
 	}
 }
+
+void DwLayout2D::DrawTextLayout(D2D1_POINT_2F origin, IDWriteTextLayout* textLayout, ID2D1Brush* defaultFillBrush, D2D1_DRAW_TEXT_OPTIONS options) noexcept
+{
+	D2D.GetRenderTarget()->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
+}

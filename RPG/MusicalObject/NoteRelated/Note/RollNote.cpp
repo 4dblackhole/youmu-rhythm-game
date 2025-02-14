@@ -65,12 +65,24 @@ void RollNote::UpdateScoreOnMiss(ScorePercentage& sp) const
 
 bool RollNote::IsHitted() const
 {
-	return hitCount == 0;
+	enum HitFlagDesc
+	{
+		KeepFocus,
+		DisposeDirectly
+	};
+	constexpr UINT hitFlag = HitFlagDesc::KeepFocus;
+	if constexpr (hitFlag == HitFlagDesc::KeepFocus) return false;
+	else return hitCount == 0;
 }
 
 chrono::microseconds RollNote::NoteEndTime() const
 {
 	return tailPosTiming;
+}
+
+const vector<NoteDrawDesc> RollNote::GetNoteDrawDesc() const
+{
+	return vector<NoteDrawDesc>();
 }
 
 void RollNote::DebugText(wstringstream& wss) const

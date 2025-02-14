@@ -22,10 +22,7 @@ TitleScene::TitleScene() :
 	titleLogoImg(0.0f, 135.0f, 360.0f, 360.0f),
 	tooltipBG(0, (ToolTipSize -(float)(StandardHeight))*0.5f, (float)StandardWidth, ToolTipSize, DefaultTooltipBgColor, true)
 {
-	vector<thread>initThreads;
-	initThreads.emplace_back(thread(&TitleScene::InitLayout, this));
-	for (thread& it : initThreads) it.join();
-
+	InitLayout();
 	FMODSYSTEM.System()->createStream("titlebgm.mp3", FMOD_LOOP_NORMAL, nullptr, &bgm);
 }
 
@@ -37,7 +34,7 @@ TitleScene::~TitleScene()
 
 void TitleScene::BeginScene()
 {
-	titleSRV.CreateTexture(App->GetDevice(), TextureDir + L"/Title/TitleLogo_ghost.png");
+	titleSRV.CreateTexture(App->GetD3DDevice(), TextureDir + L"/Title/TitleLogo_ghost.png");
 	titleLogoImg.SetTexture(&titleSRV);
 	keySelectTriangle = new Triangle2D;
 	keySelectTriangle->GetWorld2d().SetScale(12.0f);
@@ -54,8 +51,8 @@ void TitleScene::OnResize(float newW, float newH)
 {
 	tooltipBG.ChangeWidthToCurrentWidth(newW, newH);
 
-	keySelectTriangle->GetWorld2d().OnParentWorldUpdate();
-	for (auto& it : layoutList) it.GetWorld2d().OnParentWorldUpdate();
+	keySelectTriangle->OnResize();
+	for (auto& it : layoutList) it.OnResize();
 }
 
 void TitleScene::Update(float dt)

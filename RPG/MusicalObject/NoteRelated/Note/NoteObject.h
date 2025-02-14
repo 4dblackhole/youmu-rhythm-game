@@ -2,6 +2,7 @@
 #include "libraries.h"
 #include "MusicalObject/AccuracyRange.h"
 #include "MusicalObject/ScorePercentage.h"
+#include "NoteDrawDesc.h"
 
 class NoteObject
 {
@@ -19,6 +20,8 @@ public:
 	virtual void UpdateScoreOnMiss(ScorePercentage&) const = 0; //is called when player missed the note
 	virtual bool IsHitted() const = 0;
 	virtual chrono::microseconds NoteEndTime() const = 0;
+	virtual const vector<NoteDrawDesc> GetNoteDrawDesc() const = 0;
+
 	virtual void DebugText(wstringstream& wss) const = 0;
 
 	const MusicalPosition& MP() const { return mp; }

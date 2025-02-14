@@ -10,6 +10,7 @@ public:
 
 	virtual void InitTextures();
 
+
 private:
 	DECLARE_VARIABLE_WSTRING(LeftD);
 	DECLARE_VARIABLE_WSTRING(RightD);

@@ -3,8 +3,8 @@
 
 TestScene::TestScene() : sq(0.0f, 0.0f, 1280.0f, 720.0f), sq2(300, 100, 259, 224), whiteSquare(300, -100, 259, 224, MyColor4::White, true)
 {
-	textureManager.AddTexture(App->GetDevice(), TextureName::test, TextureDir + L"tempTexture.png");
-	textureManager.AddTexture(App->GetDevice(), TextureName::myon, TextureDir + L"myon.png");
+	textureManager.AddTexture(App->GetD3DDevice(), TextureName::test, TextureDir + L"tempTexture.png");
+	textureManager.AddTexture(App->GetD3DDevice(), TextureName::myon, TextureDir + L"myon.png");
 	sq.SetTexture(&textureManager.GetTexture(TextureName::test));
 	sq2.SetTexture(&textureManager.GetTexture(TextureName::myon));
 
@@ -127,7 +127,7 @@ void TestScene::BuildBuffer()
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	D3D11_SUBRESOURCE_DATA vinitData{};
 	vinitData.pSysMem = vertex;
-	HR(App->GetDevice()->CreateBuffer(&vbd, &vinitData, &mVB));
+	HR(App->GetD3DDevice()->CreateBuffer(&vbd, &vinitData, &mVB));
 
 
 	UINT indices[] =
@@ -142,14 +142,14 @@ void TestScene::BuildBuffer()
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	D3D11_SUBRESOURCE_DATA iinitData{};
 	iinitData.pSysMem = indices;
-	HR(App->GetDevice()->CreateBuffer(&ibd, &iinitData, &mIB));
+	HR(App->GetD3DDevice()->CreateBuffer(&ibd, &iinitData, &mIB));
 }
 
 void TestScene::BuildLayout()
 {
 	D3DX11_PASS_DESC passDesc;
 	EffectList::InstancedTestFX->mTech->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(App->GetDevice()->CreateInputLayout(VertexColor::InputLayoutDesc::desc, VertexColor::InputLayoutDesc::Length, passDesc.pIAInputSignature,
+	HR(App->GetD3DDevice()->CreateInputLayout(VertexColor::InputLayoutDesc::desc, VertexColor::InputLayoutDesc::Length, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mLayout));
 
 }
@@ -161,7 +161,7 @@ void TestScene::BuildInstancedBuffer()
 	instbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	D3D11_SUBRESOURCE_DATA instinitData{};
 	instinitData.pSysMem = &instances[0];
-	HR(App->GetDevice()->CreateBuffer(&instbd, &instinitData, &mInstancedBuffer));
+	HR(App->GetD3DDevice()->CreateBuffer(&instbd, &instinitData, &mInstancedBuffer));
 
 }
 
@@ -178,7 +178,7 @@ void TestScene::BuildInstancedLayout()
 
 	D3DX11_PASS_DESC passDesc;
 	EffectList::InstancedTestFX->mTechInstanced->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(App->GetDevice()->CreateInputLayout(desc, ARRAYSIZE(desc), passDesc.pIAInputSignature,
+	HR(App->GetD3DDevice()->CreateInputLayout(desc, ARRAYSIZE(desc), passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInstancedLayout));
 }
 

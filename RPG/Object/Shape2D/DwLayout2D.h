@@ -45,8 +45,5 @@ private:
 	void DrawTextLayout(D2D1_POINT_2F origin,
 		_In_ IDWriteTextLayout* textLayout,
 		_In_ ID2D1Brush* defaultFillBrush,
-		_In_opt_ D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE) noexcept
-	{
-		D2D.GetRenderTarget()->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
-	}
+		_In_opt_ D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE) noexcept;
 };

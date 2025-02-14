@@ -13,8 +13,9 @@ public:
 
 	auto GetWidth() const { return mClientWidth; }
 	auto GetHeight() const { return mClientHeight; }
-	auto GetDevice() const { return md3dDevice; }
-	auto GetDeviceContext() const { return  md3dImmediateContext; }
+	auto GetD3DDevice() const { return md3dDevice; }
+	auto GetD3DDeviceContext() const { return md3dImmediateContext; }
+	D2Ddevice& GetD2D() { return md2dDevice; }
 	auto GetSwapChain() const { return  mSwapChain; }
 
 	int Run(); //main thread
@@ -77,6 +78,8 @@ protected:
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;
 	D3D11_VIEWPORT mScreenViewport;
+
+	D2Ddevice md2dDevice;
 
 	//Driver Type
 	D3D_DRIVER_TYPE md3dDriverType;

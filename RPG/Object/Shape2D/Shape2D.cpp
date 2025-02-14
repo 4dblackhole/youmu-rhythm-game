@@ -15,3 +15,8 @@ void Shape2D::Draw()
 {
 	D2D.GetRenderTarget()->SetTransform(world2d.GetGlobalWorld());
 }
+
+void Shape2D::OnResize()
+{
+	GetWorld2d().OnParentWorldUpdate();
+}

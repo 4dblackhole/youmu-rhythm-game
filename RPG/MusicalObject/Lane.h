@@ -1,7 +1,6 @@
 #pragma once
 #include "framework.h"
 #include "NoteRelated/Note/NoteObject.h"
-#include "NoteRelated/Note/NoteDrawDesc.h"
 #include "MusicalObject/ScorePercentage.h"
 
 /*to check the order of each notes
@@ -23,10 +22,6 @@ public:
 
 	void AddNoteType(size_t key);
 	void RemoveNoteType(size_t key);
-
-	const NoteDrawDesc& GetNoteDrawDesc(size_t key) const;
-	void AddNoteDrawDesc(size_t key, const NoteDrawDesc& desc);
-	void RemoveNoteDrawDesc(size_t key);
 
 	void LoadNotes(const MusicScore* score);
 
@@ -64,8 +59,6 @@ private:
 	set<size_t> targetNoteTypeList;
 	void RemoveUnusedNoteType(const MusicScore::NoteContainer& wholeNoteList);
 	size_t CalculateTotalExpectedNotes(const MusicScore::NoteContainer& wholeNoteList);
-
-	map<size_t, NoteDrawDesc> noteDrawDescMap;
 
 	NoteObjectContainer::iterator currentNote;
 

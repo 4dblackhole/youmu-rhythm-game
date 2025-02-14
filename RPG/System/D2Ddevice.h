@@ -1,8 +1,7 @@
 #pragma once
 #include "Utility/ShortCut.h"
-#include "Singleton/SingletonBase.h"
 
-class D2Ddevice : public SingletonBase<D2Ddevice>
+class D2Ddevice
 {
 public:
 	D2Ddevice();
@@ -55,16 +54,4 @@ public:
 	};
 
 	static constexpr float DefaultFontSize = 15.0f;
-public:
-	
-	void DrawTextLayout(D2D1_POINT_2F origin,
-		_In_ IDWriteTextLayout* textLayout,
-		_In_ ID2D1Brush* defaultFillBrush,
-		D2D1_DRAW_TEXT_OPTIONS options = D2D1_DRAW_TEXT_OPTIONS_NONE) noexcept
-	{
-		D2Ddevice::GetInstance().GetRenderTarget()->DrawTextLayout(origin, textLayout, defaultFillBrush, options);
-	}
 };
-
-
-#define D2D D2Ddevice::GetInstance()

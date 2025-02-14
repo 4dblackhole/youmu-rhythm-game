@@ -18,6 +18,7 @@ public:
 	virtual void UpdateScoreOnMiss(ScorePercentage&) const;
 	virtual bool IsHitted() const;
 	virtual chrono::microseconds NoteEndTime() const;
+	virtual const vector<NoteDrawDesc> GetNoteDrawDesc() const;
 
 	virtual void DebugText(wstringstream& wss) const;
 

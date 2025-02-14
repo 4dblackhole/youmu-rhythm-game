@@ -17,7 +17,7 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 constexpr double JudgeLinePosition = 80.0;
 
-constexpr UINT REFTIME_DEBUG = TRUE;
+constexpr UINT REFTIME_DEBUG = FALSE;
 
 PlayScene::PlayScene(Music* m, Pattern* p) :
 	music(m), pattern(p),
@@ -63,11 +63,12 @@ void PlayScene::InitTaikoModeLanes()
 	taikoLane.AddNoteType((size_t)TaikoNoteType::BigTickRoll);
 	taikoLane.AddNoteType((size_t)TaikoNoteType::Balloon);
 
+	/*
 	taikoLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
 	taikoLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
 	taikoLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
 	taikoLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
-
+	*/
 }
 
 void PlayScene::InitTaikoModeKeyNoteTypeMap()
@@ -174,17 +175,19 @@ void PlayScene::InitTaikoModeTextures()
 	ReleaseTaikoModeTextures();
 	const wstring skinDir = SkinDir + L"test Skin/";
 	
-	textureList.AddTexture(App->GetDevice(), TextureName::LaneBackground, skinDir + L"LaneBackground.png");
-	textureList.AddTexture(App->GetDevice(), TextureName::LaneLight, skinDir + L"LaneLight.png");
-	textureList.AddTexture(App->GetDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
-	textureList.AddTexture(App->GetDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
+	textureList.AddTexture(App->GetD3DDevice(), TextureName::LaneBackground, skinDir + L"LaneBackground.png");
+	textureList.AddTexture(App->GetD3DDevice(), TextureName::LaneLight, skinDir + L"LaneLight.png");
+	textureList.AddTexture(App->GetD3DDevice(), TextureName::JudgeLine, skinDir + L"JudgeLine.png");
+	textureList.AddTexture(App->GetD3DDevice(), TextureName::MeasureLine, skinDir + L"MeasureLine.png");
 	
 	bool val = textureList.AddTextureArr(
 		TextureName::note,
 		{
 			(skinDir + L"note.png").c_str(),
 			(skinDir + L"bignote.png").c_str(),
-			(skinDir + L"noteoverlay.png").c_str()
+			(skinDir + L"noteoverlay.png").c_str(),
+			(skinDir + L"LNBody.png").c_str(),
+			(skinDir + L"LNTail.png").c_str()
 		});
 	assert(val);
 	
@@ -312,20 +315,20 @@ void PlayScene::InitPauseBackground()
 
 
 	ID3D11Texture2D* tempPauseBG = nullptr;
-	HR(App->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &tempPauseBG));
-	HR(App->GetDevice()->CreateRenderTargetView(tempPauseBG, nullptr, &pauseBgRTV));
-	HR(App->GetDevice()->CreateShaderResourceView(tempPauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
+	HR(App->GetD3DDevice()->CreateTexture2D(&textureDesc, nullptr, &tempPauseBG));
+	HR(App->GetD3DDevice()->CreateRenderTargetView(tempPauseBG, nullptr, &pauseBgRTV));
+	HR(App->GetD3DDevice()->CreateShaderResourceView(tempPauseBG, nullptr, &pauseBgTexture.GetRefSRV()));
 
 	D2D.ReleaseBackBuffer(); //for change 3d target, 2d surfaces must be relased
 	D2D.ResetBackBuffer(tempPauseBG);
 
-	App->GetDeviceContext()->OMSetRenderTargets(1, &pauseBgRTV, nullptr);
+	App->GetD3DDeviceContext()->OMSetRenderTargets(1, &pauseBgRTV, nullptr);
 
 	const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	App->GetDeviceContext()->ClearRenderTargetView(pauseBgRTV, (const float*)&App->GetBgColor());
+	App->GetD3DDeviceContext()->ClearRenderTargetView(pauseBgRTV, (const float*)&App->GetBgColor());
 
 	D2D.BeginDraw();
-	RenderStatus(prevSceneStatus, App->GetDeviceContext(), App->GetCamera());
+	RenderStatus(prevSceneStatus, App->GetD3DDeviceContext(), App->GetCamera());
 	D2D.EndDraw();
 
 	//D3DX11SaveTextureToFile(App->GetDeviceContext(), pauseBG, D3DX11_IFF_PNG, L"asdf.png");
@@ -1341,14 +1344,14 @@ void PlayScene::InitInstancedBuffer(ID3D11Buffer*& buffer, UINT bufLen)
 	instbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	//D3D11_SUBRESOURCE_DATA instinitData{};
 	//instinitData.pSysMem = &noteInstanceList[0];
-	HR(App->GetDevice()->CreateBuffer(&instbd, nullptr, &buffer));
+	HR(App->GetD3DDevice()->CreateBuffer(&instbd, nullptr, &buffer));
 
 }
 
 void PlayScene::UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, const MilliDouble refTime, Lane& lane)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
-	App->GetDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	App->GetD3DDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
 	D3D11_BUFFER_DESC d;
 	noteInstancedBuffer->GetDesc(&d);
@@ -1357,7 +1360,7 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote(ID3D11Buffer* instBuffer, co
 	//Update ========================================================
 	UpdateInstancedBuffer_TaikoModeNote_Internal(refTime, lane, dataView);
 
-	App->GetDeviceContext()->Unmap(instBuffer, 0);
+	App->GetD3DDeviceContext()->Unmap(instBuffer, 0);
 
 }
 
@@ -1367,7 +1370,7 @@ constexpr pair<double, double> laneDrawArea = { -256.0, (double)LaneMaxLength };
 void PlayScene::UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, const vector<Measure>& measureList, const MilliDouble refTime, Lane& lane)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
-	App->GetDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	App->GetD3DDeviceContext()->Map(instBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
 	D3D11_BUFFER_DESC d;
 	noteInstancedBuffer->GetDesc(&d);
@@ -1376,7 +1379,7 @@ void PlayScene::UpdateInstancedBuffer_MeasureLine(ID3D11Buffer* instBuffer, cons
 	//Update ========================================================
 	UpdateInstancedBuffer_MeasureLine_Internal(refTime, measureList, lane, dataView);
 
-	App->GetDeviceContext()->Unmap(instBuffer, 0);
+	App->GetD3DDeviceContext()->Unmap(instBuffer, 0);
 }
 
 void PlayScene::UpdateInstancedBuffer_MeasureLine_Internal(const MilliDouble refTime, const vector<Measure>&measureList, Lane& lane, SpriteInstanceData*& dataView)
@@ -1467,24 +1470,28 @@ void PlayScene::UpdateInstancedBuffer_TaikoModeNote_Internal(const MilliDouble r
 			if (notePos >= laneDrawArea.second) return;
 
 			//set the data from note draw desc
-			const NoteDrawDesc& tempNoteDrawDesc = lane.GetNoteDrawDesc((*rStartIter)->NoteType());
-			World3D tempWorld3d;
-			tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
-			tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);
-			tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
+			const NoteObject* const& currentNote = *rStartIter;
+			const vector<NoteDrawDesc>& tempNoteDrawDescList = currentNote->GetNoteDrawDesc();
+			for (const auto& tempNoteDrawDesc : tempNoteDrawDescList)
+			{
+				World3D tempWorld3d;
+				tempWorld3d.SetParentWorld(&lane.laneSprite.GetWorld3d());
+				tempWorld3d.SetObjectScale((FLOAT)tempNoteDrawDesc.diameter);
+				tempWorld3d.SetLocalPosition({ 0, (float)notePos, 0 });
 
-			SpriteInstanceData tempInst{};
-			tempInst.Diffuse = tempNoteDrawDesc.color;
-			tempInst.uvworld = tempWorld3d.GetUvWorld();
-			tempInst.world = tempWorld3d.GetTotalDrawWorld();
-			tempInst.TextureID = tempNoteDrawDesc.textureID;
-			dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
+				SpriteInstanceData tempInst{};
+				tempInst.Diffuse = tempNoteDrawDesc.color;
+				tempInst.uvworld = tempWorld3d.GetUvWorld();
+				tempInst.world = tempWorld3d.GetTotalDrawWorld();
+				tempInst.TextureID = tempNoteDrawDesc.textureID;
+				dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::Note] = tempInst;
 
-			tempInst.Diffuse = MyColor4::White;
-			tempInst.TextureID = tempNoteDrawDesc.textureOverlayID;
-			dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
+				tempInst.Diffuse = MyColor4::White;
+				tempInst.TextureID = tempNoteDrawDesc.textureOverlayID;
+				dataView[(int)NoteTextureInstanceID::MAX * noteInstanceCount + (int)NoteTextureInstanceID::NoteOverlay] = tempInst;
 
-			++noteInstanceCount;
+				++noteInstanceCount;
+			}
 		};
 
 	while (rStartIter != rEndIter)

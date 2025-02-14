@@ -33,7 +33,7 @@ TextureManager::ContainerType::mapped_type& TextureManager::GetTexture(Container
 
 TextureManager::ContainerType::mapped_type& TextureManager::GetNullTexture()
 {
-	static TextureManager::ContainerType::mapped_type nullTexture(App->GetDevice(), TextureDir + L"TextureNotFound.png");
+	static TextureManager::ContainerType::mapped_type nullTexture(App->GetD3DDevice(), TextureDir + L"TextureNotFound.png");
 	return nullTexture;
 }
 
@@ -66,7 +66,7 @@ void TextureManager::AddTextureArr_LoadTextureList(const vector<LPCWSTR>& fileLi
 
 		D3DX11_IMAGE_LOAD_INFO info{};
 		info.MipLevels = 1;
-		HR(D3DX11CreateTextureFromFile(App->GetDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
+		HR(D3DX11CreateTextureFromFile(App->GetD3DDevice(), *cIter, &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr));
 		textureList.emplace_back(tempTexture2D);
 
 		++cIter;
@@ -87,12 +87,12 @@ bool TextureManager::AddTextureArr_MergeTextureList(const string& keyStr, const 
 	//texture2Ddesc.SampleDesc.Count = 1;
 
 	ID3D11Texture2D* texture2DArr;
-	HRESULT hr = (App->GetDevice()->CreateTexture2D(&texture2Ddesc, nullptr, &texture2DArr));
+	HRESULT hr = (App->GetD3DDevice()->CreateTexture2D(&texture2Ddesc, nullptr, &texture2DArr));
 	if (FAILED(hr)) return false;
 
 	for (UINT i = 0; i < textureList.size(); ++i) {
 		for (UINT mip = 0; mip < texture2Ddesc.MipLevels; ++mip) {
-			App->GetDeviceContext()->CopySubresourceRegion(
+			App->GetD3DDeviceContext()->CopySubresourceRegion(
 				texture2DArr,
 				D3D11CalcSubresource(mip, i, texture2Ddesc.MipLevels),
 				0, 0, 0,
@@ -111,7 +111,7 @@ bool TextureManager::AddTextureArr_MergeTextureList(const string& keyStr, const 
 	srvDesc.Texture2DArray.ArraySize = texture2Ddesc.ArraySize;
 
 	Texture& arrTexture = this->textureList[keyStr];
-	hr = (App->GetDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture.GetRefSRV()));
+	hr = (App->GetD3DDevice()->CreateShaderResourceView(texture2DArr, &srvDesc, &arrTexture.GetRefSRV()));
 	if (FAILED(hr)) return false;
 
 	ReleaseCOM(texture2DArr);
@@ -126,7 +126,7 @@ bool TextureManager::AddTextureArrIndexed(const string& keyStr, const wstring& f
 	//in case there is only one texture
 	if (ShortCut::FileExists(fileName.c_str()) != FALSE)
 	{
-		this->AddTexture(App->GetDevice(), keyStr, fileName);
+		this->AddTexture(App->GetD3DDevice(), keyStr, fileName);
 		return true;
 	}
 
@@ -148,7 +148,7 @@ bool TextureManager::AddTextureArrIndexed(const string& keyStr, const wstring& f
 
 		D3DX11_IMAGE_LOAD_INFO info{};
 		info.MipLevels = 1;
-		D3DX11CreateTextureFromFile(App->GetDevice(), resultFileName.c_str(), &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr);
+		D3DX11CreateTextureFromFile(App->GetD3DDevice(), resultFileName.c_str(), &info, nullptr, (ID3D11Resource**)&tempTexture2D, nullptr);
 		tempTextureList.emplace_back(tempTexture2D);
 		++textureIdx;
 	}

@@ -16,6 +16,7 @@ public:
 	virtual void InitLaneList() = 0;
 	void ReleaseLaneList();
 
+
 protected:
 	vector<Lane*> laneList;
 	TextureManager textureList;

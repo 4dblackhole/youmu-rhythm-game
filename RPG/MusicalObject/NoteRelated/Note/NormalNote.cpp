@@ -2,6 +2,8 @@
 #include "NormalNote.h"
 #include "GameScene/PlayScene.h"
 
+constexpr float CircleDiameter = 90.0f;
+
 NormalNote::NormalNote(const MusicalNote* p, const chrono::microseconds t) : NoteObject(p, t)
 {
 	Init();
@@ -76,6 +78,40 @@ bool NormalNote::IsHitted() const
 chrono::microseconds NormalNote::NoteEndTime() const
 {
 	return Timing();
+}
+
+const vector<NoteDrawDesc> NormalNote::GetNoteDrawDesc() const
+{
+	static constexpr NoteDrawDesc RedNoteDrawDesc
+	(
+		{
+			MyColor4::MyRed,
+			CircleDiameter,
+			(UINT)PlayScene::NoteTextureArrID::Note,
+			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
+		}
+	);
+	static constexpr NoteDrawDesc BlueNoteDrawDesc
+	(
+		{
+			MyColor4::MyBlue,
+			CircleDiameter,
+			(UINT)PlayScene::NoteTextureArrID::Note,
+			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
+		}
+	);
+
+	switch (noteType)
+	{
+	case (UINT)PlayScene::TaikoNoteType::Don:
+		return { RedNoteDrawDesc };
+
+	case (UINT)PlayScene::TaikoNoteType::Kat:
+		return { BlueNoteDrawDesc };
+
+	default:
+		return vector<NoteDrawDesc>();
+	}
 }
 
 void NormalNote::DebugText(wstringstream& wss) const

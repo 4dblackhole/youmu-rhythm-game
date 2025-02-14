@@ -2,6 +2,8 @@
 #include "BigNote.h"
 #include "GameScene/PlayScene.h"
 
+constexpr float LargeCircleDiameter = 144.0f;
+
 BigNote::BigNote(const MusicalNote* p, const chrono::microseconds t) : NoteObject(p, t)
 {
 	Init();
@@ -102,6 +104,40 @@ bool BigNote::IsHitted() const
 chrono::microseconds BigNote::NoteEndTime() const
 {
 	return Timing();
+}
+
+const vector<NoteDrawDesc> BigNote::GetNoteDrawDesc() const
+{
+	static constexpr NoteDrawDesc RedBigNoteDrawDesc
+	(
+		{
+			MyColor4::MyRed, 
+			LargeCircleDiameter, 
+			(UINT)PlayScene::NoteTextureArrID::Note, 
+			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
+		}
+	); 
+	static constexpr NoteDrawDesc BlueBigNoteDrawDesc
+	(
+		{
+			MyColor4::MyBlue,
+			LargeCircleDiameter,
+			(UINT)PlayScene::NoteTextureArrID::Note,
+			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
+		}
+	);
+
+	switch (noteType)
+	{
+	case (UINT)PlayScene::TaikoNoteType::BigDon:
+		return { RedBigNoteDrawDesc };
+
+	case (UINT)PlayScene::TaikoNoteType::BigKat:
+		return { BlueBigNoteDrawDesc };
+
+	default:
+		return vector<NoteDrawDesc>();
+	}
 }
 
 void BigNote::DebugText(wstringstream& wss) const

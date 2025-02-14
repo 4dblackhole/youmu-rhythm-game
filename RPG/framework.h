@@ -47,3 +47,4 @@
 #include "App/MainApp.h"
 extern MainApp* App;
 
+#define D2D App->GetD2D()

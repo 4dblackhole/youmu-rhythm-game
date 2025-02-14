@@ -50,7 +50,6 @@ bool MainApp::Init()
 
 	//Init singletons
 	SceneManager::GetInstance();
-	D2Ddevice::GetInstance();
 	StrToVK::GetInstance();
 
 	RenderStates::Init(md3dDevice);

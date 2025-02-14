@@ -49,24 +49,6 @@ void Lane::RemoveNoteType(size_t key)
 	targetNoteTypeList.erase(key);
 }
 
-const NoteDrawDesc& Lane::GetNoteDrawDesc(size_t key) const
-{
-	auto it = noteDrawDescMap.find(key);
-	if (it != noteDrawDescMap.end()) return it->second;
-	else return defaultNoteDrawDesc;
-}
-
-void Lane::AddNoteDrawDesc(size_t key, const NoteDrawDesc& val)
-{
-	noteDrawDescMap.emplace(make_pair(key, val));
-}
-
-void Lane::RemoveNoteDrawDesc(size_t key)
-{
-	noteDrawDescMap.erase(key);
-}
-
-
 void Lane::LoadNotesVariablesInit()
 {
 	isLN = false;
