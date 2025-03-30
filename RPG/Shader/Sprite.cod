@@ -236,7 +236,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Texture return value>.x; o0.y <- <PS_Texture return value>.y; o0.z <- <PS_Texture return value>.z; o0.w <- <PS_Texture return value>.w
                 //
-                #line 87 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 88 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 utof r0.z, v4.x
                 mov r0.xy, v2.xyxx
                 sample_indexable(texture2darray)(float,float,float,float) r0.xyzw, r0.xyzx, t0.xyzw, s0
@@ -418,7 +418,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Texture return value>.x; o0.y <- <PS_Texture return value>.y; o0.z <- <PS_Texture return value>.z; o0.w <- <PS_Texture return value>.w
                 //
-                #line 87 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 88 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 utof r0.z, v4.x
                 mov r0.xy, v2.xyxx
                 sample_indexable(texture2darray)(float,float,float,float) r0.xyzw, r0.xyzx, t0.xyzw, s0
@@ -588,7 +588,7 @@ fxgroup
                 //   v4.x <- pin.TextureID; 
                 //   o0.x <- <PS_Color return value>.x; o0.y <- <PS_Color return value>.y; o0.z <- <PS_Color return value>.z; o0.w <- <PS_Color return value>.w
                 //
-                #line 93 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
+                #line 94 "D:\Projects\c++\asdf\RPG\RPG\Shader\Sprite.fx"
                 mul o0.xyzw, v1.xyzw, v3.xyzw
                 ret 
                 // Approximately 2 instruction slots used

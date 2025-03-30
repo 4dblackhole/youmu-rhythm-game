@@ -9,7 +9,7 @@ public:
 		const MusicalPosition& tail = MusicalPosition(), const chrono::microseconds& tailT = chrono::microseconds(0));
 	virtual ~RollNote();
 
-	void Init();
+	virtual void Init();
 	virtual void OnPass();
 	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act);
 	virtual void OnHitInaccurate();

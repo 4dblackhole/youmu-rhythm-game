@@ -6,7 +6,6 @@ constexpr float LargeCircleDiameter = 144.0f;
 
 BigNote::BigNote(const MusicalNote* p, const chrono::microseconds t) : NoteObject(p, t)
 {
-	Init();
 }
 
 BigNote::~BigNote()
@@ -15,6 +14,7 @@ BigNote::~BigNote()
 
 void BigNote::Init()
 {
+	__super::Init();
 	hitCount = BigNote::maxHitCount;
 	for (double& it : score)it = 0.0;
 	for (bool& it : isInaccurate) it = false;
@@ -113,7 +113,7 @@ const vector<NoteDrawDesc> BigNote::GetNoteDrawDesc() const
 		{
 			MyColor4::MyRed, 
 			LargeCircleDiameter, 
-			(UINT)PlayScene::NoteTextureArrID::Note, 
+			(UINT)PlayScene::NoteTextureArrID::BigNote,
 			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
 		}
 	); 
@@ -122,7 +122,7 @@ const vector<NoteDrawDesc> BigNote::GetNoteDrawDesc() const
 		{
 			MyColor4::MyBlue,
 			LargeCircleDiameter,
-			(UINT)PlayScene::NoteTextureArrID::Note,
+			(UINT)PlayScene::NoteTextureArrID::BigNote,
 			(UINT)PlayScene::NoteTextureArrID::NoteOverlay
 		}
 	);

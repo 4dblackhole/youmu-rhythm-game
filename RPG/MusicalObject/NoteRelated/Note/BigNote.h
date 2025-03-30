@@ -8,7 +8,7 @@ public:
 	BigNote(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
 	virtual ~BigNote();
 
-	void Init();
+	virtual void Init();
 	virtual void OnPass();
 	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act);
 	virtual void OnHitInaccurate();

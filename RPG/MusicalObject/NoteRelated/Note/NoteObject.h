@@ -10,7 +10,7 @@ public:
 	NoteObject(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
 	virtual ~NoteObject();
 
-	void Init();
+	virtual void Init();
 	virtual void OnPass() = 0;
 	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act) = 0;
 	virtual void OnHitInaccurate() = 0;

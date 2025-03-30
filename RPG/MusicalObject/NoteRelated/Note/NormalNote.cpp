@@ -6,7 +6,6 @@ constexpr float CircleDiameter = 90.0f;
 
 NormalNote::NormalNote(const MusicalNote* p, const chrono::microseconds t) : NoteObject(p, t)
 {
-	Init();
 }
 
 NormalNote::~NormalNote()
@@ -15,6 +14,7 @@ NormalNote::~NormalNote()
 
 void NormalNote::Init()
 {
+	__super::Init();
 	SetInaccurateStatus(false);
 	SetHittedStatus(false);
 }

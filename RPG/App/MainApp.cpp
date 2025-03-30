@@ -62,7 +62,10 @@ bool MainApp::Init()
 	//2D Graphic Setting (no depth check, alpha blend)
 	md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS.Get(), {}, 0xffffffff);
 	md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDepthDSS.Get(), 0);
-	
+
+	FMODSYSTEM.ChangeDriveOutputType(FMOD_OUTPUTTYPE_ASIO);
+	FMODSYSTEM.ChangeDrive(0);
+
 	return true;
 }
 

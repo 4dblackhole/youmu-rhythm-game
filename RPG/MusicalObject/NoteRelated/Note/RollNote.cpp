@@ -5,7 +5,6 @@
 RollNote::RollNote(const MusicalNote* p, const chrono::microseconds t, int hitCount, const MusicalPosition& tail, const chrono::microseconds& tailT) :
 	NoteObject(p, t), maxHitCount(hitCount), tailPos(tail), tailPosTiming(tailT)
 {
-	Init();
 }
 
 RollNote::~RollNote()
@@ -14,6 +13,7 @@ RollNote::~RollNote()
 
 void RollNote::Init()
 {
+	__super::Init();
 	AccuracyRange asdf;
 	accRange = &asdf;
 	hitCount = maxHitCount;

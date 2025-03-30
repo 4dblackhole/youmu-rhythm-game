@@ -84,7 +84,8 @@ VertexOut VS(VertexIn vin)
 
 float4 PS_Texture(VertexOut pin) : SV_Target
 {
-    return gTexture.Sample(samAnisotropic, float3(pin.Tex, (float)pin.TextureID)) * pin.Diffuse;
+    float2 texCoord = pin.Tex;
+    return gTexture.Sample(samAnisotropic, float3(texCoord, (float) pin.TextureID)) * pin.Diffuse;
     //return gTexture.Sample(samAnisotropic, pin.Tex) * pin.Diffuse;
 }
 

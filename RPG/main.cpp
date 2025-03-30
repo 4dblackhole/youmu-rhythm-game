@@ -13,9 +13,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 #endif
 
 	MainApp theApp(hInstance);
-
-	//FMODSYSTEM.ChangeDriveOutputType(FMOD_OUTPUTTYPE_ASIO);
-	FMODSYSTEM.ChangeDrive(0);
+	FMODSYSTEM;
 
 	if (!theApp.Init()) return 0;
 	return theApp.Run();

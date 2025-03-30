@@ -115,14 +115,14 @@ void Lane::LoadNotes(const MusicScore* score)
 		else --validIterCount;
 	}
 
-	currentNote = noteObjectList.begin();
-
+	//currentNote = noteObjectList.begin();
+	Reset();
 }
 
 
 void Lane::InitNoteList()
 {
-	for (NoteObjectContainer::value_type& it : noteObjectList) it->Init();
+	for (NoteObject*& it : noteObjectList) it->Init();
 	
 }
 
@@ -149,8 +149,8 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 		noteObjectList.emplace_back(notePtr);
 		NoteObject& lastNote = *noteObjectList.back();
 		lastNote.SetAccRange(&score->accRange);
-		return;
 	}
+	break;
 	case (UINT)PlayScene::TaikoActionType::LNStart:
 	{
 		if (isLN) return;
@@ -159,7 +159,7 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 		tempLnHead = targetNote;
 		tempLnHeadTiming = timing;
 	}
-	return;
+	break;
 	case (UINT)PlayScene::TaikoActionType::LNEnd:
 	{
 		if (!isLN) return;
@@ -180,7 +180,7 @@ void Lane::AddNoteObjectFromNoteTaikoMode(const MusicScore* score, const Musical
 			lastNote.SetAccRange(&score->accRange);
 		}
 	}
-	return;
+	break;
 
 	}
 }

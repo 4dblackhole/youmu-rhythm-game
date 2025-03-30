@@ -63,12 +63,6 @@ void PlayScene::InitTaikoModeLanes()
 	taikoLane.AddNoteType((size_t)TaikoNoteType::BigTickRoll);
 	taikoLane.AddNoteType((size_t)TaikoNoteType::Balloon);
 
-	/*
-	taikoLane.AddNoteDrawDesc(1, { MyColor4::MyRed, CircleDiameter, (UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
-	taikoLane.AddNoteDrawDesc(2, { MyColor4::MyBlue, CircleDiameter ,(UINT)NoteTextureArrID::Note, (UINT)NoteTextureArrID::NoteOverlay });
-	taikoLane.AddNoteDrawDesc(3, { MyColor4::MyRed, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
-	taikoLane.AddNoteDrawDesc(4, { MyColor4::MyBlue, LargeCircleDiameter, (UINT)NoteTextureArrID::BigNote, (UINT)NoteTextureArrID::NoteOverlay });
-	*/
 }
 
 void PlayScene::InitTaikoModeKeyNoteTypeMap()

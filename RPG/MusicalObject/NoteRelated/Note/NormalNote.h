@@ -8,7 +8,7 @@ public:
 	NormalNote(const MusicalNote* p = nullptr, const chrono::microseconds t = chrono::microseconds(0));
 	virtual ~NormalNote();
 
-	void Init();
+	virtual void Init();
 	virtual void OnPass();
 	virtual void OnAction(const MilliDouble& refTime, UINT type, UINT act);
 	virtual void OnHitInaccurate();
