@@ -3,8 +3,7 @@
 
 FmodSystem::FmodSystem()
 {
-    Init(FMOD_OUTPUTTYPE_AUTODETECT, 64);
-    //Init(FMOD_OUTPUTTYPE_ASIO, 64);
+    Init(FMOD_OUTPUTTYPE_AUTODETECT);
     InitSounds();
 }
 

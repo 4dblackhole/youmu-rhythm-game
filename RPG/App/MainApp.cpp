@@ -64,6 +64,7 @@ bool MainApp::Init()
 	md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDepthDSS.Get(), 0);
 
 	FMODSYSTEM.ChangeDriveOutputType(FMOD_OUTPUTTYPE_ASIO);
+	FMODSYSTEM.System()->setDSPBufferSize(64, 4);
 	FMODSYSTEM.ChangeDrive(0);
 
 	return true;

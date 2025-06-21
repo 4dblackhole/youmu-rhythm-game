@@ -142,7 +142,7 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilBuffer);
 
 	//Release D2D DXGI Surface and RenderTarget
-	D2D.ReleaseBackBuffer();
+	GetD2D().ReleaseBackBuffer();
 
 	//Resize the swap chain and recreate the RTV
 	HR(mSwapChain->ResizeBuffers(SWAPCHAIN_BUFFERCOUNT, mClientWidth, mClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, SWAPCHAIN_FLAG));
@@ -153,7 +153,7 @@ void D3DApp::OnResize()
 	ReleaseCOM(backBuffer);
 
 	//Reset D2D DXGI Surface and RenderTarget
-	D2D.ResetBackBufferFromSwapChain(mSwapChain);
+	GetD2D().ResetBackBufferFromSwapChain(mSwapChain);
 
 	//Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;

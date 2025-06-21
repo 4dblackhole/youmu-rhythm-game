@@ -8,7 +8,7 @@ public:
 	FmodSystem();
 	~FmodSystem();
 
-	FMOD_RESULT Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferlength);
+	FMOD_RESULT Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferlength = 256);
 	FMOD_RESULT Release();
 
 	FMOD_RESULT ChangeDrive(int idx);
