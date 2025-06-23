@@ -36,7 +36,8 @@ FMOD_RESULT FmodSystem::Init(FMOD_OUTPUTTYPE outputMode, unsigned int bufferleng
         return result;
     }
 
-    result = mSystem->setDSPBufferSize(bufferlength, 4);
+    constexpr uint DefaultBufferCount = 4;
+    result = mSystem->setDSPBufferSize(bufferlength, DefaultBufferCount);
 
     result = mSystem->init(256, FMOD_INIT_NORMAL, extradriverdata);
     if (result != FMOD_OK) return result;

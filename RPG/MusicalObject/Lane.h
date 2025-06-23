@@ -20,8 +20,8 @@ public:
 	void Render(ID3D11DeviceContext*, const Camera&);
 	void Reset();
 
-	void AddNoteType(size_t key);
-	void RemoveNoteType(size_t key);
+	void AddNoteType(size_t type);
+	void RemoveNoteType(size_t type);
 
 	void LoadNotes(const MusicScore* score);
 

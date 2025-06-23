@@ -39,14 +39,14 @@ void Lane::Render(ID3D11DeviceContext* context, const Camera& cam)
 	judgeLineSprite.Render(context, cam);
 }
 
-void Lane::AddNoteType(size_t key)
+void Lane::AddNoteType(size_t type)
 {
-	targetNoteTypeList.emplace(key);
+	targetNoteTypeList.emplace(type);
 }
 
-void Lane::RemoveNoteType(size_t key)
+void Lane::RemoveNoteType(size_t type)
 {
-	targetNoteTypeList.erase(key);
+	targetNoteTypeList.erase(type);
 }
 
 void Lane::LoadNotesVariablesInit()
