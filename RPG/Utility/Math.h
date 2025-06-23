@@ -21,7 +21,14 @@ public:
 	static int FindHighestPowerOfTwoLinearSearch(int n);
 	static int FindHighestPowerOfTwoBinarySearch(int n);
 	
-	static float Clamp(float value, float min, float max);
+	template <typename T>
+	static T Clamp(T value, T min, T max)
+	{
+		value = value > max ? max : value;
+		value = value < min ? min : value;
+
+		return value;
+	}
 
 	static XMMATRIX InverseTranspose(CXMMATRIX M);
 	static XMVECTOR RandUnitVec3();

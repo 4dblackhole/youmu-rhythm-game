@@ -30,14 +30,6 @@ float Math::Random(float r1, float r2)
 	return r1 + val;
 }
 
-float Math::Clamp(float value, float min, float max)
-{
-	value = value > max ? max : value;
-	value = value < min ? min : value;
-
-	return value;
-}
-
 XMMATRIX Math::InverseTranspose(CXMMATRIX M)
 {
 	// Inverse-transpose is just applied to normals.  So zero out 
